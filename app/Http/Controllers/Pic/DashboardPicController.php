@@ -1,0 +1,46 @@
+<?php
+namespace App\Http\Controllers\Pic;
+
+use App\Http\Controllers\Controller;
+use App\Models\PeminjamanRuangan;
+use App\Models\Insiden;
+use App\Models\Ruangan;
+use App\Models\Barang;
+
+class DashboardPicController extends Controller
+{
+    public function index()
+{
+    $lantai = (string) auth()->user()->lantai_pic;
+
+    $menungguValidasi = PeminjamanRuangan::where('status', 'menunggu_pic')
+        ->whereHas('ruangan', fn($q) => $q->where('lantai', $lantai))
+        ->count();
+
+    $insidenAktif = Insiden::whereIn('status', ['dilaporkan', 'ditindaklanjuti'])->count();
+    $totalRuangan = Ruangan::count();
+    $totalBarang  = Barang::count();
+    $ruangans     = Ruangan::all();
+
+    $pengajuanTerbaru = PeminjamanRuangan::with(['user', 'ruangan'])
+        ->where('status', 'menunggu_pic')
+        ->whereHas('ruangan', fn($q) => $q->where('lantai', $lantai))
+        ->latest()
+        ->take(5)
+        ->get();
+
+    $ruanganAktifHariIni = PeminjamanRuangan::with(['ruangan', 'user'])
+        ->whereIn('status', ['disetujui', 'berjalan', 'selesai'])
+        ->whereDate('tanggal_mulai', today())
+        ->whereHas('ruangan', fn($q) => $q->where('lantai', $lantai))
+        ->orderBy('tanggal_mulai')
+        ->get();
+
+    return view('pic.dashboard', compact(
+        'menungguValidasi', 'insidenAktif',
+        'totalRuangan', 'totalBarang', 'pengajuanTerbaru', 'ruangans',
+        'ruanganAktifHariIni'
+    ));
+}
+}
+
