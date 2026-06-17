@@ -40,18 +40,16 @@
             overflow-y: auto; z-index: 100;
         }
         .sidebar-logo {
-            padding: 20px 20px 16px;
+            padding: 18px 16px 14px;
             border-bottom: 1px solid rgba(255,255,255,.06);
             display: flex; align-items: center; gap: 10px;
         }
         .sidebar-logo-icon {
-            width: 36px; height: 36px; border-radius: 10px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-2));
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px; flex-shrink: 0;
+            width: 42px; height: 42px; flex-shrink: 0;
+            background: url('{{ asset('images/logo.png') }}') center/contain no-repeat;
         }
         .sidebar-logo span { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700; color: #fff; display: block; }
-        .sidebar-logo small { font-size: 10px; color: #4c4980; letter-spacing: .4px; }
+        .sidebar-logo small { font-size: 10px; color: #ffffff; letter-spacing: .4px; }
 
         .sidebar-nav { padding: 12px 10px; flex: 1; }
         .nav-section { font-size: 10px; font-weight: 700; color: #94a3b8; letter-spacing: 1.2px; text-transform: uppercase; padding: 10px 10px 4px; }
@@ -64,17 +62,14 @@
             transition: all .15s; margin-bottom: 1px;
         }
         .nav-item:hover { background: var(--sidebar-hover); color: #c4b5fd; }
-.nav-item.active {
-    background: linear-gradient(135deg, #7c3aed, #9333ea);
-    color: #fff;
-    border-radius: 12px;
-
-    box-shadow:
-        0 6px 18px rgba(124,58,237,.45),
-        0 0 24px rgba(124,58,237,.30);
-
-    transform: translateX(2px);
-}        .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+        .nav-item.active {
+            background: linear-gradient(135deg, #7c3aed, #9333ea);
+            color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(124,58,237,.45), 0 0 24px rgba(124,58,237,.30);
+            transform: translateX(2px);
+        }
+        .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
 
         .nav-badge {
             margin-left: auto; font-size: 11px; font-weight: 700;
@@ -194,11 +189,6 @@
         .empty-state svg { width: 44px; height: 44px; margin-bottom: 10px; opacity: .3; }
         .empty-state p { font-size: 14px; }
 
-        .detail-row { display: flex; border-bottom: 1px solid var(--border); }
-        .detail-row:last-child { border-bottom: none; }
-        .detail-label { width: 180px; flex-shrink: 0; padding: 11px 16px; font-size: 13px; font-weight: 600; color: var(--text-muted); background: #fafaf9; }
-        .detail-value { padding: 11px 16px; font-size: 13.5px; }
-
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 200; align-items: center; justify-content: center; }
         .modal-overlay.open { display: flex; }
         .modal-box { background: #fff; border-radius: 16px; padding: 28px; width: 100%; max-width: 460px; box-shadow: 0 20px 60px rgba(0,0,0,.18); }
@@ -221,11 +211,7 @@
             overflow: hidden; transition: transform .15s, box-shadow .15s;
         }
         .item-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.09); }
-        .item-card-img {
-            width: 100%; height: 140px;
-            background: #fafafa;
-            display: flex; align-items: center; justify-content: center;
-        }
+        .item-card-img { width: 100%; height: 140px; background: #fafafa; display: flex; align-items: center; justify-content: center; }
         .item-card-img svg { width: 48px; height: 48px; color: #a1a1aa; }
         .item-card-body { padding: 14px 16px; }
         .item-card-title { font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
@@ -236,15 +222,13 @@
 <body>
 
 <aside class="sidebar">
-<div class="sidebar-logo" style="padding: 18px 16px 14px; gap: 10px; align-items: center;">
-    <div style="width: 42px; height: 42px; flex-shrink: 0;
-                background: url('{{ asset('images/logo.png') }}') center/contain no-repeat;">
+    <div class="sidebar-logo">
+        <div class="sidebar-logo-icon"></div>
+        <div>
+            <span>SiPinjam</span>
+            <small>PORTAL PIC</small>
+        </div>
     </div>
-    <div class="sidebar-logo-text">
-        <span>SiPinjam</span>
-        <small style="color: #ffffff;">PORTAL PIC</small>
-    </div>
-</div>
 
     <nav class="sidebar-nav">
         <div class="nav-section">Utama</div>
@@ -265,26 +249,28 @@
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             Validasi Pengajuan Ruangan
-            @php 
+            @php
                 $lantaiPic = (string) auth()->user()->lantai_pic;
-                $pending = \App\Models\PeminjamanRuangan::where('status','menunggu_pic')
-                ->whereHas('ruangan', fn($q) => $q->where('lantai', $lantaiPic))
-                ->count(); 
+                $pending   = \App\Models\PeminjamanRuangan::where('status', 'menunggu_pic')
+                    ->whereHas('ruangan', fn($q) => $q->where('lantai', $lantaiPic))
+                    ->count();
             @endphp
             @if($pending > 0)
                 <span class="nav-badge">{{ $pending }}</span>
             @endif
         </a>
+
         <a href="{{ route('pic.status-peminjaman') }}"
-           class="nav-item {{ request()->routeIs('pic.status-peminjaman') ? 'active' : '' }}">
+           class="nav-item {{ request()->routeIs('pic.status-peminjaman', 'pic.status-peminjaman.detail') ? 'active' : '' }}">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
             </svg>
             Status Peminjaman
         </a>
+
         <a href="{{ route('pic.riwayat-peminjaman') }}"
-           class="nav-item {{ request()->routeIs('pic.riwayat-peminjaman') ? 'active' : '' }}">
+           class="nav-item {{ request()->routeIs('pic.riwayat-peminjaman', 'pic.riwayat-peminjaman.detail') ? 'active' : '' }}">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -292,15 +278,17 @@
             Riwayat Peminjaman Ruangan
         </a>
 
-        </a>
-        <a href="{{ route('pic.riwayat.barang') }}"
-           class="nav-item {{ request()->routeIs('pic.riwayat.barang') ? 'active' : '' }}">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
-            </svg>
-            Validasi Peminjaman Barang
-        
+       <a href="{{ route('pic.riwayat.barang') }}"
+        class="nav-item {{ request()->routeIs('pic.riwayat.barang', 'pic.barang.detail') ? 'active' : '' }}">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
+    </svg>
+        Validasi Peminjaman Barang
+    @php $pendingBarang = \App\Models\PeminjamanBarang::where('status', 'menunggu_pic')->count(); @endphp
+        @if($pendingBarang > 0)
+            <span class="nav-badge">{{ $pendingBarang }}</span>
+        @endif
         </a>
         <div class="nav-section">Serah Terima</div>
         <a href="{{ route('pic.serah-terima') }}"
@@ -311,6 +299,7 @@
             </svg>
             Serah Terima Barang
         </a>
+
         <div class="nav-section">Inventaris</div>
         <a href="{{ route('pic.ruangan.index') }}"
            class="nav-item {{ request()->routeIs('pic.ruangan*') ? 'active' : '' }}">
@@ -320,8 +309,9 @@
             </svg>
             Kelola Ruangan
         </a>
+
         <a href="{{ route('pic.barang.index') }}"
-           class="nav-item {{ request()->routeIs('pic.barang*') ? 'active' : '' }}">
+            class="nav-item {{ request()->routeIs('pic.barang.index', 'pic.barang.create', 'pic.barang.edit') ? 'active' : '' }}">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
@@ -337,13 +327,15 @@
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
             </svg>
             Laporan Insiden
-            @php $insidenAktif = \App\Models\Insiden::whereIn('status',['dilaporkan','ditindaklanjuti'])->count(); @endphp
+            @php $insidenAktif = \App\Models\Insiden::whereIn('status', ['dilaporkan', 'ditindaklanjuti'])->count(); @endphp
             @if($insidenAktif > 0)
                 <span class="nav-badge">{{ $insidenAktif }}</span>
             @endif
         </a>
-    <a href="{{ route('pic.laporan.unduh') }}"
-    class="nav-item {{ request()->routeIs('pic.laporan.unduh') ? 'active' : '' }}">            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+        <a href="{{ route('pic.laporan.unduh') }}"
+           class="nav-item {{ request()->routeIs('pic.laporan.unduh') ? 'active' : '' }}">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
@@ -361,17 +353,18 @@
         </div>
 
         <a href="{{ route('pic.profil.show') }}"
-     class="nav-item {{ request()->routeIs('pic.profil*') ? 'active' : '' }}">
-     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-     </svg>
-     Profil Saya
-</a>
+           class="nav-item {{ request()->routeIs('pic.profil*') ? 'active' : '' }}">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            Profil Saya
+        </a>
+
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-            <button type="submit" class="nav-item" style="width:100%;background:none;cursor:pointer;border:none;">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:17px;height:17px;">
+            <button type="submit" class="nav-item" style="width: 100%; background: none; cursor: pointer; border: none;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
@@ -387,13 +380,13 @@
             <div class="topbar-title">@yield('title', 'Dashboard')</div>
             <div class="topbar-sub">@yield('subtitle', 'Portal PIC · SiPinjam')</div>
         </div>
-        <div style="display:flex;align-items:center;gap:14px;">
-            <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#000000;">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;flex-shrink:0;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #000000;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 15px; height: 15px; flex-shrink: 0;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <span id="live-clock" style="font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:0.5px;"></span>
+                <span id="live-clock" style="font-variant-numeric: tabular-nums; font-weight: 600; letter-spacing: 0.5px;"></span>
             </div>
             @yield('topbar-action')
         </div>
@@ -401,27 +394,34 @@
 
     <main class="page-content">
         @if(session('success'))
-        <div class="alert alert-success">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            {{ session('success') }}
-        </div>
+            <div class="alert alert-success">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {{ session('success') }}
+            </div>
         @endif
         @if(session('error'))
-        <div class="alert alert-danger">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            {{ session('error') }}
-        </div>
+            <div class="alert alert-danger">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {{ session('error') }}
+            </div>
         @endif
         @if(session('info'))
-        <div class="alert alert-info">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            {{ session('info') }}
-        </div>
+            <div class="alert alert-info">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {{ session('info') }}
+            </div>
         @endif
 
         @yield('content')
     </main>
 </div>
+
 <script>
     function updateClock() {
         const now = new Date();

@@ -93,7 +93,6 @@
         </div>
     </div>
 
-    {{-- Panduan --}}
     <div class="card">
         <div class="card-header"><span class="card-title">Panduan Pelaporan</span></div>
         <div class="card-body">

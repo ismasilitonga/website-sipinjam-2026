@@ -3,103 +3,145 @@
 namespace App\Http\Controllers\Pic;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\PeminjamanRuangan;
 use App\Models\PeminjamanBarang;
+use App\Models\PeminjamanRuangan;
 use App\Notifications\PengajuanDisetujuiPicNotification;
 use App\Notifications\PengajuanDitolakPicNotification;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+use Illuminate\Http\Request;
 
 class ValidasiPengajuanController extends Controller
 {
     public function index()
-{
-    $lantai = (string) auth()->user()->lantai_pic;
-
-    $peminjaman_ruangans = PeminjamanRuangan::with(['user', 'ruangan'])
-        ->where('status', 'menunggu_pic')
-        ->whereHas('ruangan', function ($q) use ($lantai) {
-            $q->where('lantai', $lantai);
-        })
-        ->latest()
-        ->paginate(15);
-
-    return view('PIC.daftar-pengajuan', compact('peminjaman_ruangans'));
-}
-
-public function setujui($id)
-{
-   $lantai = (string) auth()->user()->lantai_pic;
-
-    $peminjaman_ruangans = PeminjamanRuangan::whereHas('ruangan', function ($q) use ($lantai) {
-        $q->where('lantai', $lantai);
-    })->findOrFail($id);
-
-    $peminjaman_ruangans->update(['status' => 'disetujui']);
-    $peminjaman_ruangans->user->notify(new PengajuanDisetujuiPicNotification($peminjaman_ruangans));
-    return back()->with('success', 'Pengajuan berhasil disetujui.');
-}
-
-public function tolak(Request $request, $id)
-{
-    /** @var \App\Models\User $user */
-$lantai = (string) auth()->user()->lantai_pic;
-
-    $peminjaman_ruangans = PeminjamanRuangan::whereHas('ruangan', function ($q) use ($lantai) {
-        $q->where('lantai', $lantai);
-    })->findOrFail($id);
-
-    $peminjaman_ruangans->update(['status' => 'ditolak']);
-    $peminjaman_ruangans->user->notify(new PengajuanDitolakPicNotification($peminjaman_ruangans));
-    return back()->with('success', 'Pengajuan berhasil ditolak.');
-}
-
-    public function status()
     {
-        $peminjaman_ruangans = PeminjamanRuangan::with(['user', 'ruangan'])->latest()->paginate(15);
+        $lantai = (string) auth()->user()->lantai_pic;
+
+        $peminjaman_ruangans = PeminjamanRuangan::with(['user', 'ruangan'])
+            ->where('status', 'menunggu_pic')
+            ->whereHas('ruangan', fn($q) => $q->where('lantai', $lantai))
+            ->latest()
+            ->paginate(15);
+
+        return view('PIC.daftar-pengajuan', compact('peminjaman_ruangans'));
+    }
+
+    public function setujui($id)
+    {
+        $lantai = (string) auth()->user()->lantai_pic;
+
+        $peminjaman = PeminjamanRuangan::whereHas('ruangan', fn($q) => $q->where('lantai', $lantai))
+        ->findOrFail($id);
+
+        $peminjaman->update(['status' => 'disetujui']);
+        $peminjaman->user->notify(new PengajuanDisetujuiPicNotification($peminjaman));
+
+        return back()->with('success', 'Pengajuan berhasil disetujui.');
+    }
+
+    public function tolak(Request $request, $id)
+    {
+        $lantai = (string) auth()->user()->lantai_pic;
+
+        $peminjaman = PeminjamanRuangan::whereHas('ruangan', fn($q) => $q->where('lantai', $lantai))
+            ->findOrFail($id);
+
+        $peminjaman->update([
+            'status'       => 'ditolak',
+            'alasan_tolak' => $request->alasan_tolak,
+        ]);
+        $peminjaman->user->notify(new PengajuanDitolakPicNotification($peminjaman));
+
+        return back()->with('success', 'Pengajuan berhasil ditolak.');
+    }
+
+        public function status()
+    {
+        $lantai = (string) auth()->user()->lantai_pic;
+
+        $peminjaman_ruangans = PeminjamanRuangan::with(['user', 'ruangan'])
+            ->whereIn('status', ['menunggu_ketua', 'menunggu_pic', 'disetujui', 'ditolak'])
+            ->whereHas('ruangan', fn($q) => $q->where('lantai', $lantai))
+            ->latest()
+            ->paginate(15);
+
         return view('PIC.status-peminjaman', compact('peminjaman_ruangans'));
     }
 
-    public function unduh()
+         public function detail($id)
     {
-        $peminjaman_ruangans = PeminjamanRuangan::with(['user', 'ruangan'])->latest()->get();
+        $lantai = (string) auth()->user()->lantai_pic;
+
+        $p = PeminjamanRuangan::with(['user', 'ruangan'])
+            ->whereHas('ruangan', fn($q) => $q->where('lantai', $lantai))
+            ->findOrFail($id);
+
+        return view('PIC.detail-peminjaman', compact('p'));
+    }
+
+        public function unduh()
+    {
+        $lantai = (string) auth()->user()->lantai_pic;
+
+        $peminjaman_ruangans = PeminjamanRuangan::with(['user', 'ruangan'])
+            ->whereHas('ruangan', fn($q) => $q->where('lantai', $lantai))
+            ->latest()
+            ->get();
+
         return view('PIC.unduh-laporan', compact('peminjaman_ruangans'));
     }
-
-    public function exportExcel()
+       public function exportExcel()
     {
+        $lantai   = (string) auth()->user()->lantai_pic;
         $filename = 'laporan-ruangan-' . date('Y-m-d') . '.csv';
-        $headers  = [
-            'Content-Type'        => 'text/csv',
-            'Content-Disposition' => "attachment; filename={$filename}",
-        ];
 
-        $callback = function () {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, ['No', 'Peminjam', 'Ruangan', 'Tanggal', 'Status']);
+    $headers = [
+        'Content-Type'        => 'text/csv; charset=UTF-8',
+        'Content-Disposition' => "attachment; filename={$filename}",
+    ];
 
-            $data = PeminjamanRuangan::with(['user', 'ruangan'])->latest()->get();
-            foreach ($data as $i => $item) {
-                fputcsv($file, [
-                    $i + 1,
-                    $item->user->name    ?? '-',
-                    $item->ruangan->nama ?? '-',
-                    $item->tanggal_pinjam,
-                    ucfirst(str_replace('_', ' ', $item->status)),
-                ]);
-            }
-            fclose($file);
-        };
+    $callback = function () use ($lantai) {
+        $file = fopen('php://output', 'w');
 
-        return response()->stream($callback, 200, $headers);
-    }
+        fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+        fputcsv($file, ['No', 'Peminjam', 'Ruangan', 'Tanggal', 'Waktu', 'Keperluan', 'Status']);
+
+        $data = PeminjamanRuangan::with(['user', 'ruangan'])
+            ->whereHas('ruangan', fn($q) => $q->where('lantai', $lantai))
+            ->latest()
+            ->get();
+
+        foreach ($data as $i => $item) {
+            fputcsv($file, [
+                $i + 1,
+                $item->user->name             ?? '-',
+                $item->ruangan->nama_ruangan  ?? '-',
+                \Carbon\Carbon::parse($item->tanggal_mulai)->format('d M Y'),
+                \Carbon\Carbon::parse($item->tanggal_mulai)->format('H:i') . '-' . \Carbon\Carbon::parse($item->tanggal_selesai)->format('H:i'),
+                $item->keperluan              ?? '-',
+                ucfirst(str_replace('_', ' ', $item->status)),
+            ]);
+        }
+        fclose($file);
+    };
+
+    return response()->stream($callback, 200, $headers);
+}
 
     public function exportPdf()
     {
-        $peminjaman_ruangans = PeminjamanRuangan::with(['user', 'ruangan'])->latest()->get();
+        $lantai = (string) auth()->user()->lantai_pic;
 
-        $options = new \Dompdf\Options();
+        $peminjaman_ruangans = PeminjamanRuangan::with(['user', 'ruangan'])
+            ->whereHas('ruangan', fn($q) => $q->where('lantai', $lantai))
+            ->latest()
+            ->get();
+
+        $options = new Options();
         $options->set('isHtml5ParserEnabled', true);
-        $dompdf = new \Dompdf\Dompdf($options);
+
+        $dompdf = new Dompdf($options);
         $html   = view('PIC.laporan-pdf', compact('peminjaman_ruangans'))->render();
 
         $dompdf->loadHtml($html);
@@ -112,38 +154,27 @@ $lantai = (string) auth()->user()->lantai_pic;
         ]);
     }
 
-    public function setujuiBarang($id)
-{
-    $peminjaman_barang = PeminjamanBarang::findOrFail($id);
+        public function setujuiBarang($id)
+    {
+        $peminjaman_barang = PeminjamanBarang::findOrFail($id);
+        $peminjaman_barang->update(['status' => 'disetujui']);
 
-    $peminjaman_barang->update([
-        'status' => 'disetujui'
-    ]);
+        return back()->with('success', 'Peminjaman barang berhasil disetujui.');
+    }
 
-    return back()->with(
-        'success',
-        'Peminjaman barang berhasil disetujui.'
-    );
-}
+        public function tolakBarang($id)
+    {
+        $peminjaman_barang = PeminjamanBarang::findOrFail($id);
+        $peminjaman_barang->update(['status' => 'ditolak']);
 
-public function tolakBarang($id)
-{
-    $peminjaman_barang = PeminjamanBarang::findOrFail($id);
+        return back()->with('success', 'Peminjaman barang berhasil ditolak.');
+    }
 
-    $peminjaman_barang->update([
-        'status' => 'ditolak'
-    ]);
-
-    return back()->with(
-        'success',
-        'Peminjaman barang berhasil ditolak.'
-    );
-}
-
-    public function exportExcelBarang()
+        public function exportExcelBarang()
     {
         $filename = 'laporan-barang-' . date('Y-m-d') . '.csv';
-        $headers  = [
+
+        $headers = [
             'Content-Type'        => 'text/csv',
             'Content-Disposition' => "attachment; filename={$filename}",
         ];
@@ -153,30 +184,32 @@ public function tolakBarang($id)
             fputcsv($file, ['No', 'Peminjam', 'Barang', 'Jumlah', 'Tanggal Pinjam', 'Tanggal Kembali', 'Status']);
 
             $data = PeminjamanBarang::with(['user', 'barang'])->latest()->get();
+
             foreach ($data as $i => $item) {
                 fputcsv($file, [
                     $i + 1,
-                    $item->user->name       ?? '-',
-                    $item->barang->nama     ?? '-',
+                    $item->user->name              ?? '-',
+                    $item->barang->nama            ?? '-',
                     $item->jumlah,
                     $item->tanggal_pinjam,
                     $item->tanggal_kembali_rencana,
                     ucfirst(str_replace('_', ' ', $item->status)),
                 ]);
             }
+
             fclose($file);
         };
 
         return response()->stream($callback, 200, $headers);
     }
+        public function exportPdfBarang()
+     {
+        $peminjaman_barangs = PeminjamanBarang::with(['user', 'barang'])->latest()->get();
 
-    public function exportPdfBarang()
-    {
-        $peminjaman_barangs= PeminjamanBarang::with(['user', 'barang'])->latest()->get();
-
-        $options = new \Dompdf\Options();
+        $options = new Options();
         $options->set('isHtml5ParserEnabled', true);
-        $dompdf = new \Dompdf\Dompdf($options);
+
+        $dompdf = new Dompdf($options);
         $html   = view('PIC.laporan-barang-pdf', compact('peminjaman_barangs'))->render();
 
         $dompdf->loadHtml($html);

@@ -30,11 +30,10 @@ class DashboardPicController extends Controller
         ->get();
 
     $ruanganAktifHariIni = PeminjamanRuangan::with(['ruangan', 'user'])
-        ->whereIn('status', ['disetujui', 'berjalan', 'selesai'])
-        ->whereDate('tanggal_mulai', today())
-        ->whereHas('ruangan', fn($q) => $q->where('lantai', $lantai))
-        ->orderBy('tanggal_mulai')
-        ->get();
+    ->whereIn('status', ['disetujui', 'berjalan', 'selesai'])
+    ->whereDate('tanggal_mulai', today())
+    ->orderBy('tanggal_mulai')
+    ->get();
 
     return view('pic.dashboard', compact(
         'menungguValidasi', 'insidenAktif',

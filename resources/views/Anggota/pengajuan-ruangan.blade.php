@@ -156,7 +156,6 @@
             return new Date(wibStr);
         }
 
-        // FIX: gunakan getFullYear/Month/Date langsung dari WIB, bukan toISOString() yang UTC
         const minDate = (() => {
             const d = getNowWIB();
             d.setDate(d.getDate() + 2);
@@ -166,7 +165,6 @@
             return `${yyyy}-${mm}-${dd}`;
         })();
 
-        // Set min pada input native (fallback) sekaligus dipakai flatpickr
         const inputTanggal = document.getElementById('tanggal_penggunaan');
         if (inputTanggal) inputTanggal.setAttribute('min', minDate);
 

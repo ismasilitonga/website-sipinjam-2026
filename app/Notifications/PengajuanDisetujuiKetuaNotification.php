@@ -2,10 +2,10 @@
 
 namespace App\Notifications;
 
+use App\Models\PeminjamanRuangan;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use App\Models\PeminjamanRuangan;
 
 class PengajuanDisetujuiKetuaNotification extends Notification
 {
@@ -21,13 +21,13 @@ class PengajuanDisetujuiKetuaNotification extends Notification
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Pengajuan Ruangan Disetujui Ketua - ' . $this->peminjaman->ruangan->nama)
+            ->subject('Pengajuan Ruangan Disetujui Ketua - ' . $this->peminjaman->ruangan->nama_ruangan)
             ->greeting('Halo, ' . $notifiable->name)
             ->line('Ada pengajuan ruangan yang sudah disetujui ketua dan menunggu validasi PIC.')
             ->line('**Pengaju:** ' . $this->peminjaman->user->name)
             ->line('**Ormawa:** ' . $this->peminjaman->nama_ormawa)
-            ->line('**Ruangan:** ' . $this->peminjaman->ruangan->nama)
-            ->line('**Tanggal:** ' . $this->peminjaman->tanggal_mulai)
+            ->line('**Ruangan:** ' . $this->peminjaman->ruangan->nama_ruangan)
+            ->line('**Tanggal:** ' . \Carbon\Carbon::parse($this->peminjaman->tanggal_mulai)->translatedFormat('d F Y, H:i'))
             ->line('**Keperluan:** ' . $this->peminjaman->keperluan)
             ->action('Lihat Pengajuan', url('/'))
             ->line('Segera validasi pengajuan ini.')

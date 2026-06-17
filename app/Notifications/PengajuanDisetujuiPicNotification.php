@@ -21,11 +21,11 @@ class PengajuanDisetujuiPicNotification extends Notification
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Pengajuan Ruangan Disetujui - ' . $this->peminjaman_ruangans->ruangan->nama)
+            ->subject('Pengajuan Ruangan Disetujui - ' . $this->peminjaman_ruangans->ruangan->nama_ruangan)
             ->greeting('Halo, ' . $notifiable->name)
             ->line('Selamat! Pengajuan ruangan kamu telah disetujui.')
-            ->line('**Ruangan:** ' . $this->peminjaman_ruangans->ruangan->nama)
-            ->line('**Tanggal:** ' . $this->peminjaman_ruangans->tanggal_mulai)
+            ->line('**Ruangan:** ' . $this->peminjaman_ruangans->ruangan->nama_ruangan)
+            ->line('**Tanggal:** ' . \Carbon\Carbon::parse($this->peminjaman_ruangans->tanggal_mulai)->translatedFormat('d F Y, H:i'))
             ->line('**Keperluan:** ' . $this->peminjaman_ruangans->keperluan)
             ->action('Lihat Riwayat', url('/'))
             ->line('Silakan gunakan ruangan sesuai jadwal yang telah disetujui.')

@@ -49,7 +49,6 @@
 
                 <div class="form-group">
                     <label class="form-label">Jumlah <span style="color:var(--danger)">*</span></label>
-                    {{-- FIX #1: min diubah dari "2" → "1", bebas minjam berapa saja asal ≥ 1 --}}
                     <input type="number" name="jumlah" class="form-control" min="1"
                            value="{{ old('jumlah', 1) }}"
                            placeholder="1" required id="jumlahInput">
@@ -66,12 +65,8 @@
                         @error('tanggal_pinjam') <div class="form-error">{{ $message }}</div> @enderror
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Rencana Tanggal Kembali <span style="color:var(--danger)">*</span></label>
-                        {{--
-                            FIX #2: min diset secara dinamis via JS agar selalu ≥ tanggal_pinjam,
-                            sehingga validasi client-side sudah mencegah sebelum ke backend.
-                            Pesan error backend juga diubah ke Bahasa Indonesia (lihat catatan di bawah).
-                        --}}
+                        <label class="form-label">Rencana Tanggal Kembali <span style="color:var(--danger)">*</span>
+                        </label>
                         <input type="date" name="tanggal_kembali_rencana" id="tanggal_kembali_rencana"
                                class="form-control"
                                value="{{ old('tanggal_kembali_rencana') }}"
@@ -139,7 +134,6 @@
             @endforelse
         </div>
     </div>
-
 </div>
 
 @push('scripts')
@@ -165,12 +159,10 @@ function updateBarangInfo(sel) {
 
     inp.max = opt.dataset.stok;
     hint.textContent = 'Maksimal ' + opt.dataset.stok + ' ' + opt.dataset.satuan;
-
     info.style.display = 'block';
 }
 
 function selectBarang(id) {
-    // Gunakan TomSelect API agar dropdown sync dengan benar
     if (window.tomSelectInstance) {
         window.tomSelectInstance.setValue(id);
     } else {
@@ -185,30 +177,24 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (sel.value) updateBarangInfo(sel);
 
-    // Simpan instance TomSelect agar bisa dipakai di selectBarang()
     window.tomSelectInstance = new TomSelect('#barangSelect', {
         create: false,
         placeholder: 'Ketik nama barang...',
         maxOptions: 500,
         onInitialize() {
-            // Pastikan updateBarangInfo dipanggil saat TomSelect sudah siap
             if (sel.value) updateBarangInfo(sel);
         },
         onChange(value) {
-            // FIX #3: TomSelect mengubah nilai tapi tidak trigger event 'change' native
-            // sehingga onchange di <select> tidak jalan — handle di sini
             updateBarangInfo(sel);
         }
     });
 
-    // FIX #2 (lanjutan): Sinkronisasi min tanggal kembali dengan tanggal pinjam secara dinamis
     const tglPinjam   = document.getElementById('tanggal_pinjam');
     const tglKembali  = document.getElementById('tanggal_kembali_rencana');
 
     function syncMinTglKembali() {
         if (tglPinjam.value) {
-            tglKembali.min = tglPinjam.value; // boleh sama hari (after_or_equal)
-            // Jika tanggal kembali lebih awal dari pinjam, reset
+            tglKembali.min = tglPinjam.value; 
             if (tglKembali.value && tglKembali.value < tglPinjam.value) {
                 tglKembali.value = tglPinjam.value;
             }
@@ -216,7 +202,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     tglPinjam.addEventListener('change', syncMinTglKembali);
-    syncMinTglKembali(); // jalankan saat load (jika ada old value)
+    syncMinTglKembali(); 
 });
 </script>
 @endpush

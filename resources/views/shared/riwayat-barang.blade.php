@@ -15,6 +15,31 @@
 @section('title', 'Validasi Peminjaman Barang')
 @section('subtitle', 'Seluruh riwayat peminjaman barang oleh ormawa')
 
+@push('styles')
+<style>
+.pagination-wrap nav > div:first-child { display: none; }
+.pagination-wrap nav > div:last-child { display: flex; gap: 4px; padding: 16px 20px; align-items: center; }
+
+.pagination-wrap span[aria-current="page"] span,
+.pagination-wrap a,
+.pagination-wrap span span {
+    .pagination-wrap nav > div:last-child > * {
+    height: 34px;
+    min-width: 34px;
+}
+    border-radius: 8px; border: 1px solid #e2e8f0;
+    background: white; color: #374151;
+    font-size: 13px; font-weight: 600;
+    text-decoration: none; transition: background 0.15s;
+}
+.pagination-wrap a:hover { background: #f3f0ff; border-color: #7c3aed; color: #7c3aed; }
+.pagination-wrap span[aria-current="page"] span { background: #7c3aed; color: white; border-color: #7c3aed; }
+.pagination-wrap span.disabled span { opacity: 0.4; }
+
+.pagination-wrap p { display: none; }
+</style>
+@endpush
+
 @section('content')
 
 <div class="card">
@@ -47,116 +72,89 @@
     <div class="table-wrap" style="overflow-x:auto;">
     <table style="width:100%;">
         <thead>
-            <tr>
-                <th style="width:40px;">No</th>
-                <th style="width:130px;">Peminjam</th>
-                <th style="width:120px;">Ormawa</th>
-                <th style="width:100px;">Barang</th>
-                <th style="width:80px;">Jumlah</th>
-                <th style="width:110px;">Tgl Pinjam</th>
-                <th style="width:110px;">Rencana Kembali</th>
-                <th style="width:160px;">Keperluan</th>
-                <th style="width:130px;">Status</th>
-                <th style="width:180px;">Aksi</th>
-            </tr>
-        </thead>
-            <tbody>
-                @forelse($riwayat as $p)
-                <tr>
-                    <td style="color:var(--text-muted);font-size:12px;">
-                        {{ ($riwayat->currentPage() - 1) * $riwayat->perPage() + $loop->iteration }}
-                    </td>
-                    <td>
-                    <div style="font-weight:500;font-size:13px;white-space:nowrap;">{{ $p->user->name ?? '-' }}</div>
-                    <div style="font-size:11px;color:var(--text-muted);">{{ $p->user->nim ?? '' }}</div>
-                    </td>
-                    <td style="font-size:12.5px;">{{ $p->nama_ormawa ?? '-' }}</td>
-                    <td style="font-size:13px;font-weight:500;white-space:nowrap;">{{ $p->barang->nama ?? '-' }}</td>
-                    
-                    <td style="font-size:12.5px;">{{ $p->jumlah ?? '-' }} unit</td>
-                    <td style="font-size:12.5px;white-space:nowrap;">
-                        {{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y') }}
-                        <div style="font-size:11px;color:var(--text-muted);">
-                            {{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('H:i') }}
-                        </div>
-                    </td>
-                    <td style="font-size:12.5px;white-space:nowrap;">
-                        {{ \Carbon\Carbon::parse($p->rencana_kembali)->format('d M Y') }}
-                        <div style="font-size:11px;color:var(--text-muted);">
-                            {{ \Carbon\Carbon::parse($p->rencana_kembali)->format('H:i') }}
-                        </div>
-                    </td>
-                    <td style="font-size:12.5px;max-width:160px;">
-                        <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ $p->keperluan }}">
-                            {{ $p->keperluan }}
-                        </div>
-                    </td>
-                    <td>
-                        @php
-                           [$cls, $lbl] = match($p->status) {
-                        'menunggu_ketua' => ['badge-yellow', 'Menunggu Ketua'],
-                        'menunggu_pic'   => ['badge-purple', 'Menunggu PIC'],
-                        'disetujui'      => ['badge-green',  'Disetujui'],
-                        'ditolak'        => ['badge-red',    'Ditolak'],
-                        default          => ['badge-gray',   ucfirst($p->status)],
-                    };
-                        @endphp
-                        <span class="badge {{ $cls }}" style="white-space:nowrap;">{{ $lbl }}</span>
-                    </td>
+    <tr>
+        <th style="width:40px;">No</th>
+        <th style="width:130px;">Peminjam</th>
+        <th style="width:120px;">Ormawa</th>
+        <th style="width:100px;">Barang</th>
+        <th style="width:80px;">Jumlah</th>
+        <th style="width:110px;">Tgl Pinjam</th>
+        <th style="width:130px;">Status</th>
+        <th style="width:200px;">Aksi</th>
+    </tr>
+</thead>
+<tbody>
+    @forelse($riwayat as $p)
+    <tr>
+        <td style="color:var(--text-muted);font-size:12px;">
+            {{ ($riwayat->currentPage() - 1) * $riwayat->perPage() + $loop->iteration }}
+        </td>
+        <td>
+            <div style="font-weight:500;font-size:13px;white-space:nowrap;">{{ $p->user->name ?? '-' }}</div>
+            <div style="font-size:11px;color:var(--text-muted);">{{ $p->user->nim ?? '' }}</div>
+        </td>
+        <td style="font-size:12.5px;">{{ $p->nama_ormawa ?? '-' }}</td>
+        <td style="font-size:13px;font-weight:500;white-space:nowrap;">{{ $p->barang->nama ?? '-' }}</td>
+        <td style="font-size:12.5px;">{{ $p->jumlah ?? '-' }} {{ $p->barang->satuan ?? 'unit' }}</td>
+        <td style="font-size:12.5px;white-space:nowrap;">
+            {{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y') }}
+        </td>
+        <td>
+            @php
+                [$cls, $lbl] = match($p->status) {
+                    'menunggu_ketua' => ['badge-yellow',  'Menunggu Ketua'],
+                    'menunggu_pic'   => ['badge-purple',  'Menunggu PIC'],
+                    'disetujui'      => ['badge-green',   'Disetujui'],
+                    'ditolak'        => ['badge-red',     'Ditolak'],
+                    default          => ['badge-gray',    ucfirst($p->status)],
+                };
+            @endphp
+            <span class="badge {{ $cls }}" style="white-space:nowrap;">{{ $lbl }}</span>
+        </td>
+        <td>
+            <div style="display:flex;gap:6px;align-items:center;">
+                <a href="{{ route($routePrefix . '.barang.detail', $p->id) }}"
+                   class="btn btn-outline btn-sm" style="font-size:12px;padding:4px 12px;">
+                    Detail
+                </a>
 
-                    <td>
-@if(auth()->user()->role == 'pic' && $p->status == 'menunggu_pic')
-    <div style="display:flex;gap:6px;">
-
-        <form method="POST" action="{{ route('pic.barang.setujui', $p->id) }}">
-            @csrf
-            <button type="submit" class="btn btn-success btn-sm"
-                style="display:flex;align-items:center;gap:6px;">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                     style="width:14px;height:14px;flex-shrink:0;">
-                    <path stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M5 13l4 4L19 7"/>
-                </svg>
-                <span>Setujui</span>
-               </button>
-             </form>
-
-        <button type="button"
-                class="btn btn-danger btn-sm"
-                onclick="bukaModalTolakBarang('{{ $p->id }}')"
-                style="display:flex;align-items:center;gap:6px;">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                 style="width:14px;height:14px;flex-shrink:0;">
-                <path stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-            <span>Tolak</span>
-        </button> 
-        </div>
-
-        @else
-       <span style="color:var(--text-muted);">—</span>
-      @endif
-    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="10">
-                        <div class="empty-state">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/>
+                @if(auth()->user()->role == 'pic' && $p->status == 'menunggu_pic')
+                    <form method="POST" action="{{ route('pic.barang.setujui', $p->id) }}">
+                        @csrf
+                        <button type="submit" class="btn btn-success btn-sm"
+                                style="display:flex;align-items:center;gap:4px;">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:13px;height:13px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
-                            <p>Belum ada riwayat peminjaman barang.</p>
-                        </div>
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
+                            Setujui
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-danger btn-sm"
+                            onclick="bukaModalTolakBarang('{{ $p->id }}')"
+                            style="display:flex;align-items:center;gap:4px;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:13px;height:13px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Tolak
+                    </button>
+                @endif
+            </div>
+        </td>
+    </tr>
+    @empty
+    <tr>
+        <td colspan="8">
+            <div class="empty-state">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/>
+                </svg>
+                <p>Belum ada riwayat peminjaman barang.</p>
+            </div>
+        </td>
+    </tr>
+    @endforelse
+</tbody>
         </table>
     </div>
 
@@ -213,7 +211,6 @@
     document.getElementById('formTolakBarang').action = `${baseUrlTolakBarang}/${id}/tolak`;
     document.getElementById('modalTolakBarang').style.display = 'flex';
   }
-
     function tutupModalTolakBarang() {
     document.getElementById('modalTolakBarang').style.display = 'none';
  }

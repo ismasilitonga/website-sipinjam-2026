@@ -49,7 +49,6 @@ use App\Http\Controllers\Pamdal\DashboardPamdalController;
 use App\Http\Controllers\Pamdal\DetailAkunPamdalController;
 use App\Http\Controllers\Pamdal\KonfirmasiKunciController;
 
-// ─── Public Routes ────────────────────────────────────────────────────────────
 
 Route::get('/', [LandingPageController::class, 'index'])->name('landingpage');
 Route::get('/tentang', [LandingPageController::class, 'tentang'])->name('landingpage.tentang');
@@ -73,20 +72,12 @@ Route::get('/test-flash', function () {
 });
 
 Route::get('/cekphp', function () {
-    return [
-        'php_version'  => phpversion(),
-        'openssl_cafile' => ini_get('openssl.cafile'),
-        'curl_cainfo'  => ini_get('curl.cainfo'),
-    ];
+    return ['php_version'  => phpversion(),'openssl_cafile' => ini_get('openssl.cafile'),'curl_cainfo'  => ini_get('curl.cainfo'),];
 });
 
-// ─── Authenticated Routes ─────────────────────────────────────────────────────
-
 Route::middleware(['auth'])->group(function () {
-
     Route::get('/redirect', [AuthController::class, 'redirectByRole'])->name('redirect');
 
-    // ── ANGGOTA ──────────────────────────────────────────────────────────────
     Route::middleware(['role:anggota'])->prefix('anggota')->name('anggota.')->group(function () {
 
         Route::get('/dashboard', [DashboardAnggotaController::class, 'index'])->name('dashboard');
@@ -123,7 +114,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/riwayat-barang',  [RiwayatBarangController::class, 'index'])->name('riwayat-barang');
     });
 
-    // ── KETUA ─────────────────────────────────────────────────────────────────
     Route::middleware(['role:ketua'])->prefix('ketua')->name('ketua.')->group(function () {
 
         Route::get('/dashboard', [DashboardKetuaController::class, 'index'])->name('dashboard');
@@ -143,7 +133,6 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('barang-ormawa', BarangOrmawaController::class);
     });
 
-    // ── PIC ───────────────────────────────────────────────────────────────────
     Route::middleware(['role:pic'])->prefix('pic')->name('pic.')->group(function () {
 
         Route::get('/dashboard', [DashboardPicController::class, 'index'])->name('dashboard');
@@ -177,13 +166,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/serah-terima/{id}/konfirmasi',          [HandoverPicController::class, 'konfirmasi'])->name('serah-terima.konfirmasi');
         Route::post('/terima-kembali/{id}',                   [HandoverPicController::class, 'terimaKembali'])->name('terima-kembali');
 
-        // FIX: route laporan-insiden dipindah ke sini (tidak nested prefix lagi)
         Route::get('/laporan-insiden',        [TindakLanjutInsidenController::class, 'index'])->name('laporan-insiden');
         Route::post('/laporan-insiden/{id}',  [TindakLanjutInsidenController::class, 'update'])->name('laporan-insiden.update');
         Route::get('/laporan-insiden/excel',  [TindakLanjutInsidenController::class, 'exportExcel'])->name('laporan-insiden.excel');
         Route::get('/laporan-insiden/pdf',    [TindakLanjutInsidenController::class, 'exportPdf'])->name('laporan-insiden.pdf');
 
         Route::get('/status-peminjaman',      [ValidasiPengajuanController::class, 'status'])->name('status-peminjaman');
+        Route::get('/status-peminjaman/{id}', [ValidasiPengajuanController::class, 'detail'])->name('status-peminjaman.detail');
         Route::get('/laporan/unduh',          [ValidasiPengajuanController::class, 'unduh'])->name('laporan.unduh');
         Route::get('/laporan/excel',          [ValidasiPengajuanController::class, 'exportExcel'])->name('laporan.excel');
         Route::get('/laporan/pdf',            [ValidasiPengajuanController::class, 'exportPdf'])->name('laporan.pdf');
@@ -191,10 +180,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/laporan/pdf-barang',     [ValidasiPengajuanController::class, 'exportPdfBarang'])->name('laporan.pdf-barang');
 
         Route::get('/riwayat-peminjaman',     [RiwayatRuanganPicController::class, 'index'])->name('riwayat-peminjaman');
+        Route::get('/riwayat-peminjaman/{id}',[RiwayatRuanganPicController::class, 'detail'])->name('riwayat-peminjaman.detail');
         Route::get('/riwayat-barang',         [RiwayatBarangPicController::class, 'index'])->name('riwayat.barang');
+        Route::get('/riwayat-barang/{id}',     [RiwayatBarangPicController::class, 'detail'])->name('barang.detail'); 
+        Route::get('/riwayat/export',[RiwayatRuanganPicController::class, 'export'])->name('riwayat.export');
+        Route::get('/riwayat',[RiwayatRuanganPicController::class, 'index'])->name('riwayat.index');  
     });
 
-    // ── ADMIN ─────────────────────────────────────────────────────────────────
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
 
         Route::get('/dashboard', [DashboardAdminController::class, 'index'])->name('dashboard');
@@ -235,7 +227,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/pendaftar/{id}/tolak',    [ValidasiPendaftarController::class, 'tolak'])->name('pendaftar.tolak');
     });
 
-    // ── PAMDAL ────────────────────────────────────────────────────────────────
     Route::middleware(['role:pamdal'])->prefix('pamdal')->name('pamdal.')->group(function () {
 
         Route::get('/dashboard', [DashboardPamdalController::class, 'index'])->name('dashboard');
@@ -245,9 +236,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/daftar-ruangan', [DaftarRuanganController::class, 'index'])->name('daftar-ruangan');
         Route::get('/daftar-barang',  [DaftarBarangController::class, 'index'])->name('daftar-barang');
 
-        Route::get('/daftar-peminjaman',              [KonfirmasiKunciController::class, 'index'])->name('daftar-peminjaman');
-        Route::post('/kunci/{id}/ambil',              [KonfirmasiKunciController::class, 'konfirmasiAmbil'])->name('kunci.ambil');
-        Route::post('/kunci/{id}/kembalikan',         [KonfirmasiKunciController::class, 'konfirmasiKembali'])->name('kunci.kembalikan');
+        Route::get('/daftar-peminjaman',     [KonfirmasiKunciController::class, 'index'])->name('daftar-peminjaman');
+        Route::post('/kunci/{id}/ambil',     [KonfirmasiKunciController::class, 'konfirmasiAmbil'])->name('kunci.ambil');
+        Route::post('/kunci/{id}/kembalikan',[KonfirmasiKunciController::class, 'konfirmasiKembali'])->name('kunci.kembalikan');
     });
 
-}); // end auth middleware
+}); 

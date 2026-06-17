@@ -100,7 +100,7 @@
     <div class="card" style="margin-bottom:20px;">
     <div class="card-header" style="padding-bottom:16px;">
         <div>
-            <span class="card-title">Jadwal Penggunaan Ruangan Hari Ini (Lantai {{ auth()->user()->lantai_pic }})</span>
+            <span class="card-title">Jadwal Penggunaan Ruangan Hari Ini</span>
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">
                 {{ now()->isoFormat('dddd, D MMMM Y') }}
             </div>

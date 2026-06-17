@@ -2,16 +2,16 @@
 
 namespace App\Notifications;
 
+use App\Models\PeminjamanRuangan;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use App\Models\PeminjamanRuangan;
 
 class PengajuanDitolakKetuaNotification extends Notification
 {
     use Queueable;
 
-    public function __construct(public PeminjamanRuangan $peminjaman_ruangans) {}
+    public function __construct(public PeminjamanRuangan $peminjaman) {}
 
     public function via($notifiable): array
     {
@@ -21,14 +21,16 @@ class PengajuanDitolakKetuaNotification extends Notification
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Pengajuan Ruangan Ditolak - ' . $this->peminjaman_ruangans->ruangan->nama)
+            ->subject('Pengajuan Ruangan Ditolak Ketua - ' . $this->peminjaman->ruangan->nama_ruangan)
             ->greeting('Halo, ' . $notifiable->name)
-            ->line('Maaf, pengajuan ruangan kamu ditolak oleh ketua ormawa.')
-            ->line('**Ruangan:** ' . $this->peminjaman_ruangans->ruangan->nama)
-            ->line('**Tanggal:** ' . $this->peminjaman_ruangans->tanggal_mulai)
-            ->line('**Alasan Tolak:** ' . $this->peminjaman_ruangans->alasan_tolak)
+            ->line('Maaf, pengajuan ruangan kamu telah ditolak oleh ketua.')
+            ->line('**Ruangan:** ' . $this->peminjaman->ruangan->nama_ruangan)
+            ->line('**Tanggal:** ' . \Carbon\Carbon::parse($this->peminjaman->tanggal_mulai)->translatedFormat('d F Y, H:i'))
+            ->line('**Keperluan:** ' . $this->peminjaman->keperluan)
+            ->when($this->peminjaman->alasan_tolak, fn($mail) =>
+            $mail->line('**Alasan Penolakan:** ' . $this->peminjaman->alasan_tolak))
             ->action('Lihat Riwayat', url('/'))
-            ->line('Silakan ajukan kembali jika diperlukan.')
+            ->line('Kamu dapat mengajukan kembali dengan menyesuaikan jadwal atau keperluan.')
             ->salutation('Salam, Tim SiPinjam');
     }
 }

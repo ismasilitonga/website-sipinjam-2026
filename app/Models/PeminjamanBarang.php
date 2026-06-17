@@ -17,6 +17,8 @@ class PeminjamanBarang extends Model
         'status', 'alasan_tolak',
         'waktu_diserahkan', 'diserahkan_oleh',
         'waktu_diterima_kembali', 'diterima_oleh',
+        'foto_serah', 'foto_kembali',
+        'kondisi_barang', 'catatan_kondisi',
     ];
 
     protected $casts = [
