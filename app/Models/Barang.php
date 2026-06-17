@@ -10,8 +10,17 @@ class Barang extends Model
     use HasFactory;
     protected $table = 'barang';
     protected $fillable = [
-        'nama', 'kode', 'kategori', 'stok', 'satuan', 'deskripsi', 'foto', 'kondisi', 'organisasi',
-    ];
+    'nama',
+    'kode',
+    'kategori',
+    'stok',
+    'satuan',
+    'kondisi',
+    'foto',
+    'deskripsi',
+    'organisasi',
+    'jenis_barang',
+];
 
     public function peminjamanBarangs()
     {
