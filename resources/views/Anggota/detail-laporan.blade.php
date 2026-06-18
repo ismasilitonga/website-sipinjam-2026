@@ -14,9 +14,8 @@
 
 @section('content')
 
-<div style="display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start;">
-
-    <div class="card">
+        <div style="display:grid;grid-template-columns:1fr 450px;gap:20px;align-items:start;">
+        <div class="card">
         <div class="card-header">
             <span class="card-title">{{ $insiden->judul }}</span>
             @php
@@ -29,62 +28,62 @@
             @endphp
             <span class="badge {{ $cls }}">{{ $lbl }}</span>
         </div>
-        <div class="card-body" style="padding:0;">
-            @if($insiden->foto)
-            <div style="padding:20px 20px 0;">
-                <img src="{{ asset('storage/'.$insiden->foto) }}"
-                     style="width:100%;max-height:300px;object-fit:cover;border-radius:10px;border:1px solid var(--border);"
-                     alt="Foto insiden">
-            </div>
-            @endif
 
-            <div class="detail-row">
-                <div class="detail-label">Judul</div>
-                <div class="detail-value" style="font-weight:600;">{{ $insiden->judul }}</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Lokasi</div>
-                <div class="detail-value">{{ $insiden->lokasi }}</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Tanggal Lapor</div>
-                <div class="detail-value">{{ $insiden->created_at->format('d M Y, H:i') }}</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Deskripsi</div>
-                <div class="detail-value" style="white-space:pre-line;">{{ $insiden->deskripsi }}</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Status</div>
-                <div class="detail-value"><span class="badge {{ $cls }}">{{ $lbl }}</span></div>
-            </div>
+@if($insiden->foto)
+<div style="padding:20px 20px 0;text-align:center;">
+    <img src="{{ asset('storage/'.$insiden->foto) }}"
+         style="max-width:100%;max-height:340px;height:auto;border-radius:10px;border:1px solid var(--border);"
+         alt="Foto insiden">
+    </div>
+@endif
 
-            @if($insiden->tindak_lanjut)
-            <div class="detail-row" style="background:#f0fdf4;">
-                <div class="detail-label" style="background:#dcfce7;color:#15803d;">Tindak Lanjut</div>
-                <div class="detail-value" style="white-space:pre-line;">{{ $insiden->tindak_lanjut }}</div>
-            </div>
-            @if($insiden->waktu_ditindak)
-            <div class="detail-row" style="background:#f0fdf4;">
-                <div class="detail-label" style="background:#dcfce7;color:#15803d;">Ditindak Pada</div>
-                <div class="detail-value">{{ \Carbon\Carbon::parse($insiden->waktu_ditindak)->format('d M Y, H:i') }}</div>
-            </div>
-            @endif
-            @endif
+        <div class="detail-row">
+            <div class="detail-label">Judul</div>
+            <div class="detail-value" style="font-weight:600;">{{ $insiden->judul }}</div>
         </div>
+        <div class="detail-row">
+            <div class="detail-label">Lokasi</div>
+            <div class="detail-value">{{ $insiden->lokasi }}</div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">Tanggal Lapor</div>
+            <div class="detail-value">{{ $insiden->created_at->format('d M Y, H:i') }}</div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">Deskripsi</div>
+            <div class="detail-value" style="white-space:pre-line;">{{ $insiden->deskripsi }}</div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">Status</div>
+            <div class="detail-value"><span class="badge {{ $cls }}">{{ $lbl }}</span></div>
+        </div>
+
+        @if($insiden->tindak_lanjut)
+        <div class="detail-row" style="background:#f0fdf4;">
+            <div class="detail-label" style="background:#dcfce7;color:#15803d;">Tindak Lanjut</div>
+            <div class="detail-value" style="white-space:pre-line;">{{ $insiden->tindak_lanjut }}</div>
+        </div>
+        @if($insiden->waktu_ditindak)
+        <div class="detail-row" style="background:#f0fdf4;">
+            <div class="detail-label" style="background:#dcfce7;color:#15803d;">Ditindak Pada</div>
+            <div class="detail-value">{{ \Carbon\Carbon::parse($insiden->waktu_ditindak)->format('d M Y, H:i') }}</div>
+        </div>
+        @endif
+        @endif
     </div>
 
+    {{-- Card kanan: status laporan --}}
     <div class="card">
         <div class="card-header"><span class="card-title">Status Laporan</span></div>
         <div class="card-body">
             @php
                 $steps = [
-                    ['label' => 'Dilaporkan',       'done' => true,                                      'icon' => '📝'],
-                    ['label' => 'Diproses PIC',      'done' => in_array($insiden->status, ['ditindaklanjuti','selesai']), 'icon' => '🔍'],
-                    ['label' => 'Selesai',           'done' => $insiden->status === 'selesai',            'icon' => '✅'],
+                    ['label' => 'Dilaporkan',  'done' => true,                                                       'icon' => '📝'],
+                    ['label' => 'Diproses PIC','done' => in_array($insiden->status, ['ditindaklanjuti','selesai']),   'icon' => '🔍'],
+                    ['label' => 'Selesai',     'done' => $insiden->status === 'selesai',                             'icon' => '✅'],
                 ];
             @endphp
-            <div style="display:flex;flex-direction:column;gap:0;">
+            <div style="display:flex;flex-direction:column;">
                 @foreach($steps as $i => $step)
                 <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;
                             {{ !$loop->last ? 'border-bottom:1px dashed var(--border);' : '' }}">
@@ -124,6 +123,7 @@
             @endif
         </div>
     </div>
+
 </div>
 
 @endsection

@@ -216,6 +216,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/laporan/pdf-barang',   [ValidasiPendaftarController::class, 'exportPdfBarang'])->name('laporan.pdf-barang');
 
         Route::get('/riwayat-peminjaman', [RiwayatRuanganAdminController::class, 'index'])->name('riwayat-peminjaman');
+        Route::get('/riwayat-peminjaman/export', [RiwayatRuanganAdminController::class, 'export'])->name('riwayat-peminjaman.export'); // ← tambahkan
+        Route::get('/riwayat-peminjaman/{id}', [RiwayatRuanganAdminController::class, 'detail'])->name('riwayat-peminjaman.detail');
 
         Route::get('/status-peminjaman',       [DashboardAdminController::class, 'statusPeminjaman'])->name('status-peminjaman');
         Route::get('/status-peminjaman/{id}',  [DashboardAdminController::class, 'detailPeminjaman'])->name('status-peminjaman.detail');

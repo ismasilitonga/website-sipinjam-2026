@@ -14,7 +14,9 @@
 @section('subtitle', 'Rekap peminjaman yang telah selesai dan disetujui')
 
 @section('topbar-action')
-    <a href="{{ route('pic.riwayat.export', request()->query()) }}"
+    <a href="{{ auth()->user()->role === 'admin'
+        ? route('admin.riwayat-peminjaman.export', request()->query())
+        : route('pic.riwayat.export', request()->query()) }}"
        class="btn btn-outline" style="display: flex; align-items: center; gap: 6px;">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 15px; height: 15px;">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -222,7 +224,9 @@
                             <span class="badge {{ $cls }}">{{ $lbl }}</span>
                         </td>
                         <td>
-                            <a href="{{ route('pic.riwayat-peminjaman.detail', $p->id) }}"
+                            <a href="{{ auth()->user()->role === 'admin'
+                                ? route('admin.riwayat-peminjaman.detail', $p->id)
+                                : route('pic.riwayat-peminjaman.detail', $p->id) }}"
                                class="btn btn-outline" style="font-size: 12px; padding: 4px 12px;">
                                 Detail
                             </a>
