@@ -34,14 +34,14 @@
     <div style="padding:24px;display:flex;flex-direction:column;gap:20px;">
         <div>
             <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">Peminjam</div>
-            <div style="font-weight:600;font-size:15px;">{{ $peminjaman->user->name ?? '-' }}</div>
+            <div style="font-weight:600;font-size:15px;">{{ $peminjaman->user->nama ?? '-' }}</div>
             <div style="font-size:13px;color:var(--text-muted);">{{ $peminjaman->user->nim ?? '' }}</div>
             <div style="font-size:13px;color:var(--text-muted);">{{ $peminjaman->nama_ormawa }}</div>
         </div>
         <hr style="border:none;border-top:1px solid var(--border);">
         <div>
             <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">Ruangan</div>
-            <div style="font-weight:600;font-size:15px;">{{ $peminjaman->ruangan->nama ?? '-' }}</div>
+            <div style="font-weight:600;font-size:15px;">{{ $peminjaman->ruangan->nama_ruangan ?? '-' }}</div>
             <div style="font-size:13px;color:var(--text-muted);">{{ $peminjaman->ruangan->kode ?? '' }}</div>
         </div>
         <hr style="border:none;border-top:1px solid var(--border);">

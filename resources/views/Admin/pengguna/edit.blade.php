@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Edit Pengguna')
-@section('subtitle', 'Perbarui data akun: ' . $user->name)
+@section('subtitle', 'Perbarui data akun: ' . $user->nama)
 
 @section('topbar-action')
     <a href="{{ route('admin.pengguna.index') }}" class="btn btn-outline">
@@ -25,9 +25,9 @@
             <div class="form-grid-2">
                 <div class="form-group">
                     <label class="form-label">Nama Lengkap <span style="color:var(--danger)">*</span></label>
-                    <input type="text" name="name" class="form-control"
-                           value="{{ old('name', $user->name) }}" required>
-                    @error('name') <div class="form-error">{{ $message }}</div> @enderror
+                    <input type="text" name="nama" class="form-control"
+                           value="{{ old('name', $user->nama) }}" required>
+                    @error('nama') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="form-group">

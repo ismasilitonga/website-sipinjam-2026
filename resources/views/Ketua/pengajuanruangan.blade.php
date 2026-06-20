@@ -243,9 +243,9 @@
 
             <div class="sidebar-footer">
                 <div class="profile-info" onclick="goToPage('profile')">
-                    <div class="profile-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'R', 0, 1)) }}</div>
+                    <div class="profile-avatar">{{ strtoupper(substr(auth()->user()->nama ?? 'R', 0, 1)) }}</div>
                     <div class="profile-details">
-                        <h4>{{ auth()->user()->name ?? 'User' }}</h4>
+                        <h4>{{ auth()->user()->nama ?? 'User' }}</h4>
                         <p>{{ auth()->user()->nim ?? 'User' }}</p>
                     </div>
                 </div>
@@ -263,7 +263,7 @@
                     <div class="form-grid">
                         <div class="form-group full-width">
                             <label class="form-label">Nama Lengkap</label>
-                            <input type="text" id="userNama" class="form-input" value="{{ auth()->user()->name }}" disabled>
+                            <input type="text" id="userNama" class="form-input" value="{{ auth()->user()->nama }}" disabled>
                         </div>
                         <div class="form-group full-width">
                             <label class="form-label">NIM</label>

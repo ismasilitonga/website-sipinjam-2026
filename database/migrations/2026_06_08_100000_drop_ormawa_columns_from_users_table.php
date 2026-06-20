@@ -20,7 +20,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Rollback: kembalikan kolom jika migration di-revert
             $table->string('singkatan')->nullable()->after('organisasi');
             $table->string('kontak')->nullable()->after('singkatan');
             $table->text('deskripsi')->nullable()->after('kontak');

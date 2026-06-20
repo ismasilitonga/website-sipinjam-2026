@@ -15,7 +15,7 @@ class RiwayatRuanganPicController extends Controller
     public function index(Request $request)
     {
         $lantai   = (string) auth()->user()->lantai_pic;
-        $ruangans = Ruangan::orderBy('lantai')->orderBy('nama')->get();
+        $ruangans = Ruangan::orderBy('lantai')->orderBy('nama_ruangan')->get();
 
         $query = PeminjamanRuangan::with(['user', 'ruangan'])
             ->whereIn('status', ['disetujui', 'selesai'])
@@ -69,7 +69,7 @@ class RiwayatRuanganPicController extends Controller
     public function export(Request $request)
     {
         $lantai   = (string) auth()->user()->lantai_pic;
-        $ruangans = Ruangan::orderBy('lantai')->orderBy('nama')->get();
+        $ruangans = Ruangan::orderBy('lantai')->orderBy('nama_ruangan')->get();
 
         $query = PeminjamanRuangan::with(['user', 'ruangan'])
             ->whereIn('status', ['disetujui', 'selesai'])
@@ -113,7 +113,7 @@ class RiwayatRuanganPicController extends Controller
         if ($request->filled('ruangan_id')) {
             $ruangan = $ruangans->firstWhere('id', $request->ruangan_id);
             if ($ruangan) {
-                $ruanganLabel = $ruangan->nama;
+                $ruanganLabel = $ruangan->nama_ruangan;
             }
         }
 

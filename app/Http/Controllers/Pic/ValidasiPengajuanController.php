@@ -115,8 +115,8 @@ class ValidasiPengajuanController extends Controller
         foreach ($data as $i => $item) {
             fputcsv($file, [
                 $i + 1,
-                $item->user->name             ?? '-',
-                $item->ruangan->nama ?? '-',
+                $item->user->nama             ?? '-',
+                $item->ruangan->nama_ruangan ?? '-',
                 \Carbon\Carbon::parse($item->tanggal_mulai)->format('d M Y'),
                 \Carbon\Carbon::parse($item->tanggal_mulai)->format('H:i') . '-' . \Carbon\Carbon::parse($item->tanggal_selesai)->format('H:i'),
                 $item->keperluan              ?? '-',
@@ -188,8 +188,8 @@ class ValidasiPengajuanController extends Controller
             foreach ($data as $i => $item) {
                 fputcsv($file, [
                     $i + 1,
-                    $item->user->name              ?? '-',
-                    $item->barang->nama            ?? '-',
+                    $item->user->nama ?? '-',
+                    $item->barang->nama ?? '-',
                     $item->jumlah,
                     $item->tanggal_pinjam,
                     $item->tanggal_kembali_rencana,

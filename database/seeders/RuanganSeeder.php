@@ -14,7 +14,7 @@ class RuanganSeeder extends Seeder
     {
         $ruangan = [
             [
-                'nama'      => 'Ruang Rapat Utama',
+                'nama_ruangan'      => 'Ruang Rapat Utama',
                 'kode'      => 'SC-R01',
                 'gedung'    => 'Gedung Student Center',
                 'lantai'    => '1',
@@ -23,7 +23,7 @@ class RuanganSeeder extends Seeder
                 'status'    => 'tersedia',
             ],
             [
-                'nama'      => 'Ruang Serbaguna A',
+                'nama_ruangan'      => 'Ruang Serbaguna A',
                 'kode'      => 'SC-R02',
                 'gedung'    => 'Gedung Student Center',
                 'lantai'    => '1',
@@ -32,13 +32,13 @@ class RuanganSeeder extends Seeder
                 'status'    => 'tersedia',
             ],
             [
-                'nama'      => 'Ruang Serbaguna B',
-                'kode'      => 'SC-R03',
-                'gedung'    => 'Gedung Student Center',
-                'lantai'    => '2',
-                'kapasitas' => 50,
-                'fasilitas' => 'AC, Proyektor, Whiteboard, Kursi Lipat',
-                'status'    => 'tersedia',
+                'nama_ruangan'      => 'Ruang Serbaguna B',
+                'kode'              => 'SC-R03',
+                'gedung'            => 'Gedung Student Center',
+                'lantai'            => '2',
+                'kapasitas'         => 50,
+                'fasilitas'         => 'AC, Proyektor, Whiteboard, Kursi Lipat',
+                'status'            => 'tersedia',
             ],
             [
                 'nama'      => 'Ruang Sekretariat BEM',

@@ -21,10 +21,10 @@ class PengajuanDitolakKetuaNotification extends Notification
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Pengajuan Ruangan Ditolak Ketua - ' . $this->peminjaman->ruangan->nama)
-            ->greeting('Halo, ' . $notifiable->name)
+            ->subject('Pengajuan Ruangan Ditolak Ketua - ' . $this->peminjaman->ruangan->nama_ruangan)
+            ->greeting('Halo, ' . $notifiable->nama)
             ->line('Maaf, pengajuan ruangan kamu telah ditolak oleh ketua.')
-            ->line('**Ruangan:** ' . $this->peminjaman->ruangan->nama)
+            ->line('**Ruangan:** ' . $this->peminjaman->ruangan->nama_ruangan)
             ->line('**Tanggal:** ' . \Carbon\Carbon::parse($this->peminjaman->tanggal_mulai)->translatedFormat('d F Y, H:i'))
             ->line('**Keperluan:** ' . $this->peminjaman->keperluan)
             ->when($this->peminjaman->alasan_tolak, fn($mail) =>

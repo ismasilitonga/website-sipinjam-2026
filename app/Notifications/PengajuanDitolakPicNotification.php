@@ -21,10 +21,10 @@ class PengajuanDitolakPicNotification extends Notification
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Pengajuan Ruangan Ditolak - ' . $this->peminjaman_ruangans->ruangan->nama)
-            ->greeting('Halo, ' . $notifiable->name)
+            ->subject('Pengajuan Ruangan Ditolak - ' . $this->peminjaman_ruangans->ruangan->nama_ruangan)
+            ->greeting('Halo, ' . $notifiable->nama)
             ->line('Maaf, pengajuan ruangan kamu telah ditolak.')
-            ->line('**Ruangan:** ' . $this->peminjaman_ruangans->ruangan->nama)
+            ->line('**Ruangan:** ' . $this->peminjaman_ruangans->ruangan->nama_ruangan)
             ->line('**Tanggal:** ' . \Carbon\Carbon::parse($this->peminjaman_ruangans->tanggal_mulai)->translatedFormat('d F Y, H:i'))
             ->line('**Keperluan:** ' . $this->peminjaman_ruangans->keperluan)
             ->when($this->peminjaman_ruangans->alasan_tolak, fn($mail) =>

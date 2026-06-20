@@ -54,11 +54,11 @@
                         {{ ($riwayat->currentPage() - 1) * $riwayat->perPage() + $loop->iteration }}
                     </td>
                     <td>
-                        <div style="font-weight:600;font-size:13px;">{{ $p->user->name ?? '-' }}</div>
+                        <div style="font-weight:600;font-size:13px;">{{ $p->user->nama ?? '-' }}</div>
                         <div style="font-size:11px;color:var(--text-muted);">{{ $p->user->nim ?? '' }}</div>
                     </td>
                     <td style="font-size:12.5px;">{{ $p->nama_ormawa ?? '-' }}</td>
-                    <td style="font-size:13px;font-weight:500;">{{ $p->ruangan->nama ?? '-' }}</td>
+                    <td style="font-size:13px;font-weight:500;">{{ $p->ruangan->nama_ruangan ?? '-' }}</td>
                     <td style="font-size:12.5px;white-space:nowrap;">
                         {{ \Carbon\Carbon::parse($p->tanggal_mulai)->format('d M Y') }},
                         {{ \Carbon\Carbon::parse($p->tanggal_mulai)->format('H:i') }}–{{ \Carbon\Carbon::parse($p->tanggal_selesai)->format('H:i') }}

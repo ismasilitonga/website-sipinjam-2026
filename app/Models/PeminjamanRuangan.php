@@ -41,7 +41,6 @@ class PeminjamanRuangan extends Model
         return $this->belongsTo(Ruangan::class);
     }
 
-    // Relasi ke check_in (1-to-1)
     public function checkIn()
     {
         return $this->hasOne(CheckIn::class, 'peminjaman_id');

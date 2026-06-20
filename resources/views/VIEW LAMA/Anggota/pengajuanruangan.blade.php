@@ -226,9 +226,9 @@
 
             <div class="sidebar-footer">
                 <div class="profile-info" onclick="goToPage('profile')">
-                    <div class="profile-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'R', 0, 1)) }}</div>
+                    <div class="profile-avatar">{{ strtoupper(substr(auth()->user()->nama ?? 'R', 0, 1)) }}</div>
                     <div class="profile-details">
-                        <h4>{{ auth()->user()->name ?? 'User' }}</h4>
+                        <h4>{{ auth()->user()->nama ?? 'User' }}</h4>
                         <p>{{ auth()->user()->nim ?? '-' }}</p>
                     </div>
                 </div>

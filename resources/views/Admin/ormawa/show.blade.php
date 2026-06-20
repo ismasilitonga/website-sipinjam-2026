@@ -66,7 +66,7 @@
                 <tr>
                     <td style="color:var(--text-muted);font-size:13px;">{{ $loop->iteration }}</td>
                     <td>
-                        <div style="font-weight:500;">{{ $user->name }}</div>
+                        <div style="font-weight:500;">{{ $user->nama }}</div>
                         <div style="font-size:12px;color:var(--text-muted);">{{ $user->email }}</div>
                     </td>
                     <td style="font-size:13px;">{{ $user->nim ?? '-' }}</td>
@@ -74,7 +74,7 @@
                         @if($user->role === 'ketua')
                             <span class="badge badge-blue">Ketua</span>
                         @else
-                            <span class="badge badge-gray">Lihat Anggota</span>
+                            <span class="badge badge-gray">Anggota</span>
                         @endif
                     </td>
                     <td>

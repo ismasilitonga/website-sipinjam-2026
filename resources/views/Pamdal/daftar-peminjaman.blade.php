@@ -54,10 +54,10 @@
             @forelse($peminjaman_ruangans as $p)
             <tr style="border-bottom:1px solid #f1f5f9;">
                 <td style="padding:14px 15px;">
-                    <div style="font-weight:600;">{{ $p->user->name ?? '-' }}</div>
+                    <div style="font-weight:600;">{{ $p->user->nama ?? '-' }}</div>
                     <div style="font-size:12px; color:#64748b;">{{ $p->nama_ormawa }}</div>
                 </td>
-                <td style="padding:14px 15px; font-weight:500;">{{ $p->ruangan->nama ?? '-' }}</td>
+                <td style="padding:14px 15px; font-weight:500;">{{ $p->ruangan->nama_ruangan ?? '-' }}</td>
                 <td style="padding:14px 15px; text-align:center; font-size:13px;">
                     {{ \Carbon\Carbon::parse($p->tanggal_mulai)->format('d M Y') }}<br>
                     <span style="color:#64748b;">{{ \Carbon\Carbon::parse($p->tanggal_mulai)->format('H:i') }}–{{ \Carbon\Carbon::parse($p->tanggal_selesai)->format('H:i') }}</span>
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     tableBody.innerHTML += `
                         <tr style="border-bottom:1px solid #f1f5f9;">
                             <td style="padding:14px 15px;">
-                                <div style="font-weight:600;">${p.user_name}</div>
+                                <div style="font-weight:600;">${p.user_nama}</div>
                                 <div style="font-size:12px; color:#64748b;">${p.nama_ormawa}</div>
                             </td>
                             <td style="padding:14px 15px; font-weight:500;">${p.ruangan_nama}</td>

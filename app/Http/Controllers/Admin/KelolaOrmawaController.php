@@ -28,7 +28,7 @@ class KelolaOrmawaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'singkatan'     => 'required|string|max:20|unique:ormawas,singkatan',
+            'singkatan'     => 'required|string|max:20|unique:ormawa,singkatan',
             'nama_organisasi' => 'nullable|string|max:255',
             'kontak'          => 'nullable|string|max:20',
             'deskripsi'       => 'nullable|string|max:500',
@@ -63,7 +63,7 @@ class KelolaOrmawaController extends Controller
         $ormawa = Ormawa::findOrFail($id);
 
         $request->validate([
-            'singkatan'     => 'required|string|max:20|unique:ormawas,singkatan,' . $id,
+            'singkatan'     => 'required|string|max:20|unique:ormawa,singkatan,' . $id,
             'nama_organisasi' => 'nullable|string|max:255',
             'kontak'          => 'nullable|string|max:20',
             'deskripsi'       => 'nullable|string|max:500',

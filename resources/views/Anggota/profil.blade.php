@@ -13,9 +13,9 @@
                         display:flex;align-items:center;justify-content:center;
                         font-family:'Sora',sans-serif;font-size:32px;font-weight:700;
                         color:#fff;margin:0 auto 16px;">
-                {{ strtoupper(substr($user->name, 0, 1)) }}
+                {{ strtoupper(substr($user->nama, 0, 1)) }}
             </div>
-            <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:700;">{{ $user->name }}</div>
+            <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:700;">{{ $user->nama }}</div>
             <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">{{ $user->email }}</div>
             <div style="margin-top:12px;">
                 <span class="badge badge-blue">{{ ucfirst($user->role) }}</span>
@@ -40,7 +40,7 @@
                     <label class="form-label">Nama Lengkap</label>
                     <input type="text"
                     class="form-control"
-                    value="{{ $user->name }}"
+                    value="{{ $user->nama }}"
                     readonly>
                 </div>
 

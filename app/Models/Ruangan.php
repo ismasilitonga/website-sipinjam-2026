@@ -11,7 +11,7 @@ class Ruangan extends Model
     protected $table = 'ruangan';
     
     protected $fillable = [
-        'nama', 'kode', 'gedung', 'lantai', 'kapasitas', 'fasilitas', 'foto', 'status',
+        'nama_ruangan', 'kode', 'gedung', 'lantai', 'kapasitas', 'fasilitas', 'foto', 'status',
     ];
 
     public function peminjamanRuangans()

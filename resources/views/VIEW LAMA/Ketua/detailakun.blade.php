@@ -265,7 +265,7 @@
                 @csrf
                 <div class="form-group">
                     <label>Nama Pengguna</label>
-                    <input type="text" name="name" value="{{ Auth::user()->name ?? 'Rindiani Ketua' }}" class="edit-input" readonly>
+                    <input type="text" name="name" value="{{ Auth::user()->nama ?? 'Rindiani Ketua' }}" class="edit-input" readonly>
                 </div>
                 <div class="form-group">
                     <label>Organisasi</label>

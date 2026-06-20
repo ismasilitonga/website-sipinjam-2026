@@ -32,7 +32,7 @@
     <div class="item-card">
         <div class="item-card-img">
             @if($ruangan->foto)
-                <img src="{{ asset('storage/' . $ruangan->foto) }}" alt="{{ $ruangan->nama }}"
+                <img src="{{ asset('storage/' . $ruangan->foto) }}" alt="{{ $ruangan->nama_ruangan }}"
                      style="width:100%;height:100%;object-fit:cover;">
             @else
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,7 +42,7 @@
             @endif
         </div>
         <div class="item-card-body">
-            <div class="item-card-title">{{ $ruangan->nama}}</div>
+            <div class="item-card-title">{{ $ruangan->nama_ruangan}}</div>
             <div class="item-card-sub">
                 {{ $ruangan->gedung ?? '' }}{{ isset($ruangan->gedung, $ruangan->lantai) ? ' · Lantai '.$ruangan->lantai : '' }}
             </div>

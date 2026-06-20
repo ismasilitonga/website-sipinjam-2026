@@ -121,7 +121,7 @@
                 @endphp
                 <tr>
                     <td>
-                        <div style="font-weight:600;">{{ $p->ruangan->nama ?? '-' }}</div>
+                        <div style="font-weight:600;">{{ $p->ruangan->nama_ruangan ?? '-' }}</div>
                         <div style="font-size:11.5px;color:var(--text-muted);">{{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->lantai) ? ' · Lt.'.$p->ruangan->lantai : '' }}</div>
                     </td>
                     <td style="font-size:13px;">
@@ -163,7 +163,7 @@
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">Ketua</div>
-                    <div class="detail-value">{{ auth()->user()->name }}</div>
+                    <div class="detail-value">{{ auth()->user()->nama }}</div>
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">NIM</div>

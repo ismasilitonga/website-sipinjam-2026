@@ -41,7 +41,7 @@
                     </td>
                     <td>
                         @if($ruangan->foto)
-                            <img src="{{ asset('storage/' . $ruangan->foto) }}" alt="{{ $ruangan->nama }}"
+                            <img src="{{ asset('storage/' . $ruangan->foto) }}" alt="{{ $ruangan->nama_ruangan }}"
                                  style="width:48px;height:48px;object-fit:cover;border-radius:8px;">
                         @else
                             <div style="width:48px;height:48px;background:#f1f5f9;border-radius:8px;display:flex;align-items:center;justify-content:center;">
@@ -52,7 +52,7 @@
                             </div>
                         @endif
                     </td>
-                    <td style="font-weight:600;font-size:13px;">{{ $ruangan->nama}}</td>
+                    <td style="font-weight:600;font-size:13px;">{{ $ruangan->nama_ruangan}}</td>
                     <td style="font-size:12.5px;color:var(--text-muted);">{{ $ruangan->kode }}</td>
                     <td style="font-size:12.5px;">
                         {{ $ruangan->gedung ?? '-' }}
@@ -87,7 +87,7 @@
         <a href="{{ route('admin.ruangan.edit', $ruangan->id) }}"
            class="btn btn-outline btn-sm">Edit</a>
         <button type="button" class="btn btn-danger btn-sm"
-            onclick="bukaModalRuangan('{{ $ruangan->id }}', '{{ addslashes($ruangan->nama) }}')">
+            onclick="bukaModalRuangan('{{ $ruangan->id }}', '{{ addslashes($ruangan->nama_ruangan) }}')">
             Hapus
         </button>
     </div>
@@ -154,8 +154,8 @@
 <script>
 const baseUrlRuangan = "{{ url('admin/ruangan') }}";
 
-function bukaModalRuangan(id, nama) {
-    document.getElementById('modalNamaRuangan').textContent = nama;
+function bukaModalRuangan(id, nama_ruangan) {
+    document.getElementById('modalNamaRuangan').textContent = nama_ruangan;
     document.getElementById('formHapusRuangan').action = `${baseUrlRuangan}/${id}`;
     document.getElementById('modalHapusRuangan').style.display = 'flex';
 }

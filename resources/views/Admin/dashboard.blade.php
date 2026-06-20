@@ -103,7 +103,7 @@
                     <tr>
                         <td>
                         <div style="font-weight:600;font-size:13px;">
-                         {{ $p->ruangan->nama ?? '-' }}
+                         {{ $p->ruangan->nama_ruangan ?? '-' }}
                         </div>
 
                     <div style="
@@ -214,7 +214,7 @@
                 </div>
                 <div class="detail-row">
                     <div class="detail-label" style="width:120px;">Admin</div>
-                    <div class="detail-value">{{ auth()->user()->name }}</div>
+                    <div class="detail-value">{{ auth()->user()->nama }}</div>
                 </div>
             </div>
         </div>

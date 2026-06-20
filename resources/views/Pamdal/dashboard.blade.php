@@ -110,13 +110,13 @@
                 <tr class="{{ $rowClass }}">
                     <td style="color:var(--text-muted);font-size:12px;">{{ $i + 1 }}</td>
                     <td>
-                        <div style="font-weight:600;font-size:13px;">{{ $p->user->name ?? '-' }}</div>
+                        <div style="font-weight:600;font-size:13px;">{{ $p->user->nama ?? '-' }}</div>
                         <div style="font-size:11.5px;color:var(--text-muted);">
                             {{ $p->user->organisasi ?? '' }}
                         </div>
                     </td>
                     <td>
-                        <div style="font-weight:600;font-size:13px;">{{ $p->ruangan->nama ?? '-' }}</div>
+                        <div style="font-weight:600;font-size:13px;">{{ $p->ruangan->nama_ruangan ?? '-' }}</div>
                         <div style="font-size:11.5px;color:var(--text-muted);">
                             {{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->lantai) ? ' · Lt.'.$p->ruangan->lantai : '' }}
                         </div>
@@ -173,7 +173,7 @@
                             <form method="POST" action="{{ route('pamdal.kunci.ambil', $p->id) }}">
                                 @csrf
                                 <button type="submit" class="btn btn-warning btn-sm"
-                                    onclick="return confirm('Konfirmasi kunci diambil oleh {{ $p->user->name ?? '' }}?')">
+                                    onclick="return confirm('Konfirmasi kunci diambil oleh {{ $p->user->nama ?? '' }}?')">
                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:13px;height:13px;">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
@@ -185,7 +185,7 @@
                             <form method="POST" action="{{ route('pamdal.kunci.kembalikan', $p->id) }}">
                                 @csrf
                                 <button type="submit" class="btn btn-success btn-sm"
-                                    onclick="return confirm('Konfirmasi kunci dikembalikan oleh {{ $p->user->name ?? '' }}?')">
+                                    onclick="return confirm('Konfirmasi kunci dikembalikan oleh {{ $p->user->nama ?? '' }}?')">
                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:13px;height:13px;">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                     </svg>

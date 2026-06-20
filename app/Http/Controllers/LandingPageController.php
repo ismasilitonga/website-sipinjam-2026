@@ -36,7 +36,7 @@ class LandingPageController extends Controller
     public function store(Request $request)
 {
     $request->validate([
-        'name'       => 'required|string|max:255',
+        'nama'       => 'required|string|max:255',
         'nim'        => 'required|unique:users,nim',
         'email'      => 'required|email|unique:users,email',
         'role'       => 'required|in:anggota,ketua',
@@ -45,7 +45,7 @@ class LandingPageController extends Controller
     ]);
 
     User::create([
-        'name'       => $request->name,
+        'nama'       => $request->nama,
         'nim'        => $request->nim,
         'email'      => $request->email,
         'role'       => $request->role,

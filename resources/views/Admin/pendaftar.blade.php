@@ -31,7 +31,7 @@
                     <td style="color:var(--text-muted);font-size:13px;">
                         {{ ($pendaftars->currentPage() - 1) * $pendaftars->perPage() + $loop->iteration }}
                     </td>
-                    <td style="font-weight:500;">{{ $user->name }}</td>
+                    <td style="font-weight:500;">{{ $user->nama }}</td>
                     <td style="font-size:13px;font-family:monospace;">{{ $user->nim }}</td>
                     <td style="font-size:13px;">{{ $user->email }}</td>
                     <td style="font-size:13px;">{{ $user->organisasi ?? '-' }}</td>
@@ -45,18 +45,16 @@
                     </td>
                     <td>
     <div style="display:flex;gap:6px;">
-        {{-- Tombol Setujui: buka modal --}}
         <button type="button" class="btn btn-success btn-sm"
-            onclick="bukaModalSetujui('{{ $user->id }}', '{{ addslashes($user->name) }}')">
+            onclick="bukaModalSetujui('{{ $user->id }}', '{{ addslashes($user->nama) }}')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
             </svg>
             Setujui
         </button>
 
-        {{-- Tombol Tolak: buka modal --}}
         <button type="button" class="btn btn-danger btn-sm"
-            onclick="bukaModalTolak('{{ $user->id }}', '{{ addslashes($user->name) }}')">
+            onclick="bukaModalTolak('{{ $user->id }}', '{{ addslashes($user->nama) }}')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
@@ -89,7 +87,6 @@
     @endif
 </div>
 
-{{-- Modal Konfirmasi Setujui Pendaftar --}}
 <div id="modalSetujuiPendaftar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);
      z-index:9999;align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:12px;padding:32px 28px;width:100%;max-width:400px;
@@ -124,7 +121,6 @@
     </div>
 </div>
 
-{{-- Modal Konfirmasi Tolak Pendaftar --}}
 <div id="modalTolakPendaftar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);
      z-index:9999;align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:12px;padding:32px 28px;width:100%;max-width:400px;

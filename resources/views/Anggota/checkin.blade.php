@@ -34,7 +34,7 @@
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
                 <div>
                     <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:700;">
-                        {{ $p->ruangan->nama ?? '-' }}
+                        {{ $p->ruangan->nama_ruangan ?? '-' }}
                     </div>
                     <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">
                         {{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->lantai) ? ' · Lantai '.$p->ruangan->lantai : '' }}

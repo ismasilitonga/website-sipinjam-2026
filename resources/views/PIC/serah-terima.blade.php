@@ -29,7 +29,7 @@
                     <tr style="background: #fffbeb;">
                         <td style="color: var(--text-muted); font-size: 12px;">{{ $i + 1 }}</td>
                         <td>
-                            <div style="font-weight: 600; font-size: 13px;">{{ $pb->user->name ?? '-' }}</div>
+                            <div style="font-weight: 600; font-size: 13px;">{{ $pb->user->nama ?? '-' }}</div>
                             <div style="font-size: 11px; color: var(--text-muted);">{{ $pb->nama_ormawa ?? $pb->user?->organisasi ?? '' }}</div>
                         </td>
                         <td>
@@ -55,7 +55,7 @@
                         <input type="file" name="foto_serah" id="foto_serah_hidden_{{ $pb->id }}"
                                 accept="image/*" style="display: none;">
                         <button type="button" class="btn btn-success btn-sm"
-                                onclick="openSerahModal('{{ $pb->id }}', '{{ addslashes($pb->user->name ?? '-') }}', '{{ addslashes($pb->barang->nama ?? '-') }}')">
+                                onclick="openSerahModal('{{ $pb->id }}', '{{ addslashes($pb->user->nama ?? '-') }}', '{{ addslashes($pb->barang->nama ?? '-') }}')">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 13px; height: 13px;">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
@@ -111,7 +111,7 @@
                     <tr style="{{ $terlambat ? 'background: #fef2f2;' : '' }}">
                         <td style="color: var(--text-muted); font-size: 12px;">{{ $i + 1 }}</td>
                         <td>
-                            <div style="font-weight: 600; font-size: 13px;">{{ $pb->user->name ?? '-' }}</div>
+                            <div style="font-weight: 600; font-size: 13px;">{{ $pb->user->nama ?? '-' }}</div>
                             <div style="font-size: 11px; color: var(--text-muted);">{{ $pb->nama_ormawa ?? $pb->user?->organisasi ?? '' }}</div>
                         </td>
                         <td>
@@ -153,7 +153,7 @@
                 <input type="hidden" name="kondisi_barang"  id="kondisi_hidden_{{ $pb->id }}">
                 <input type="hidden" name="catatan_kondisi" id="catatan_hidden_{{ $pb->id }}">
                 <button type="button" class="btn btn-primary btn-sm"
-                     onclick="openKembaliModal('{{ $pb->id }}', '{{ addslashes($pb->user->name ?? '-') }}', '{{ addslashes($pb->barang->nama ?? '-') }}')">
+                     onclick="openKembaliModal('{{ $pb->id }}', '{{ addslashes($pb->user->nama ?? '-') }}', '{{ addslashes($pb->barang->nama ?? '-') }}')">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 13px; height: 13px;">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M7 16V4m0 0L3 8m4-4l4 4"/>
@@ -234,7 +234,7 @@
                         data-tanggal="{{ \Carbon\Carbon::parse($pb->waktu_diterima_kembali)->format('Y-m-d') }}">
                         <td style="font-size: 12px; color: var(--text-muted);" class="row-no">{{ $i + 1 }}</td>
                         <td>
-                            <div style="font-weight: 600; font-size: 13px;">{{ $pb->user->name ?? '-' }}</div>
+                            <div style="font-weight: 600; font-size: 13px;">{{ $pb->user->nama ?? '-' }}</div>
                             <div style="font-size: 11px; color: var(--text-muted);">{{ $pb->nama_ormawa }}</div>
                         </td>
                         <td>

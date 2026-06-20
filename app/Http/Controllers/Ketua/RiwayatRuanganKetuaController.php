@@ -43,7 +43,7 @@ class RiwayatRuanganKetuaController extends Controller
         $riwayat        = (clone $query)->latest()->paginate(10)->withQueryString();
         $totalSelesai   = (clone $query)->where('status', 'selesai')->count();
         $totalDisetujui = (clone $query)->where('status', 'disetujui')->count();
-        $ruangans       = Ruangan::orderBy('nama')->get();
+        $ruangans       = Ruangan::orderBy('nama_ruangan')->get();
 
         return view('shared.riwayat-ruangan', compact(
             'riwayat', 'filters', 'totalSelesai', 'totalDisetujui', 'ruangans'

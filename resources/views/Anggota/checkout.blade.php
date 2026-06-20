@@ -38,7 +38,7 @@
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
                 <div>
                     <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:700;">
-                        {{ $p->ruangan->nama?? '-' }}
+                        {{ $p->ruangan->nama_ruangan?? '-' }}
                     </div>
                     <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">
                         {{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->lantai) ? ' · Lantai '.$p->ruangan->lantai : '' }}
@@ -80,7 +80,7 @@
             @endif
 
             <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;"
-                onclick="bukaModalCheckout('{{ $p->id }}', '{{ addslashes($p->ruangan->nama ?? '') }}')">
+                onclick="bukaModalCheckout('{{ $p->id }}', '{{ addslashes($p->ruangan->nama_ruangan ?? '') }}')">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 16l4-4m0 0l-4-4m4 4H7"/>

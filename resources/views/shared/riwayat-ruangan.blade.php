@@ -181,7 +181,7 @@
                     <strong>Bulan {{ \Carbon\Carbon::parse(request('bulan') . '-01')->translatedFormat('F Y') }}</strong>
                 @endif
                 @if(request('ruangan_id') && $ruangans->firstWhere('id', request('ruangan_id')))
-                    · <strong>{{ $ruangans->firstWhere('id', request('ruangan_id'))->nama }}</strong>
+                    · <strong>{{ $ruangans->firstWhere('id', request('ruangan_id'))->nama_ruangan }}</strong>
                 @endif
                 — ditemukan <strong>{{ $riwayat->total() }} data</strong>
             </div>
@@ -208,11 +208,11 @@
                             {{ ($riwayat->currentPage() - 1) * $riwayat->perPage() + $loop->iteration }}
                         </td>
                         <td>
-                            <div style="font-weight: 500; font-size: 13px; white-space: nowrap;">{{ $p->user->name ?? '-' }}</div>
+                            <div style="font-weight: 500; font-size: 13px; white-space: nowrap;">{{ $p->user->nama ?? '-' }}</div>
                             <div style="font-size: 11px; color: var(--text-muted);">{{ $p->user->nim ?? '' }}</div>
                         </td>
                         <td style="font-size: 12.5px;">{{ $p->nama_ormawa ?? '-' }}</td>
-                        <td style="font-size: 13px; font-weight: 500; white-space: nowrap;">{{ $p->ruangan->nama?? '-' }}</td>
+                        <td style="font-size: 13px; font-weight: 500; white-space: nowrap;">{{ $p->ruangan->nama_ruangan?? '-' }}</td>
                         <td style="font-size: 12px; white-space: nowrap;">
                             {{ \Carbon\Carbon::parse($p->tanggal_mulai)->translatedFormat('d M Y') }}
                         </td>

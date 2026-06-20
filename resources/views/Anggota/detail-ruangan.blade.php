@@ -1,6 +1,6 @@
 @extends('layouts.anggota')
 
-@section('title', $ruangan->nama)
+@section('title', $ruangan->nama_ruangan)
 @section('subtitle', 'Detail informasi ruangan')
 
 @section('topbar-action')
@@ -35,7 +35,7 @@
         <div style="padding:0;">
             <div class="detail-row">
                 <div class="detail-label">Nama Ruangan</div>
-                <div class="detail-value" style="font-weight:600;">{{ $ruangan->nama }}</div>
+                <div class="detail-value" style="font-weight:600;">{{ $ruangan->nama_ruangan }}</div>
             </div>
             @isset($ruangan->kode)
             <div class="detail-row">

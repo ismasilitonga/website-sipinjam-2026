@@ -220,9 +220,9 @@
 
         <div class="sidebar-footer">
             <div class="profile-info" onclick="goToPage('profile')">
-                <div class="profile-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'R', 0, 1)) }}</div>
+                <div class="profile-avatar">{{ strtoupper(substr(auth()->user()->nama ?? 'R', 0, 1)) }}</div>
                 <div class="profile-details">
-                    <h4>{{ auth()->user()->name ?? 'Rindiani' }}</h4>
+                    <h4>{{ auth()->user()->nama ?? 'Rindiani' }}</h4>
                     <p>{{ auth()->user()->nim ?? '3312301054' }}</p>
                 </div>
             </div>
@@ -240,7 +240,7 @@
                 @csrf
                 <div class="form-group">
                     <label>Nama Pengguna</label>
-                    <input type="text" name="name" value="{{ Auth::user()->name ?? 'Rindiani' }}" class="edit-input" readonly>
+                    <input type="text" name="nama" value="{{ Auth::user()->nama ?? 'Rindiani' }}" class="edit-input" readonly>
                 </div>
 
                 <div class="form-group">

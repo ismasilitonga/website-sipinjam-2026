@@ -15,7 +15,7 @@ class RiwayatRuanganAdminController extends Controller
     public function index(Request $request)
 {
     $ruangans = Ruangan::orderBy('lantai')
-        ->orderBy('nama')
+        ->orderBy('nama_ruangan')
         ->get();
 
     $query = PeminjamanRuangan::with(['user', 'ruangan']);
@@ -74,7 +74,7 @@ class RiwayatRuanganAdminController extends Controller
 }
  public function export(Request $request)
 {
-    $ruangans = Ruangan::orderBy('lantai')->orderBy('nama')->get();
+    $ruangans = Ruangan::orderBy('lantai')->orderBy('nama_ruangan')->get();
 
     $query = PeminjamanRuangan::with(['user', 'ruangan'])
         ->whereIn('status', ['disetujui', 'selesai']);
@@ -117,7 +117,7 @@ class RiwayatRuanganAdminController extends Controller
     if ($request->filled('ruangan_id')) {
         $ruangan = $ruangans->firstWhere('id', $request->ruangan_id);
         if ($ruangan) {
-            $ruanganLabel = $ruangan->nama;
+            $ruanganLabel = $ruangan->nama_ruangan;
         }
     }
 

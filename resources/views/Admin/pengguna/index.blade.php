@@ -69,9 +69,9 @@
                             <div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;
                                         display:flex;align-items:center;justify-content:center;
                                         font-size:13px;font-weight:600;color:#1d4ed8;flex-shrink:0;">
-                                {{ strtoupper(substr($user->name, 0, 1)) }}
+                                {{ strtoupper(substr($user->nama, 0, 1)) }}
                             </div>
-                            <span style="font-weight:500;">{{ $user->name }}</span>
+                            <span style="font-weight:500;">{{ $user->nama }}</span>
                         </div>
                     </td>
                     <td style="font-size:13px;font-family:monospace;">{{ $user->nim }}</td>
@@ -97,7 +97,7 @@
                                class="btn btn-outline btn-sm">Edit</a>
                             {{-- Ganti form+confirm dengan tombol trigger modal --}}
                             <button type="button" class="btn btn-danger btn-sm"
-                                onclick="bukaModa('{{ $user->id }}', '{{ addslashes($user->name) }}')">
+                                onclick="bukaModa('{{ $user->id }}', '{{ addslashes($user->nama) }}')">
                                 Hapus
                             </button>
                         </div>

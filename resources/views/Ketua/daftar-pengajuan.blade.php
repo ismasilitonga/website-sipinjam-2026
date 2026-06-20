@@ -35,16 +35,16 @@
                             <div style="width:30px;height:30px;border-radius:50%;background:#dcfce7;
                                         display:flex;align-items:center;justify-content:center;
                                         font-size:12px;font-weight:700;color:#15803d;flex-shrink:0;">
-                                {{ strtoupper(substr($p->user->name ?? 'A', 0, 1)) }}
+                                {{ strtoupper(substr($p->user->nama ?? 'A', 0, 1)) }}
                             </div>
                             <div>
-                                <div style="font-weight:600;font-size:13px;">{{ $p->user->name ?? '-' }}</div>
+                                <div style="font-weight:600;font-size:13px;">{{ $p->user->nama ?? '-' }}</div>
                                 <div style="font-size:11.5px;color:var(--text-muted);">{{ $p->user->nim ?? '' }}</div>
                             </div>
                         </div>
                     </td>
                     <td>
-                        <div style="font-weight:600;font-size:13px;">{{ $p->ruangan->nama ?? '-' }}</div>
+                        <div style="font-weight:600;font-size:13px;">{{ $p->ruangan->nama_ruangan ?? '-' }}</div>
                         <div style="font-size:11.5px;color:var(--text-muted);">
                             {{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->gedung, $p->ruangan->lantai) ? ' · Lt.'.$p->ruangan->lantai : '' }}
                         </div>
@@ -69,7 +69,7 @@
                     <div style="display:flex;gap:6px;">
 
                             <button type="button" class="btn btn-success btn-sm"
-    onclick="openSetujuiModal({{ $p->id }}, '{{ addslashes($p->user->name ?? '') }}')">
+    onclick="openSetujuiModal({{ $p->id }}, '{{ addslashes($p->user->nama ?? '') }}')">
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:13px;height:13px;">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
     </svg>
@@ -78,7 +78,7 @@
                             </form>
 
                             <button type="button" class="btn btn-danger btn-sm"
-                                onclick="openTolakModal({{ $p->id }}, '{{ addslashes($p->user->name ?? '') }}')">
+                                onclick="openTolakModal({{ $p->id }}, '{{ addslashes($p->user->nama ?? '') }}')">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:13px;height:13px;">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>

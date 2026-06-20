@@ -1,7 +1,5 @@
 <?php
-// ============================================================
-// FILE: app/Http/Controllers/Anggota/DetailLaporanController.php
-// ============================================================
+
 namespace App\Http\Controllers\Anggota;
 
 use App\Http\Controllers\Controller;

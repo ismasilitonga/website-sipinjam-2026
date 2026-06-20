@@ -34,12 +34,12 @@
                 <tr>
                     <td>{{ ($peminjaman_ruangans->currentPage() - 1) * $peminjaman_ruangans->perPage() + $loop->iteration }}</td>
                     <td>
-                        <div style="font-weight:500;">{{ $p->user->name ?? '-' }}</div>
+                        <div style="font-weight:500;">{{ $p->user->nama ?? '-' }}</div>
                         <div style="font-size:12px;color:var(--text-muted);">{{ $p->user->nim ?? '' }}</div>
                     </td>
                     <td>{{ $p->user->organisasi ?? '-' }}</td>
                     <td>
-                        <div style="font-weight:500;">{{ $p->ruangan->nama ?? '-' }}</div>
+                        <div style="font-weight:500;">{{ $p->ruangan->nama_ruangan ?? '-' }}</div>
                         <div style="font-size:12px;color:var(--text-muted);">{{ $p->ruangan->kode ?? '' }}</div>
                     </td>
                     <td>

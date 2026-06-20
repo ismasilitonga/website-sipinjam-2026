@@ -23,6 +23,58 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        vertical-align: middle;
+    }
+    /* kolom nama organisasi: boleh wrap ke baris ke-2, jangan dipotong "..." */
+    .ormawa-table td:nth-child(2) {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+    }
+
+    /* ===== RESPONSIVE: di bawah 760px, tabel berubah jadi kartu vertikal ===== */
+    @media (max-width: 760px) {
+        .ormawa-table thead { display: none; }
+
+        .ormawa-table, .ormawa-table tbody, .ormawa-table tr, .ormawa-table td {
+            display: block;
+            width: 100% !important;
+        }
+
+        .ormawa-table tr {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            padding: 10px 12px;
+            background: var(--white);
+        }
+
+        .ormawa-table td {
+            border-bottom: none;
+            padding: 6px 0;
+            white-space: normal;        /* teks boleh wrap ke bawah, bukan kepotong */
+            overflow: visible;
+            text-overflow: clip;
+        }
+
+        /* label kecil muncul di atas tiap value, diambil dari atribut data-label */
+        .ormawa-table td[data-label]::before {
+            content: attr(data-label);
+            display: block;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 2px;
+        }
+
+        .ormawa-table td:first-child { display: none; } /* nomor urut tidak perlu di mode kartu */
+
+        .ormawa-table .action-group,
+        .ormawa-table td > div[style*="flex"] {
+            flex-wrap: wrap;
+        }
     }
 </style>
 @endpush
@@ -47,20 +99,18 @@
     <div class="table-wrap">
         <table class="ormawa-table">
             <colgroup>
-                <col style="width:50px;">        
-                <col style="width:25%;">       
-                <col style="width:110px;">       
-                <col style="width:140px;">      
-                <col>                            
-                <col style="width:90px;">      
-                <col style="width:90px;">        
-                <col style="width:200px;">      
+                <col style="width:45px;">
+                <col style="width:35%;">
+                <col style="width:15%;">
+                <col style="width:16%;">
+                <col style="width:90px;">
+                <col style="width:90px;">
+                <col style="width:240px;">
             </colgroup>
             <thead>
                 <tr>
                     <th>No</th>
                     <th>Nama Organisasi</th>
-                    <th>Singkatan</th>
                     <th>Kontak</th>
                     <th>Deskripsi</th>
                     <th style="text-align:center;">Anggota</th>
@@ -73,7 +123,7 @@
                 <tr>
                     <td style="color:var(--text-muted);font-size:13px;">{{ $loop->iteration }}</td>
 
-                    <td>
+                    <td data-label="Nama Organisasi">
                         <div style="display:flex;align-items:center;gap:10px;overflow:hidden;">
                             <div style="width:36px;height:36px;border-radius:8px;background:#ede9fe;
                                         display:flex;align-items:center;justify-content:center;
@@ -81,7 +131,7 @@
                                 {{ strtoupper(substr($o->singkatan, 0, 2)) }}
                             </div>
                             <div style="overflow:hidden;">
-                                <div style="font-weight:500;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                <div style="font-weight:500;font-size:15px;white-space:normal;word-break:break-word;line-height:1.3;">
                                     {{ $o->nama_organisasi ?? $o->singkatan }}
                                 </div>
                                 @if($o->nama_organisasi)
@@ -91,18 +141,17 @@
                         </div>
                     </td>
 
-                    <td style="font-size:13px;">{{ $o->singkatan }}</td>
-                    <td style="font-size:13px;">{{ $o->kontak ?? '-' }}</td>
+                    <td data-label="Kontak" style="font-size:13px;">{{ $o->kontak ?? '-' }}</td>
 
-                    <td style="font-size:13px;" title="{{ $o->deskripsi }}">
+                    <td data-label="Deskripsi" style="font-size:13px;" title="{{ $o->deskripsi }}">
                         {{ $o->deskripsi ?? '-' }}
                     </td>
 
-                    <td style="font-size:13px;text-align:center;">
+                    <td data-label="Anggota" style="font-size:13px;text-align:center;">
                         {{ $o->jumlah_anggota ?? 0 }}
                     </td>
 
-                    <td>
+                    <td data-label="Status">
                         @if($o->status === 'aktif')
                             <span class="badge badge-green">Aktif</span>
                         @else
@@ -110,10 +159,10 @@
                         @endif
                     </td>
 
-                   <td>
+                   <td data-label="Aksi">
     <div style="display:flex;gap:6px;align-items:center;">
         <a href="{{ route('admin.ormawa.show', $o->id) }}"
-           class="btn btn-outline btn-sm">Anggota</a>
+           class="btn btn-outline btn-sm">Lihat Anggota</a>
         <a href="{{ route('admin.ormawa.edit', $o->id) }}"
            class="btn btn-outline btn-sm">Edit</a>
         <button type="button" class="btn btn-danger btn-sm"
@@ -125,7 +174,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8">
+                    <td colspan="7">
                         <div class="empty-state">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"

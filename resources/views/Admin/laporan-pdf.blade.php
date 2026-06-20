@@ -29,8 +29,8 @@
             @forelse($peminjaman_ruangan as $i => $item)
             <tr>
                 <td>{{ $i + 1 }}</td>
-                <td>{{ $item->user->name ?? '-' }}</td>
-                <td>{{ $item->ruangan->nama ?? '-' }}</td>
+                <td>{{ $item->user->nama ?? '-' }}</td>
+                <td>{{ $item->ruangan->nama_ruangan ?? '-' }}</td>
                 <td>{{ \Carbon\Carbon::parse($item->tanggal_pinjam)->format('d M Y') }}</td>
                 <td>{{ ucfirst(str_replace('_', ' ', $item->status)) }}</td>
             </tr>

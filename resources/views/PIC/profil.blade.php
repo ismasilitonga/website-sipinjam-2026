@@ -24,11 +24,11 @@
                 color:#fff;
                 margin:0 auto 16px;
             ">
-                {{ strtoupper(substr($user->name, 0, 1)) }}
+                {{ strtoupper(substr($user->nama, 0, 1)) }}
             </div>
 
             <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:700;">
-                {{ $user->name }}
+                {{ $user->nama }}
             </div>
 
             <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">
@@ -70,7 +70,7 @@
                     <input
                         type="text"
                         class="form-control"
-                        value="{{ $user->name }}"
+                        value="{{ $user->nama }}"
                         disabled>
                 </div>
 

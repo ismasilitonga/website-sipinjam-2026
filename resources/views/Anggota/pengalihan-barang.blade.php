@@ -134,11 +134,11 @@
                         <div style="width:36px;height:36px;border-radius:50%;background:#ffedd5;
                                     display:flex;align-items:center;justify-content:center;
                                     font-size:14px;font-weight:700;color:#c2410c;flex-shrink:0;">
-                            {{ strtoupper(substr($pg->dariUser->name ?? 'A', 0, 1)) }}
+                            {{ strtoupper(substr($pg->dariUser->nama ?? 'A', 0, 1)) }}
                         </div>
                         <div style="flex:1;">
                             <div style="font-size:13px;font-weight:600;">
-                                {{ $pg->dariUser->name ?? '-' }} mengalihkan barang kepadamu
+                                {{ $pg->dariUser->nama ?? '-' }} mengalihkan barang kepadamu
                             </div>
                             <div style="font-size:12px;color:var(--text-muted);">
                                 {{ $pg->created_at->diffForHumans() }}
@@ -166,7 +166,7 @@
                             <input type="hidden" name="aksi" value="terima">
                             <button type="button" class="btn btn-success btn-sm" style="width:100%;justify-content:center;"
                                 onclick="bukaModalKonfirmasi(this, 'terima')"
-                                data-nama="{{ $pg->dariUser->name ?? '-' }}"
+                                data-nama="{{ $pg->dariUser->nama ?? '-' }}"
                                 data-barang="{{ $pg->peminjamanBarang->barang->nama ?? '-' }}"
                                 data-jumlah="{{ trim(($pg->peminjamanBarang->jumlah ?? '-') . ' ' . ($pg->peminjamanBarang->barang->satuan ?? '')) }}"
                                 data-alasan="{{ $pg->alasan ?? '' }}">
@@ -179,7 +179,7 @@
                             <input type="hidden" name="aksi" value="tolak">
                             <button type="button" class="btn btn-danger btn-sm" style="width:100%;justify-content:center;"
                                 onclick="bukaModalKonfirmasi(this, 'tolak')"
-                                data-nama="{{ $pg->dariUser->name ?? '-' }}"
+                                data-nama="{{ $pg->dariUser->nama ?? '-' }}"
                                 data-barang="{{ $pg->peminjamanBarang->barang->nama ?? '-' }}"
                                 data-jumlah="{{ trim(($pg->peminjamanBarang->jumlah ?? '-') . ' ' . ($pg->peminjamanBarang->barang->satuan ?? '')) }}"
                                 data-alasan="{{ $pg->alasan ?? '' }}">
@@ -203,7 +203,7 @@
                 @if($pengalihanKeluar)
             <div class="alert alert-warning">
             Menunggu konfirmasi dari
-            <strong>{{ $pengalihanKeluar->keUser->name ?? 'Penerima' }}</strong>
+            <strong>{{ $pengalihanKeluar->keUser->nama ?? 'Penerima' }}</strong>
             untuk barang
             <strong>{{ $pengalihanKeluar->peminjamanBarang->barang->nama ?? '-' }}</strong>.
             </div>

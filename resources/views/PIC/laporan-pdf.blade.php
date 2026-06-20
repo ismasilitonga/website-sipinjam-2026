@@ -38,11 +38,11 @@
                 <tr>
                     <td>{{ $i + 1 }}</td>
                     <td>
-                        {{ $item->user->name ?? '-' }}<br>
+                        {{ $item->user->nama ?? '-' }}<br>
                         <span style="font-size: 9px; color: #6b7280;">{{ $item->user->nim ?? '' }}</span>
                     </td>
                     <td>{{ $item->nama_ormawa ?? '-' }}</td>
-                    <td>{{ $item->ruangan->nama ?? '-' }}</td>
+                    <td>{{ $item->ruangan->nama_ruangan ?? '-' }}</td>
                     <td style="white-space: nowrap;">{{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('d M Y') }}</td>
                     <td style="white-space: nowrap;">
                         {{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('H:i') }}-{{ \Carbon\Carbon::parse($item->tanggal_selesai)->format('H:i') }}

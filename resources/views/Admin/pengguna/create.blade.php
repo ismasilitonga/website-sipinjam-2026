@@ -25,9 +25,9 @@
             <div class="form-grid-2">
                 <div class="form-group">
                     <label class="form-label">Nama Lengkap <span style="color:var(--danger)">*</span></label>
-                    <input type="text" name="name" class="form-control"
+                    <input type="text" name="nama" class="form-control"
                            value="{{ old('name') }}" placeholder="Nama lengkap pengguna" required>
-                    @error('name') <div class="form-error">{{ $message }}</div> @enderror
+                    @error('nama') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="form-group">

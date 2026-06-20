@@ -28,7 +28,7 @@
         <div style="display: grid; grid-template-columns: 160px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border);">
             <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding-top: 3px;">Peminjam</div>
             <div>
-                <div style="font-size: 14px; font-weight: 600;">{{ $peminjaman->user->name ?? '-' }}</div>
+                <div style="font-size: 14px; font-weight: 600;">{{ $peminjaman->user->nama ?? '-' }}</div>
                 <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">NIM: {{ $peminjaman->user->nim ?? '-' }}</div>
             </div>
         </div>
@@ -41,7 +41,7 @@
         <div style="display: grid; grid-template-columns: 160px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border);">
             <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding-top: 3px;">Ruangan</div>
             <div>
-                <div style="font-size: 14px; font-weight: 600;">{{ $peminjaman->ruangan->nama ?? '-' }}</div>
+                <div style="font-size: 14px; font-weight: 600;">{{ $peminjaman->ruangan->nama_ruangan ?? '-' }}</div>
                 @if($peminjaman->ruangan)
                     <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
                         Lantai {{ $peminjaman->ruangan->lantai }}{{ $peminjaman->ruangan->gedung ? ' – ' . $peminjaman->ruangan->gedung : '' }}

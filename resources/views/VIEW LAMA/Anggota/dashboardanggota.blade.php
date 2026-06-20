@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Font Poppins dengan weight lengkap untuk logo gemuk -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <title>Dashboard - SC-Space</title>
@@ -197,7 +196,7 @@
     <div id="loginModal">
         <div class="modal-card">
             <h2 style="color: #10b981;">Login Berhasil!</h2>
-            <p style="margin: 20px 0;">Selamat datang kembali,<br><span>{{ Auth::user()->name ?? 'User' }}</span>!</p>
+            <p style="margin: 20px 0;">Selamat datang kembali,<br><span>{{ Auth::user()->nama ?? 'User' }}</span>!</p>
             <button class="btn-confirm" onclick="closeLoginModal()">Oke</button>
         </div>
     </div>
@@ -274,9 +273,9 @@
 
             <div class="sidebar-footer">
                 <div class="profile-info" onclick="goToPage('profile')">
-                    <div class="profile-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'R', 0, 1)) }}</div>
+                    <div class="profile-avatar">{{ strtoupper(substr(auth()->user()->nama ?? 'R', 0, 1)) }}</div>
                     <div class="profile-details">
-                        <h4>{{ auth()->user()->name ?? 'Rindiani' }}</h4>
+                        <h4>{{ auth()->user()->nama ?? 'Rindiani' }}</h4>
                         <p>{{ auth()->user()->nim ?? '3312301054' }}</p>
                     </div>
                 </div>

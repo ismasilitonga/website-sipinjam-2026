@@ -14,9 +14,9 @@
                         display:flex;align-items:center;justify-content:center;
                         font-family:'Outfit',sans-serif;font-size:32px;font-weight:700;
                         color:#fff;margin:0 auto 16px;">
-                {{ strtoupper(substr($user->name, 0, 1)) }}
+                {{ strtoupper(substr($user->nama, 0, 1)) }}
             </div>
-            <div style="font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;">{{ $user->name }}</div>
+            <div style="font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;">{{ $user->nama }}</div>
             <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">{{ $user->email }}</div>
             <div style="margin-top:10px;">
                 <span class="badge badge-blue">Admin</span>
@@ -38,9 +38,9 @@
 
                 <div class="form-group">
                     <label class="form-label">Nama Lengkap <span style="color:var(--danger)">*</span></label>
-                    <input type="text" name="name" class="form-control"
-                           value="{{ old('name', $user->name) }}" required>
-                    @error('name') <div class="form-error">{{ $message }}</div> @enderror
+                    <input type="text" name="nama" class="form-control"
+                           value="{{ old('nama', $user->nama) }}" required>
+                    @error('nama') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="form-group">

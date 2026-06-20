@@ -11,7 +11,7 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --sidebar-w: 260px;
+            --sidebar-w: 200px;
             --bg: #f4f6fb;
             --sidebar-bg: #0f172a;
             --sidebar-hover: #1e293b;
@@ -26,81 +26,108 @@
             --danger: #dc2626;
             --warning: #d97706;
             --info: #0891b2;
-            --radius: 12px;
+            --radius: 10px;
             --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.05);
         }
+
+        html { -webkit-text-size-adjust: 100%; }
 
         body {
             font-family: 'DM Sans', sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
+            font-size: 14px;
         }
 
+        /* ===== SIDEBAR ===== */
         .sidebar {
             position: fixed; top: 0; left: 0;
             width: var(--sidebar-w);
             height: 100vh;
             background: var(--sidebar-bg);
             display: flex; flex-direction: column;
-            overflow-y: auto;
+            overflow: hidden;       /* sidebar wrapper itself doesn't scroll */
             z-index: 100;
         }
 
         .sidebar-logo {
-            padding: 24px 20px 20px;
+            flex: 0 0 auto;
+            display: flex;
+            padding: 16px 14px 12px;
+            gap: 9px; align-items: center;
             border-bottom: 1px solid rgba(255,255,255,.07);
         }
-        .sidebar-logo span {
-            font-family: 'Outfit', sans-serif;
-            font-size: 20px; font-weight: 700;
-            color: #fff; letter-spacing: -.3px;
+        .sidebar-logo-mark {
+            width: 34px; height: 34px; flex-shrink: 0;
+            background: url('{{ asset('images/logo.png') }}') center/contain no-repeat;
         }
-        .sidebar-logo small {
+        .sidebar-logo-text span {
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px; font-weight: 700;
+            color: #fff; letter-spacing: -.3px; display: block;
+        }
+        .sidebar-logo-text small {
             display: block;
-            font-size: 10px; color: #64748b;
+            font-size: 9px; color: #94a3b8;
             margin-top: 2px; letter-spacing: .5px; text-transform: uppercase;
         }
 
-        .sidebar-nav { padding: 16px 12px; flex: 1; }
+        /* nav scrolls independently, footer always stays pinned to bottom */
+        .sidebar-nav {
+            flex: 1 1 auto;
+            min-height: 0;          /* required so this child can actually scroll inside flex column */
+            overflow-y: auto;
+            padding: 10px 8px;
+        }
+        .sidebar-nav::-webkit-scrollbar { width: 5px; }
+        .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
 
         .nav-section-label {
-            font-size: 10px; font-weight: 600;
+            font-size: 9px; font-weight: 600;
             color: #94a3b8; letter-spacing: 1px;
             text-transform: uppercase;
-            padding: 12px 8px 6px;
+            padding: 10px 6px 4px;
         }
 
         .nav-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 12px;
-            border-radius: 8px;
+            display: flex; align-items: center; gap: 8px;
+            padding: 7px 9px;
+            border-radius: 7px;
             color: #ffffff;
             text-decoration: none;
-            font-size: 13px; font-weight: 500;
+            font-size: 12px; font-weight: 500;
             transition: all .15s;
             margin-bottom: 2px;
+            white-space: nowrap;
         }
         .nav-item:hover { background: var(--sidebar-hover); color: #e2e8f0; }
         .nav-item.active { background: var(--sidebar-active); color: #fff; }
-        .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+        .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
 
+        /* footer is a sibling of nav, fixed height, always glued to bottom */
         .sidebar-footer {
-            padding: 16px 12px;
+            flex: 0 0 auto;
+            padding: 10px 8px;
             border-top: 1px solid rgba(255,255,255,.07);
         }
         .sidebar-user {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 12px; border-radius: 8px;
-            color: #94a3b8; font-size: 13px;
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 9px; border-radius: 7px;
+            color: #94a3b8; font-size: 12px;
+            margin-bottom: 4px;
         }
         .sidebar-avatar {
-            width: 32px; height: 32px; border-radius: 50%;
+            width: 26px; height: 26px; border-radius: 50%;
             background: var(--accent); display: flex;
             align-items: center; justify-content: center;
-            color: #fff; font-size: 13px; font-weight: 600;
+            color: #fff; font-size: 11px; font-weight: 600;
+            flex-shrink: 0;
         }
+        .sidebar-user-name { color:#e2e8f0; font-size:12px; font-weight:500; line-height:1.3; }
+        .sidebar-user-role { font-size:10px; color:#7e9bf1; line-height:1.3; }
 
+        /* ===== MAIN ===== */
         .main-wrap {
             margin-left: var(--sidebar-w);
             min-height: 100vh;
@@ -110,24 +137,29 @@
         .topbar {
             background: var(--white);
             border-bottom: 1px solid var(--border);
-            padding: 16px 28px;
+            padding: 12px 20px;
             display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; flex-wrap: wrap;
             position: sticky; top: 0; z-index: 50;
         }
         .topbar-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 18px; font-weight: 600;
+            font-size: 16px; font-weight: 600;
             color: var(--text);
         }
         .topbar-sub {
-            font-size: 13px; color: var(--text-muted); margin-top: 1px;
+            font-size: 12px; color: var(--text-muted); margin-top: 1px;
         }
 
-        .page-content { padding: 28px; flex: 1; }
+        .page-content {
+            padding: 18px;
+            flex: 1;
+            min-width: 0;
+        }
 
         .alert {
-            padding: 12px 16px; border-radius: 8px;
-            font-size: 14px; margin-bottom: 20px;
+            padding: 10px 14px; border-radius: 8px;
+            font-size: 13px; margin-bottom: 16px;
             display: flex; align-items: center; gap: 8px;
         }
         .alert-success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
@@ -140,60 +172,69 @@
             border-radius: var(--radius);
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
+            overflow: hidden;        /* keep rounded corners clean when table scrolls inside */
         }
         .card-header {
-            padding: 18px 20px 0;
+            padding: 15px 16px 0;
             display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 8px;
         }
         .card-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 15px; font-weight: 600;
+            font-size: 14px; font-weight: 600;
         }
-        .card-body { padding: 20px; }
+        .card-body { padding: 16px; }
 
         .stat-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px; margin-bottom: 28px;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 14px; margin-bottom: 22px;
         }
         .stat-card {
             background: var(--white);
             border-radius: var(--radius);
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
-            padding: 20px;
-            display: flex; flex-direction: column; gap: 12px;
+            padding: 16px;
+            display: flex; flex-direction: column; gap: 10px;
         }
         .stat-icon {
-            width: 44px; height: 44px; border-radius: 10px;
+            width: 38px; height: 38px; border-radius: 9px;
             display: flex; align-items: center; justify-content: center;
         }
-        .stat-icon svg { width: 22px; height: 22px; }
+        .stat-icon svg { width: 19px; height: 19px; }
         .stat-value {
             font-family: 'Outfit', sans-serif;
-            font-size: 30px; font-weight: 700;
+            font-size: 25px; font-weight: 700;
             line-height: 1;
         }
-        .stat-label { font-size: 13px; color: var(--text-muted); }
+        .stat-label { font-size: 12px; color: var(--text-muted); }
 
-        .table-wrap { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        /* ===== TABLE (this is what was breaking out of the card) ===== */
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 12.5px; }
         th {
             background: #f8fafc; text-align: left;
-            padding: 11px 14px;
-            font-size: 12px; font-weight: 600;
+            padding: 8px 10px;
+            font-size: 10.5px; font-weight: 600;
             color: var(--text-muted);
             text-transform: uppercase; letter-spacing: .5px;
             border-bottom: 1px solid var(--border);
+            white-space: nowrap;
         }
-        td { padding: 13px 14px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        td { padding: 9px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: #f8fafc; }
 
         .badge {
             display: inline-flex; align-items: center;
-            padding: 3px 10px; border-radius: 999px;
-            font-size: 12px; font-weight: 500;
+            padding: 2px 9px; border-radius: 999px;
+            font-size: 11px; font-weight: 500;
+            white-space: nowrap;
         }
         .badge-blue   { background: #dbeafe; color: #1d4ed8; }
         .badge-green  { background: #dcfce7; color: #15803d; }
@@ -203,13 +244,14 @@
         .badge-purple { background: #ede9fe; color: #6d28d9; }
 
         .btn {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 8px 16px; border-radius: 8px;
-            font-size: 13px; font-weight: 500;
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 6px 12px; border-radius: 7px;
+            font-size: 12px; font-weight: 500;
             cursor: pointer; border: none; text-decoration: none;
             transition: all .15s;
+            white-space: nowrap;
         }
-        .btn svg { width: 15px; height: 15px; }
+        .btn svg { width: 13px; height: 13px; }
         .btn-primary { background: var(--accent); color: #fff; }
         .btn-primary:hover { background: #1d4ed8; }
         .btn-success { background: #16a34a; color: #fff; }
@@ -221,18 +263,20 @@
             border: 1px solid var(--border);
         }
         .btn-outline:hover { background: #f8fafc; }
-        .btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 6px; }
-        .btn-icon { padding: 6px; border-radius: 7px; }
+        .btn-sm { padding: 4px 8px; font-size: 10.5px; border-radius: 6px; }
+        .btn-icon { padding: 5px; border-radius: 6px; }
 
-        .form-group { margin-bottom: 18px; }
+        .action-group { display: flex; gap: 5px; flex-wrap: nowrap; }
+
+        .form-group { margin-bottom: 15px; }
         .form-label {
-            display: block; font-size: 13px; font-weight: 500;
-            color: var(--text); margin-bottom: 6px;
+            display: block; font-size: 12.5px; font-weight: 500;
+            color: var(--text); margin-bottom: 5px;
         }
         .form-control, .form-select {
-            width: 100%; padding: 9px 12px;
-            border: 1px solid var(--border); border-radius: 8px;
-            font-size: 14px; font-family: inherit;
+            width: 100%; padding: 8px 11px;
+            border: 1px solid var(--border); border-radius: 7px;
+            font-size: 13px; font-family: inherit;
             background: var(--white); color: var(--text);
             transition: border-color .15s, box-shadow .15s;
             outline: none;
@@ -241,32 +285,32 @@
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(37,99,235,.1);
         }
-        .form-hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-        .form-error { font-size: 12px; color: var(--danger); margin-top: 4px; }
-        .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+        .form-error { font-size: 11px; color: var(--danger); margin-top: 4px; }
+        .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
-        .form-grid-3{
-        display:grid;
-        grid-template-columns:repeat(3,1fr);
-        gap:16px;
-    }
+        .form-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
 
-        .form-actions{
-        display:flex;
-        gap:10px;
-        margin-top:20px;
-    }
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+        }
 
-        .preview-image{
-        max-width:300px;
-        border-radius:8px;
-        border:1px solid var(--border);
-        margin-top:10px;
-    }
-        .pagination-wrap { padding: 14px 20px; border-top: 1px solid var(--border); }
-        .pagination-wrap .pagination { display: flex; gap: 4px; list-style: none; }
+        .preview-image {
+            max-width: 260px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 10px;
+        }
+        .pagination-wrap { padding: 12px 16px; border-top: 1px solid var(--border); }
+        .pagination-wrap .pagination { display: flex; gap: 4px; list-style: none; flex-wrap: wrap; }
         .pagination-wrap .page-link {
-            padding: 6px 11px; border-radius: 6px; font-size: 13px;
+            padding: 5px 10px; border-radius: 6px; font-size: 12px;
             color: var(--text); text-decoration: none;
             border: 1px solid var(--border); background: var(--white);
             transition: all .15s;
@@ -275,28 +319,28 @@
         .pagination-wrap .active .page-link { background: var(--accent); color: #fff; border-color: var(--accent); }
         .pagination-wrap .disabled .page-link { opacity: .4; pointer-events: none; }
         .pagination-wrap .page-link svg {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             display: block;
         }
 
         .empty-state {
-            text-align: center; padding: 60px 20px; color: var(--text-muted);
+            text-align: center; padding: 48px 16px; color: var(--text-muted);
         }
-        .empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: .4; }
-        .empty-state p { font-size: 15px; }
+        .empty-state svg { width: 42px; height: 42px; margin-bottom: 10px; opacity: .4; }
+        .empty-state p { font-size: 13.5px; }
 
-        .detail-row { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
+        .detail-row { display: flex; gap: 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
         .detail-row:last-child { border-bottom: none; }
         .detail-label {
-            width: 200px; flex-shrink: 0;
-            padding: 12px 16px;
-            font-size: 13px; font-weight: 500; color: var(--text-muted);
+            width: 170px; flex-shrink: 0;
+            padding: 10px 14px;
+            font-size: 12.5px; font-weight: 500; color: var(--text-muted);
             background: #f8fafc;
         }
-        .detail-value { padding: 12px 16px; font-size: 14px; }
+        .detail-value { padding: 10px 14px; font-size: 13px; }
 
-        .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+        .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
         .item-card {
             background: var(--white); border-radius: var(--radius);
             border: 1px solid var(--border); box-shadow: var(--shadow);
@@ -304,30 +348,41 @@
         }
         .item-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.09); }
         .item-card-img {
-            width: 100%; height: 140px;
+            width: 100%; height: 120px;
             background: #fafafa;
             display: flex; align-items: center; justify-content: center;
         }
-        .item-card-img svg { width: 48px; height: 48px; color: #a1a1aa; }
-        .item-card-body { padding: 14px 16px; }
-        .item-card-title { font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
-        .item-card-sub   { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+        .item-card-img svg { width: 42px; height: 42px; color: #a1a1aa; }
+        .item-card-body { padding: 12px 14px; }
+        .item-card-title { font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+        .item-card-sub   { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 880px) {
+            :root { --sidebar-w: 64px; }
+            .sidebar-logo-text,
+            .nav-item span.nav-label,
+            .nav-section-label,
+            .sidebar-user-name,
+            .sidebar-user-role { display: none; }
+            .nav-item { justify-content: center; padding: 9px; }
+            .sidebar-user { justify-content: center; }
+            .page-content { padding: 12px; }
+            .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+        }
     </style>
     @stack('styles')
 </head>
 <body>
 
 <aside class="sidebar">
-<div class="sidebar-logo" style="display: flex; padding: 18px 16px 14px; gap: 10px; align-items: center;">
-    <div style="width: 42px; height: 42px; flex-shrink: 0;
-                background: url('{{ asset('images/logo.png') }}') center/contain no-repeat;">
+    <div class="sidebar-logo">
+        <div class="sidebar-logo-mark"></div>
+        <div class="sidebar-logo-text">
+            <span>SiPinjam</span>
+            <small>Admin</small>
+        </div>
     </div>
-    <div>
-        <span style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -.3px; display: block;">SiPinjam</span>
-        <small style="display: block; font-size: 11px; color: #ffffff; margin-top: 2px; letter-spacing: .5px; text-transform: uppercase;">Admin</small>
-    </div>
-</div>
-
 
     <nav class="sidebar-nav">
         <div class="nav-section-label">Utama</div>
@@ -338,7 +393,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
             </svg>
-            Dashboard
+            <span class="nav-label">Dashboard</span>
         </a>
 
         <div class="nav-section-label">Pengguna</div>
@@ -349,7 +404,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
-            Kelola Pengguna
+            <span class="nav-label">Kelola Pengguna</span>
         </a>
 
         <a href="{{ route('admin.ormawa.index') }}"
@@ -358,7 +413,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
             </svg>
-            Kelola Ormawa
+            <span class="nav-label">Kelola Ormawa</span>
         </a>
 
         <a href="{{ route('admin.pendaftar.index') }}"
@@ -367,7 +422,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            Validasi Pendaftar
+            <span class="nav-label">Validasi Pendaftar</span>
         </a>
 
         <div class="nav-section-label">Peminjaman</div>
@@ -378,7 +433,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
             </svg>
-            Status Peminjaman
+            <span class="nav-label">Status Peminjaman</span>
         </a>
 
         <a href="{{ route('admin.riwayat-peminjaman') }}"
@@ -387,63 +442,64 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            Riwayat Peminjaman
+            <span class="nav-label">Riwayat Peminjaman</span>
         </a>
 
         <div class="nav-section-label">Inventaris</div>
 
-       <a href="{{ route('admin.ruangan.index') }}"
-            class="nav-item {{ request()->routeIs('admin.ruangan.*') ? 'active' : '' }}">
+        <a href="{{ route('admin.ruangan.index') }}"
+           class="nav-item {{ request()->routeIs('admin.ruangan.*') ? 'active' : '' }}">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
             </svg>
-        Kelola Ruangan
-       </a>
+            <span class="nav-label">Kelola Ruangan</span>
+        </a>
         <a href="{{ route('admin.daftar-barang') }}"
            class="nav-item {{ request()->routeIs('admin.daftar-barang') ? 'active' : '' }}">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
             </svg>
-            Daftar Barang
+            <span class="nav-label">Daftar Barang</span>
         </a>
 
         <div class="nav-section-label">Laporan</div>
 
         <a href="{{ route('admin.laporan.unduh') }}"
-            class="nav-item {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
+           class="nav-item {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        Unduh Laporan
-    </a>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span class="nav-label">Unduh Laporan</span>
+        </a>
+    </nav>
 
     <div class="sidebar-footer">
         <div class="sidebar-user">
             <div class="sidebar-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}</div>
             <div>
-                <div style="color:#e2e8f0;font-size:13px;font-weight:500;">{{ auth()->user()->name ?? 'Admin' }}</div>
-                <div style="font-size:11px;color:#7e9bf1;">Administrator</div>
+                <div class="sidebar-user-name">{{ auth()->user()->name ?? 'Admin' }}</div>
+                <div class="sidebar-user-role">Administrator</div>
             </div>
         </div>
         <a href="{{ route('admin.profil.show') }}"
-        class="nav-item {{ request()->routeIs('admin.profil*') ? 'active' : '' }}">
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-    </svg>
-    Profil Saya
-</a>
-        <form method="POST" action="{{ route('logout') }}" style="margin-top:8px;">
+           class="nav-item {{ request()->routeIs('admin.profil*') ? 'active' : '' }}">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            <span class="nav-label">Profil Saya</span>
+        </a>
+        <form method="POST" action="{{ route('logout') }}" style="margin-top:4px;">
             @csrf
             <button type="submit" class="nav-item" style="width:100%;background:none;cursor:pointer;border:none;">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
-                Keluar
+                <span class="nav-label">Keluar</span>
             </button>
         </form>
     </div>
@@ -456,16 +512,16 @@
             <div class="topbar-sub">@yield('subtitle', 'Panel Administrasi')</div>
         </div>
 
-    <div style="display:flex;align-items:center;gap:14px;">
-    <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#000000;">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;flex-shrink:0;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <span id="live-clock" style="font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:0.5px;"></span>
-    </div>
-    @yield('topbar-action')
-    </div>
+        <div style="display:flex;align-items:center;gap:14px;">
+            <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:#000000;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;flex-shrink:0;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span id="live-clock" style="font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:0.5px;"></span>
+            </div>
+            @yield('topbar-action')
+        </div>
     </header>
 
     <main class="page-content">
@@ -508,8 +564,6 @@
     updateClock();
     setInterval(updateClock, 1000);
 </script>
-@stack('scripts')
-
 @stack('scripts')
 </body>
 </html>

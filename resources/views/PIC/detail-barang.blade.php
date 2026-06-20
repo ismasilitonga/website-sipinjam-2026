@@ -25,7 +25,7 @@
 
             @php
                 $rows = [
-                    ['Peminjam',        $peminjaman->user->name ?? '-'],
+                    ['Peminjam',        $peminjaman->user->nama ?? '-'],
                     ['NIM',             $peminjaman->user->nim  ?? '-'],
                     ['Ormawa',          $peminjaman->nama_ormawa ?? '-'],
                     ['Barang',          ($peminjaman->barang->nama ?? '-') . ' · ' . ($peminjaman->barang->kode ?? '')],

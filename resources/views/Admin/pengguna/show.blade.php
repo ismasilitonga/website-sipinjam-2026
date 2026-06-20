@@ -25,10 +25,10 @@
             <div style="width:80px;height:80px;border-radius:50%;background:#dbeafe;
                         display:flex;align-items:center;justify-content:center;
                         font-size:32px;font-weight:700;color:#1d4ed8;margin:0 auto 16px;">
-                {{ strtoupper(substr($user->name, 0, 1)) }}
+                {{ strtoupper(substr($user->nama, 0, 1)) }}
             </div>
             <div style="font-family:'Outfit',sans-serif;font-size:17px;font-weight:600;">
-                {{ $user->name }}
+                {{ $user->nama }}
             </div>
             <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">
                 {{ $user->email }}
@@ -62,7 +62,7 @@
             </div>
             <div class="detail-row">
                 <div class="detail-label">Nama Lengkap</div>
-                <div class="detail-value">{{ $user->name }}</div>
+                <div class="detail-value">{{ $user->nama }}</div>
             </div>
             <div class="detail-row">
                 <div class="detail-label">Email</div>
@@ -113,7 +113,7 @@
         <form method="POST" action="{{ route('admin.pengguna.destroy', $user->id) }}">
             @csrf @method('DELETE')
             <button type="submit" class="btn btn-danger"
-                onclick="return confirm('Hapus pengguna {{ $user->name }}? Tindakan tidak bisa dibatalkan.')">
+                onclick="return confirm('Hapus pengguna {{ $user->nama }}? Tindakan tidak bisa dibatalkan.')">
                 Hapus Pengguna
             </button>
         </form>

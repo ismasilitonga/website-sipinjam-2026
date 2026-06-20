@@ -26,7 +26,7 @@
             @forelse($peminjaman_barangs as $i => $item)
             <tr>
                 <td>{{ $i + 1 }}</td>
-                <td>{{ $item->user->name   ?? '-' }}</td>
+                <td>{{ $item->user->nama   ?? '-' }}</td>
                 <td>{{ $item->barang->nama ?? '-' }}</td>
                 <td>{{ $item->jumlah }}</td>
                 <td>{{ \Carbon\Carbon::parse($item->tanggal_pinjam)->format('d M Y') }}</td>

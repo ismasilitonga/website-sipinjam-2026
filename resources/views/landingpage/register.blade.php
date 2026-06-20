@@ -104,6 +104,37 @@
             border-color:var(--primary);
         }
 
+        /* === Password show/hide icon === */
+        .password-wrapper{
+            position:relative;
+        }
+
+        .password-wrapper input{
+            padding-right:46px;
+        }
+
+        .toggle-password{
+            position:absolute;
+            top:50%;
+            right:14px;
+            transform:translateY(-50%);
+            display:flex;
+            align-items:center;
+            cursor:pointer;
+            color:#94a3b8;
+            user-select:none;
+        }
+
+        .toggle-password:hover{
+            color:var(--primary);
+        }
+
+        .toggle-password svg{
+            width:20px;
+            height:20px;
+            display:block;
+        }
+
         .btn{
             width:100%;
             border:none;
@@ -174,7 +205,7 @@
         @csrf
 
             <div class="form-group">
-                <input type="text" name="name" placeholder="Nama Lengkap" required>
+                <input type="text" name="nama" placeholder="Nama Lengkap" required>
             </div>
 
             <div class="form-group">
@@ -196,33 +227,34 @@
             <div class="form-group">
                 <select name="organisasi" required>
                     <option value="">Pilih Organisasi</option>
-
-                                       <option value="dpm">DPM</option>
-                    <option value="bem">BEM</option>
-                    <option value="hmti">HMTI</option>
-                    <option value="hme">HME</option>
-                    <option value="hmm">HMM</option>
-                    <option value="hmmb">HMMB</option>
-                    <option value="pd-elshaddai">PD El-Shaddai</option>
-                    <option value="immpb">IMMPB</option>
-                    <option value="menwa">MENWA</option>
-                    <option value="mapala">MAPALA</option>
-                    <option value="pec">PEC</option>
-                    <option value="kuas">KUAS</option>
-                    <option value="blug">BLUG</option>
-                    <option value="lpm-paradigma">LPM Paradigma</option>
-                    <option value="energi">ENERGI</option>
-                    <option value="kop">KOP</option>
-
+                    @foreach($ormawas as $ormawa)
+                        <option value="{{ $ormawa->singkatan }}">{{ $ormawa->nama_organisasi }}</option>
+                    @endforeach
                 </select>
             </div>
 
             <div class="form-group">
-                <input type="password" name="password" placeholder="Kata Sandi" required>
+                <div class="password-wrapper">
+                    <input type="password" name="password" id="password" placeholder="Kata Sandi" required>
+                    <span class="toggle-password" onclick="togglePassword('password', this)" aria-label="Tampilkan kata sandi">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </span>
+                </div>
             </div>
 
             <div class="form-group">
-                <input type="password" name="password_confirmation" placeholder="Konfirmasi Kata Sandi" required>
+                <div class="password-wrapper">
+                    <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Konfirmasi Kata Sandi" required>
+                    <span class="toggle-password" onclick="togglePassword('password_confirmation', this)" aria-label="Tampilkan konfirmasi kata sandi">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </span>
+                </div>
             </div>
 
             <button type="submit" class="btn">
@@ -245,6 +277,29 @@
     </a>
 
 </div>
+
+<script>
+    const eyeIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+        </svg>`;
+
+    const eyeOffIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.62 21.62 0 0 1 5.06-6.94"></path>
+            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-3.22 4.56"></path>
+            <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"></path>
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+        </svg>`;
+
+    function togglePassword(fieldId, iconEl) {
+        const field = document.getElementById(fieldId);
+        const isHidden = field.type === 'password';
+        field.type = isHidden ? 'text' : 'password';
+        iconEl.innerHTML = isHidden ? eyeOffIcon : eyeIcon;
+    }
+</script>
 
 </body>
 </html>

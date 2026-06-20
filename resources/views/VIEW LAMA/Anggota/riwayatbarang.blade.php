@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <title>Validasi Peminjaman Barang - Student Center</title>
     <style>
-        /* --- CSS DASAR --- */
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background: white; overflow-x: hidden; }
         
@@ -215,7 +215,7 @@
             <div class="profile-info" onclick="goToPage('profile')">
                 <div class="profile-avatar">{{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}</div>
                 <div class="profile-details">
-                    <h4>{{ Auth::user()->name ?? 'User' }}</h4>
+                    <h4>{{ Auth::user()->nama ?? 'User' }}</h4>
                     <p>{{ Auth::user()->nim ?? '-' }}</p>
                 </div>
             </div>
