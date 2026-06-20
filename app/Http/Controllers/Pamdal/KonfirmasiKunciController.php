@@ -14,6 +14,7 @@ class KonfirmasiKunciController extends Controller
 
         $query = PeminjamanRuangan::with(['user', 'ruangan'])
             ->whereIn('status', ['disetujui', 'berjalan'])
+            ->whereDate('tanggal_mulai', now()->toDateString()) 
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sub) use ($search) {
                     $sub->where('nama_ormawa', 'like', "%{$search}%")
@@ -21,7 +22,7 @@ class KonfirmasiKunciController extends Controller
                             $user->where('name', 'like', "%{$search}%");
                         })
                         ->orWhereHas('ruangan', function ($ruangan) use ($search) {
-                            $ruangan->where('nama_ruangan', 'like', "%{$search}%");
+                            $ruangan->where('nama', 'like', "%{$search}%");
                         });
                 });
             })
@@ -33,7 +34,7 @@ class KonfirmasiKunciController extends Controller
                     'id' => $p->id,
                     'user_name' => $p->user->name ?? '-',
                     'nama_ormawa' => $p->nama_ormawa,
-                    'ruangan_nama' => $p->ruangan->nama_ruangan ?? '-',
+                    'ruangan_nama' => $p->ruangan->nama ?? '-',
                     'tanggal_mulai' => \Carbon\Carbon::parse($p->tanggal_mulai)->format('d M Y'),
                     'jam_mulai' => \Carbon\Carbon::parse($p->tanggal_mulai)->format('H:i'),
                     'jam_selesai' => \Carbon\Carbon::parse($p->tanggal_selesai)->format('H:i'),

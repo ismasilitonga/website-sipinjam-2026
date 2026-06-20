@@ -14,10 +14,10 @@ class InformatisBarangController extends Controller
 
     $query = Barang::query();
 
-    if ($request->sumber == 'pic') {
-    $query->where('kode', 'like', 'BRG-%');
-    } elseif ($request->sumber == 'ormawa') {
-    $query->where('kode', 'not like', 'BRG-%');
+   if ($request->sumber == 'pic') {
+    $query->where('kode', 'like', 'SC-%');
+} elseif ($request->sumber == 'ormawa') {
+    $query->where('kode', 'not like', 'SC-%');
 }
 
     if ($search) {
@@ -25,7 +25,7 @@ class InformatisBarangController extends Controller
             $q->where('nama', 'like', "%{$search}%")
               ->orWhere('kode', 'like', "%{$search}%")
               ->orWhere('kategori', 'like', "%{$search}%")
-              ->orWhere('organisasi', 'like', "%{$search}%");
+              ->orWhere('jenis_barang', 'like', "%{$search}%");
         });
     }
     $barang = $query->latest()->paginate(10);

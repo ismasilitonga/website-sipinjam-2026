@@ -14,9 +14,12 @@
 @section('subtitle', 'Rekap peminjaman yang telah selesai dan disetujui')
 
 @section('topbar-action')
-    <a href="{{ auth()->user()->role === 'admin'
-        ? route('admin.riwayat-peminjaman.export', request()->query())
-        : route('pic.riwayat.export', request()->query()) }}"
+    <a href="@if(auth()->user()->role === 'admin')
+              {{ route('admin.riwayat-peminjaman.export', request()->query()) }}
+          @elseif(auth()->user()->role === 'ketua')
+          @else
+              {{ route('pic.riwayat.export', request()->query()) }}
+          @endif"
        class="btn btn-outline" style="display: flex; align-items: center; gap: 6px;">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 15px; height: 15px;">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -109,7 +112,7 @@
                                 cursor: pointer; user-select: none; position: relative;">
                         <span id="dropdown-label">
                             @if(request('ruangan_id') && $ruangans->firstWhere('id', request('ruangan_id')))
-                                {{ $ruangans->firstWhere('id', request('ruangan_id'))->nama_ruangan }}
+                                {{ $ruangans->firstWhere('id', request('ruangan_id'))->nama }}
                             @else
                                 Semua Ruangan
                             @endif
@@ -137,7 +140,7 @@
                         style="padding: 8px 12px; font-size: 13px; cursor: pointer;
                         color: #1e293b; border-bottom: 1px solid #f3f4f6;
                     {{ request('ruangan_id') == $r->id ? 'background: #ede9fe; color: #6d28d9; font-weight: 600;' : '' }}">
-                    {{ $r->nama_ruangan }}
+                    {{ $r->nama }}
                     </div>
                 @endforeach
                 </div>
@@ -178,7 +181,7 @@
                     <strong>Bulan {{ \Carbon\Carbon::parse(request('bulan') . '-01')->translatedFormat('F Y') }}</strong>
                 @endif
                 @if(request('ruangan_id') && $ruangans->firstWhere('id', request('ruangan_id')))
-                    · <strong>{{ $ruangans->firstWhere('id', request('ruangan_id'))->nama_ruangan }}</strong>
+                    · <strong>{{ $ruangans->firstWhere('id', request('ruangan_id'))->nama }}</strong>
                 @endif
                 — ditemukan <strong>{{ $riwayat->total() }} data</strong>
             </div>
@@ -209,13 +212,15 @@
                             <div style="font-size: 11px; color: var(--text-muted);">{{ $p->user->nim ?? '' }}</div>
                         </td>
                         <td style="font-size: 12.5px;">{{ $p->nama_ormawa ?? '-' }}</td>
-                        <td style="font-size: 13px; font-weight: 500; white-space: nowrap;">{{ $p->ruangan->nama_ruangan ?? '-' }}</td>
+                        <td style="font-size: 13px; font-weight: 500; white-space: nowrap;">{{ $p->ruangan->nama?? '-' }}</td>
                         <td style="font-size: 12px; white-space: nowrap;">
                             {{ \Carbon\Carbon::parse($p->tanggal_mulai)->translatedFormat('d M Y') }}
                         </td>
                         <td>
                             @php
                                 [$cls, $lbl] = match($p->status) {
+                                    'menunggu_ketua' => ['badge-yellow', 'Menunggu Ketua'],
+                                     'menunggu_pic'   => ['badge-purple', 'Menunggu PIC'],  
                                     'disetujui' => ['badge-green', 'Disetujui'],
                                     'selesai'   => ['badge-gray',  'Selesai'],
                                     default     => ['badge-gray',  ucfirst($p->status)],
@@ -224,13 +229,17 @@
                             <span class="badge {{ $cls }}">{{ $lbl }}</span>
                         </td>
                         <td>
-                            <a href="{{ auth()->user()->role === 'admin'
-                                ? route('admin.riwayat-peminjaman.detail', $p->id)
-                                : route('pic.riwayat-peminjaman.detail', $p->id) }}"
-                               class="btn btn-outline" style="font-size: 12px; padding: 4px 12px;">
-                                Detail
-                            </a>
-                        </td>
+                        <a href="@if(auth()->user()->role === 'admin')
+                 {{ route('admin.riwayat-peminjaman.detail', $p->id) }}
+             @elseif(auth()->user()->role === 'ketua')
+                 {{ route('ketua.riwayat-peminjaman.show', $p->id) }}
+             @else
+                 {{ route('pic.riwayat-peminjaman.detail', $p->id) }}
+             @endif"
+       class="btn btn-outline" style="font-size: 12px; padding: 4px 12px;">
+        Detail
+    </a>
+</td>
                     </tr>
                 @empty
                     <tr>

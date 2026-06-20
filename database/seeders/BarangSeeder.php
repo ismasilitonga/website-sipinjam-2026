@@ -12,8 +12,8 @@ class BarangSeeder extends Seeder
 
     public function run(): void
     {
-        $barangs = [
-            // Elektronik
+        $barang = [
+
             ['nama' => 'Proyektor Portable',    'kode' => 'BRG-EL-001', 'kategori' => 'Elektronik',   'stok' => 4,  'satuan' => 'unit',  'kondisi' => 'baik',         'deskripsi' => 'Proyektor HDMI portable untuk presentasi'],
             ['nama' => 'Layar Proyektor',        'kode' => 'BRG-EL-002', 'kategori' => 'Elektronik',   'stok' => 3,  'satuan' => 'unit',  'kondisi' => 'baik',         'deskripsi' => 'Layar proyektor roll-up 100 inch'],
             ['nama' => 'Speaker Portable',       'kode' => 'BRG-EL-003', 'kategori' => 'Elektronik',   'stok' => 5,  'satuan' => 'unit',  'kondisi' => 'baik',         'deskripsi' => 'Speaker bluetooth aktif untuk acara'],
@@ -43,13 +43,13 @@ class BarangSeeder extends Seeder
             ['nama' => 'Vacuum Cleaner',         'kode' => 'BRG-KB-001', 'kategori' => 'Kebersihan',   'stok' => 2,  'satuan' => 'unit',  'kondisi' => 'baik',         'deskripsi' => 'Vacuum cleaner untuk membersihkan ruangan setelah acara'],
         ];
 
-        DB::table('barangs')->insert(array_map(fn($b) => [
+        DB::table('barang')->insert(array_map(fn($b) => [
             ...$b,
             'foto'       => null,
             'created_at' => now(),
             'updated_at' => now(),
-        ], $barangs));
+        ], $barang));
 
-        $this->command->info('✅ BarangSeeder: ' . count($barangs) . ' barang dibuat.');
+        $this->command->info('✅ BarangSeeder: ' . count($barang) . ' barang dibuat.');
     }
 }

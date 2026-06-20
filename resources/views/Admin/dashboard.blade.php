@@ -103,7 +103,7 @@
                     <tr>
                         <td>
                         <div style="font-weight:600;font-size:13px;">
-                         {{ $p->ruangan->nama_ruangan ?? '-' }}
+                         {{ $p->ruangan->nama ?? '-' }}
                         </div>
 
                     <div style="

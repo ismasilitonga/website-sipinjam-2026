@@ -16,7 +16,7 @@ class InsidenSeeder extends Seeder
         $user = fn(string $email) => User::where('email', $email)->value('id');
         $pic  = fn(string $email) => User::where('email', $email)->value('id');
 
-        $insidens = [
+        $insiden = [
             [
                 'user_id'         => $user('isma@gmail.com'),
                 'judul'           => 'Kursi Patah di Ruang Rapat Utama',
@@ -76,14 +76,14 @@ class InsidenSeeder extends Seeder
             ],
         ];
 
-        foreach ($insidens as $data) {
-            DB::table('insidens')->insert([
+        foreach ($insiden as $data) {
+            DB::table('insiden')->insert([
                 ...$data,
                 'foto'       => null,
                 'updated_at' => now(),
             ]);
         }
 
-        $this->command->info('✅ InsidenSeeder: ' . count($insidens) . ' insiden dibuat.');
+        $this->command->info('✅ InsidenSeeder: ' . count($insiden) . ' insiden dibuat.');
     }
 }

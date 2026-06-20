@@ -36,7 +36,7 @@
                             <div style="font-size: 11px; color: var(--text-muted);">{{ $p->user->nim ?? '' }}</div>
                         </td>
                         <td style="font-size: 12.5px;">{{ $p->nama_ormawa ?? '-' }}</td>
-                        <td style="font-size: 13px; font-weight: 500; white-space: nowrap;">{{ $p->ruangan->nama_ruangan ?? '-' }}</td>
+                        <td style="font-size: 13px; font-weight: 500; white-space: nowrap;">{{ $p->ruangan->nama ?? '-' }}</td>
                         <td style="font-size: 12.5px;">{{ \Carbon\Carbon::parse($p->tanggal_mulai)->format('d M Y') }}</td>
                         <td>
                             @php

@@ -46,7 +46,7 @@
                     </td>
                     <td style="font-size:12.5px;">{{ $p->nama_ormawa ?? $p->user?->organisasi ?? '-' }}</td>
                     <td>
-                        <div style="font-weight:600;font-size:13px;">{{ $p->ruangan->nama_ruangan ?? '-' }}</div>
+                        <div style="font-weight:600;font-size:13px;">{{ $p->ruangan->nama ?? '-' }}</div>
                         <div style="font-size:11px;color:var(--text-muted);">
                             {{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->lantai) ? ' · Lt.'.$p->ruangan->lantai : '' }}
                         </div>

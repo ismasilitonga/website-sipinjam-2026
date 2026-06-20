@@ -411,9 +411,10 @@
 
 <div class="main-wrap">
     <header class="topbar">
-        <div class="topbar-left">
-            <div class="topbar-title">@yield('title', 'Dashboard')</div>
-        </div>
+       <div class="topbar-left">
+    <div class="topbar-title">@yield('title', 'Dashboard')</div>
+    <div class="topbar-sub">@yield('subtitle')</div>
+</div>
         <div style="display:flex;align-items:center;gap:14px;">
 <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#000000;">                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;flex-shrink:0;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

@@ -51,7 +51,7 @@ class ValidasiPendaftarController extends Controller
                 fputcsv($file, [
                     $i + 1,
                     $item->user->name    ?? '-',
-                    $item->ruangan->nama_ruangan ?? '-',
+                    $item->ruangan->nama ?? '-',
                     $item->tanggal_mulai,
                     ucfirst(str_replace('_', ' ', $item->status)),
                 ]);

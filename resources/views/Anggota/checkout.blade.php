@@ -38,7 +38,7 @@
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
                 <div>
                     <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:700;">
-                        {{ $p->ruangan->nama_ruangan ?? '-' }}
+                        {{ $p->ruangan->nama?? '-' }}
                     </div>
                     <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">
                         {{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->lantai) ? ' · Lantai '.$p->ruangan->lantai : '' }}
@@ -79,9 +79,8 @@
             </div>
             @endif
 
-            {{-- Tombol: buka modal konfirmasi, bukan confirm() --}}
             <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;"
-                onclick="bukaModalCheckout('{{ $p->id }}', '{{ addslashes($p->ruangan->nama_ruangan ?? '') }}')">
+                onclick="bukaModalCheckout('{{ $p->id }}', '{{ addslashes($p->ruangan->nama ?? '') }}')">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 16l4-4m0 0l-4-4m4 4H7"/>
@@ -102,7 +101,6 @@
 </div>
 @endif
 
-{{-- ===== MODAL KONFIRMASI CHECK-OUT ===== --}}
 <div id="modalCheckout" style="
     display:none;position:fixed;inset:0;z-index:999;
     background:rgba(0,0,0,0.45);
@@ -113,7 +111,6 @@
         width:100%;max-width:420px;margin:16px;
         box-shadow:0 20px 60px rgba(0,0,0,0.2);">
 
-        {{-- Header --}}
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
             <div style="
                 width:36px;height:36px;border-radius:50%;
@@ -128,7 +125,6 @@
             </h3>
         </div>
 
-        {{-- Body --}}
         <p style="font-size:14px;color:var(--text-muted);margin:0 0 6px;">
             Anda akan melakukan check-out dari ruangan:
         </p>
@@ -137,13 +133,11 @@
             Pastikan ruangan sudah bersih dan kunci siap dikembalikan ke petugas <strong>Pamdal</strong>.
         </p>
 
-        {{-- Form tersembunyi --}}
         <form id="formCheckout" method="POST" action="{{ route('anggota.checkout.store') }}">
             @csrf
             <input type="hidden" id="inputPeminjamanId" name="peminjaman_id" value="">
         </form>
 
-        {{-- Tombol --}}
         <div style="display:flex;gap:10px;justify-content:flex-end;">
             <button type="button" onclick="tutupModalCheckout()"
                 style="padding:9px 20px;border-radius:8px;border:1px solid #e2e8f0;
@@ -178,7 +172,6 @@
         document.getElementById('formCheckout').submit();
     }
 
-    // Tutup modal jika klik backdrop
     document.getElementById('modalCheckout').addEventListener('click', function(e) {
         if (e.target === this) tutupModalCheckout();
     });

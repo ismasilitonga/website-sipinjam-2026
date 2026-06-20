@@ -52,13 +52,17 @@ class PengalihanBarangController extends Controller
     'alasan'               => 'required|string|max:500',
 ]);
 
-$penerima = User::where('id', $request->ke_user_id)
-    ->orWhere('nim', $request->ke_user_id)
-    ->first();
+$penerima = User::where('nim', $request->ke_user_id)->first();
 
 if (!$penerima) {
     return back()->withErrors([
-        'ke_user_id' => 'ID atau NIM penerima tidak ditemukan.'
+        'ke_user_id' => 'NIM penerima tidak ditemukan.'
+    ])->withInput();
+}
+
+if (in_array($penerima->role, ['admin', 'pic', 'pamdal'])) {
+    return back()->withErrors([
+        'ke_user_id' => 'Penerima harus sesama anggota/ketua ormawa, bukan admin/PIC/pamdal.'
     ])->withInput();
 }
 

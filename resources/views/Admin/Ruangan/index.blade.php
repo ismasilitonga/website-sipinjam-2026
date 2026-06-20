@@ -41,7 +41,7 @@
                     </td>
                     <td>
                         @if($ruangan->foto)
-                            <img src="{{ asset('storage/' . $ruangan->foto) }}" alt="{{ $ruangan->nama_ruangan }}"
+                            <img src="{{ asset('storage/' . $ruangan->foto) }}" alt="{{ $ruangan->nama }}"
                                  style="width:48px;height:48px;object-fit:cover;border-radius:8px;">
                         @else
                             <div style="width:48px;height:48px;background:#f1f5f9;border-radius:8px;display:flex;align-items:center;justify-content:center;">
@@ -52,9 +52,7 @@
                             </div>
                         @endif
                     </td>
-                    <td style="font-weight:600;font-size:13px;">{{ $ruangan->nama_ruangan
-                    
-                    }}</td>
+                    <td style="font-weight:600;font-size:13px;">{{ $ruangan->nama}}</td>
                     <td style="font-size:12.5px;color:var(--text-muted);">{{ $ruangan->kode }}</td>
                     <td style="font-size:12.5px;">
                         {{ $ruangan->gedung ?? '-' }}
@@ -89,7 +87,7 @@
         <a href="{{ route('admin.ruangan.edit', $ruangan->id) }}"
            class="btn btn-outline btn-sm">Edit</a>
         <button type="button" class="btn btn-danger btn-sm"
-            onclick="bukaModalRuangan('{{ $ruangan->id }}', '{{ addslashes($ruangan->nama_ruangan) }}')">
+            onclick="bukaModalRuangan('{{ $ruangan->id }}', '{{ addslashes($ruangan->nama) }}')">
             Hapus
         </button>
     </div>

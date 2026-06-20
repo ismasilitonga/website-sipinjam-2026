@@ -12,7 +12,7 @@ class RuanganSeeder extends Seeder
 
     public function run(): void
     {
-        $ruangans = [
+        $ruangan = [
             [
                 'nama'      => 'Ruang Rapat Utama',
                 'kode'      => 'SC-R01',
@@ -105,13 +105,18 @@ class RuanganSeeder extends Seeder
             ],
         ];
 
-        DB::table('nama_ruangans')->insert(array_map(fn($r) => [
+        foreach ($ruangan as $r) {
+    DB::table('ruangan')->updateOrInsert(
+        ['kode' => $r['kode']],
+        [
             ...$r,
-            'foto'       => null,
             'created_at' => now(),
             'updated_at' => now(),
-        ], $ruangans));
+        ]
+    );
+}
 
-        $this->command->info('✅ RuanganSeeder: ' . count($ruangans) . ' ruangan dibuat.');
+$this->command->info('✅ RuanganSeeder: ' . count($ruangan) . ' ruangan dibuat.');
+
     }
 }

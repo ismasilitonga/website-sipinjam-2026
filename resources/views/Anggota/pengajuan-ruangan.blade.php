@@ -22,14 +22,14 @@
                     <select name="ruangan_id" class="form-select" required id="ruanganSelect"
                             onchange="updateRuanganInfo(this)">
                         <option value="">-- Pilih ruangan tersedia --</option>
-                        @foreach($peminjaman_ruangans as $r)
+                        @foreach($ruangans as $r)
                         <option value="{{ $r->id }}"
                             data-gedung="{{ $r->gedung ?? '' }}"
                             data-lantai="{{ $r->lantai ?? '' }}"
                             data-kapasitas="{{ $r->kapasitas ?? '' }}"
                             data-fasilitas="{{ $r->fasilitas ?? '' }}"
                             {{ old('ruangan_id', request('ruangan_id')) == $r->id ? 'selected' : '' }}>
-                            {{ $r->nama_ruangan }}{{ $r->gedung ? ' – '.$r->gedung : '' }}{{ $r->kapasitas ? ' ('.$r->kapasitas.' org)' : '' }}
+                            {{ $r->nama }}{{ $r->gedung ? ' – '.$r->gedung : '' }}{{ $r->kapasitas ? ' ('.$r->kapasitas.' org)' : '' }}
                         </option>
                         @endforeach
                     </select>

@@ -21,12 +21,12 @@ class PengajuanDisetujuiKetuaNotification extends Notification
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Pengajuan Ruangan Disetujui Ketua - ' . $this->peminjaman->ruangan->nama_ruangan)
+            ->subject('Pengajuan Ruangan Disetujui Ketua - ' . $this->peminjaman->ruangan->nama)
             ->greeting('Halo, ' . $notifiable->name)
             ->line('Ada pengajuan ruangan yang sudah disetujui ketua dan menunggu validasi PIC.')
             ->line('**Pengaju:** ' . $this->peminjaman->user->name)
             ->line('**Ormawa:** ' . $this->peminjaman->nama_ormawa)
-            ->line('**Ruangan:** ' . $this->peminjaman->ruangan->nama_ruangan)
+            ->line('**Ruangan:** ' . $this->peminjaman->ruangan->nama)
             ->line('**Tanggal:** ' . \Carbon\Carbon::parse($this->peminjaman->tanggal_mulai)->translatedFormat('d F Y, H:i'))
             ->line('**Keperluan:** ' . $this->peminjaman->keperluan)
             ->action('Lihat Pengajuan', url('/'))

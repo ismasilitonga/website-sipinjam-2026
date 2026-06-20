@@ -1,7 +1,7 @@
 @extends('layouts.pic')
 
 @section('title', isset($ruangan) ? 'Edit Ruangan' : 'Tambah Ruangan')
-@section('subtitle', isset($ruangan) ? 'Perbarui data ruangan: '.$ruangan->nama_ruangan : 'Daftarkan ruangan baru ke sistem')
+@section('subtitle', isset($ruangan) ? 'Perbarui data ruangan: '.$ruangan->nama : 'Daftarkan ruangan baru ke sistem')
 
 @section('topbar-action')
     <a href="{{ route('pic.ruangan.index') }}" class="btn btn-outline">
@@ -31,10 +31,10 @@
             <div class="form-grid-2">
                 <div class="form-group">
                     <label class="form-label">Nama Ruangan <span style="color:var(--danger)">*</span></label>
-                    <input type="text" name="nama_ruangan" class="form-control"
-                           value="{{ old('nama_ruangan', $ruangan->nama_ruangan ?? '') }}"
-                           placeholder="Contoh: Ruang Rapat A" required>
-                    @error('nama_ruangan') <div class="form-error">{{ $message }}</div> @enderror
+                    <input type="text" name="nama" class="form-control"
+                    value="{{ old('nama', $ruangan->nama ?? '') }}"
+                    placeholder="Contoh: Ruang Rapat A" required>
+                    @error('nama') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
                 <div class="form-group">
                     <label class="form-label">Kode Ruangan <span style="color:var(--danger)">*</span></label>

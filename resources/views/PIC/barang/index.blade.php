@@ -128,15 +128,10 @@
 
                 <td>
                     @if($b->organisasi)
-                        <span class="badge badge-purple">
-                            {{ $b->organisasi }}
-                        </span>
-                    @else
-                        <span class="badge badge-blue">
-                            PIC
-                        </span>
-                    @endif
-                </td>
+    <span class="badge badge-purple">{{ $b->organisasi }}</span>
+@else
+    <span class="badge badge-blue">PIC</span>
+@endif
 
                 <td>
                     @php $stok = $b->stok ?? 0; @endphp

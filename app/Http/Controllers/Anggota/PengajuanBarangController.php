@@ -12,7 +12,9 @@ class PengajuanBarangController extends Controller
 {
     public function index()
     {
-        $barangs = Barang::where('stok', '>', 0)->get();
+       $barangs = Barang::where('stok', '>', 0)
+        ->where('jenis_barang', 'bisa_dipinjam')
+        ->get();
         return view('anggota.pengajuan-barang', compact('barangs'));
     }
 

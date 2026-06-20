@@ -53,7 +53,7 @@
                         <span style="font-size: 9px; color: #6b7280;">{{ $p->user->nim ?? '' }}</span>
                     </td>
                     <td>{{ $p->nama_ormawa ?? '-' }}</td>
-                    <td>{{ $p->ruangan->nama_ruangan ?? '-' }}</td>
+                    <td>{{ $p->ruangan->nama ?? '-' }}</td>
                     <td style="white-space: nowrap;">{{ \Carbon\Carbon::parse($p->tanggal_mulai)->format('d M Y') }}</td>
                     <td style="white-space: nowrap;">
                         {{ \Carbon\Carbon::parse($p->tanggal_mulai)->format('H:i') }}-{{ \Carbon\Carbon::parse($p->tanggal_selesai)->format('H:i') }}

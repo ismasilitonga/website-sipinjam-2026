@@ -418,6 +418,100 @@
 let selectedSerahId   = null;
 let selectedKembaliId = null;
 
+function openSerahModal(id, peminjam, barang) {
+    selectedSerahId = id;
+    document.getElementById('serahText').innerHTML =
+        `Apakah Anda yakin ingin menyerahkan <b>${barang}</b> kepada <b>${peminjam}</b>?`;
+    document.getElementById('fotoSerahInput').value               = '';
+    document.getElementById('serahFotoPreview').style.display     = 'none';
+    document.getElementById('serahFotoPlaceholder').style.display = 'block';
+    document.getElementById('serahModal').classList.add('show');
+}
+
+function closeSerahModal() {
+    document.getElementById('serahModal').classList.remove('show');
+    selectedSerahId = null;
+}
+
+function submitSerahForm() {
+    if (!selectedSerahId) return;
+    const fotoInput = document.getElementById('fotoSerahInput');
+
+    if (fotoInput && fotoInput.files.length > 0) {
+        try {
+            const hiddenInput = document.getElementById('foto_serah_hidden_' + selectedSerahId);
+            const dt = new DataTransfer();
+            dt.items.add(fotoInput.files[0]);
+            hiddenInput.files = dt.files;
+        } catch (err) {
+            console.error('Gagal melampirkan foto serah, lanjut submit tanpa foto:', err);
+        }
+    }
+    const form = document.getElementById('serahForm' + selectedSerahId);
+    if (!form) {
+        console.error('Form serahForm' + selectedSerahId + ' tidak ditemukan');
+        return;
+    }
+    form.submit();
+}
+
+function openKembaliModal(id, peminjam, barang) {
+    selectedKembaliId = id;
+    document.getElementById('kembaliText').innerHTML =
+        `Apakah <b>${barang}</b> sudah dikembalikan oleh <b>${peminjam}</b>?`;
+    document.getElementById('fotoKembaliInput').value               = '';
+    document.getElementById('kembaliFotoPreview').style.display     = 'none';
+    document.getElementById('kembaliFotoPlaceholder').style.display = 'block';
+    document.getElementById('modalKondisiBarang').value             = 'baik';
+    document.getElementById('modalCatatanKondisi').value            = '';
+    document.getElementById('kembaliModal').classList.add('show');
+}
+
+function closeKembaliModal() {
+    document.getElementById('kembaliModal').classList.remove('show');
+    selectedKembaliId = null;
+}
+
+function submitKembaliForm() {
+    if (!selectedKembaliId) return;
+
+    const fotoInput = document.getElementById('fotoKembaliInput');
+
+    if (fotoInput && fotoInput.files.length > 0) {
+        try {
+            const hiddenInput = document.getElementById('foto_kembali_hidden_' + selectedKembaliId);
+            const dt = new DataTransfer();
+            dt.items.add(fotoInput.files[0]);
+            hiddenInput.files = dt.files;
+        } catch (err) {
+            console.error('Gagal melampirkan foto kembali, lanjut submit tanpa foto:', err);
+        }
+    }
+
+    document.getElementById('kondisi_hidden_' + selectedKembaliId).value =
+        document.getElementById('modalKondisiBarang').value;
+    document.getElementById('catatan_hidden_' + selectedKembaliId).value =
+        document.getElementById('modalCatatanKondisi').value;
+
+    const form = document.getElementById('kembaliForm' + selectedKembaliId);
+    if (!form) {
+        console.error('Form kembaliForm' + selectedKembaliId + ' tidak ditemukan');
+        return;
+    }
+    form.submit();
+}
+
+function previewModalFoto(input, imgId, previewId, placeholderId) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        document.getElementById(imgId).src                   = e.target.result;
+        document.getElementById(previewId).style.display     = 'block';
+        document.getElementById(placeholderId).style.display = 'none';
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+
 const PER_PAGE = 10;
 let currentPage = 1;
 let visibleRows = [];
@@ -525,70 +619,6 @@ document.getElementById('filterBulan').addEventListener('change', applyFilter);
 document.getElementById('filterOrmawa').addEventListener('input', applyFilter);
 document.getElementById('filterBarang').addEventListener('input', applyFilter);
 
-// Inisialisasi saat halaman load
 document.addEventListener('DOMContentLoaded', applyFilter);
-
-// ===== MODAL SERAH & KEMBALI (tidak berubah) =====
-function openSerahModal(id, peminjam, barang) {
-    selectedSerahId = id;
-    document.getElementById('serahText').innerHTML =
-        `Apakah Anda yakin ingin menyerahkan <b>${barang}</b> kepada <b>${peminjam}</b>?`;
-    document.getElementById('fotoSerahInput').value               = '';
-    document.getElementById('serahFotoPreview').style.display     = 'none';
-    document.getElementById('serahFotoPlaceholder').style.display = 'block';
-    document.getElementById('serahModal').classList.add('show');
-}
-function closeSerahModal() {
-    document.getElementById('serahModal').classList.remove('show');
-    selectedSerahId = null;
-}
-function submitSerahForm() {
-    if (!selectedSerahId) return;
-    const form      = document.getElementById('serahForm' + selectedSerahId);
-    const fotoInput = document.getElementById('fotoSerahInput');
-    const formData  = new FormData(form);
-    if (fotoInput.files.length > 0) formData.set('foto_serah', fotoInput.files[0]);
-    fetch(form.action, { method: 'POST', body: formData })
-        .then(res => { window.location.href = res.url; });
-}
-
-function openKembaliModal(id, peminjam, barang) {
-    selectedKembaliId = id;
-    document.getElementById('kembaliText').innerHTML =
-        `Apakah <b>${barang}</b> sudah dikembalikan oleh <b>${peminjam}</b>?`;
-    document.getElementById('fotoKembaliInput').value               = '';
-    document.getElementById('kembaliFotoPreview').style.display     = 'none';
-    document.getElementById('kembaliFotoPlaceholder').style.display = 'block';
-    document.getElementById('modalKondisiBarang').value             = 'baik';
-    document.getElementById('modalCatatanKondisi').value            = '';
-    document.getElementById('kembaliModal').classList.add('show');
-}
-function closeKembaliModal() {
-    document.getElementById('kembaliModal').classList.remove('show');
-    selectedKembaliId = null;
-}
-function submitKembaliForm() {
-    if (!selectedKembaliId) return;
-    const form      = document.getElementById('kembaliForm' + selectedKembaliId);
-    const fotoInput = document.getElementById('fotoKembaliInput');
-    const formData  = new FormData(form);
-    if (fotoInput.files.length > 0) formData.set('foto_kembali', fotoInput.files[0]);
-    formData.set('kondisi_barang',  document.getElementById('modalKondisiBarang').value);
-    formData.set('catatan_kondisi', document.getElementById('modalCatatanKondisi').value);
-    fetch(form.action, { method: 'POST', body: formData })
-        .then(res => { window.location.href = res.url; });
-}
-
-function previewModalFoto(input, imgId, previewId, placeholderId) {
-    if (!input.files || !input.files[0]) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-        document.getElementById(imgId).src                    = e.target.result;
-        document.getElementById(previewId).style.display     = 'block';
-        document.getElementById(placeholderId).style.display = 'none';
-    };
-    reader.readAsDataURL(input.files[0]);
-}
 </script>
-
 @endsection

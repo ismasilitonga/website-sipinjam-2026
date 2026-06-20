@@ -12,8 +12,8 @@ class PengajuanRuanganController extends Controller
 {
     public function index()
     {
-        $peminjaman_ruangans = Ruangan::where('status', 'tersedia')->get();
-        return view('anggota.pengajuan-ruangan', compact('peminjaman_ruangans'));
+        $ruangans = Ruangan::where('status', 'tersedia')->get();
+        return view('anggota.pengajuan-ruangan', compact('ruangans'));
     }
 
     public function store(Request $request)
@@ -41,7 +41,7 @@ class PengajuanRuanganController extends Controller
             return back()->withInput()->with('error', 'Ruangan sudah dipesan pada waktu tersebut.');
         }
 
-$peminjaman_ruangan = PeminjamanRuangan::create([
+    $ruangan = PeminjamanRuangan::create([
     'user_id'          => Auth::id(),
     'nama_ormawa'      => Auth::user()->organisasi,
     'ruangan_id'       => $request->ruangan_id,
@@ -52,10 +52,13 @@ $peminjaman_ruangan = PeminjamanRuangan::create([
     'status_pemakaian' => 'booked',
 ]);
 
-$ketua = \App\Models\User::where('role', 'ketua')->first();
+$ketua = \App\Models\User::where('role', 'ketua')
+    ->where('organisasi', Auth::user()->organisasi)
+    ->first();
+    
 if ($ketua) {
     $ketua->notify(
-        new \App\Notifications\PengajuanRuanganNotification($peminjaman_ruangan)
+        new \App\Notifications\PengajuanRuanganNotification($ruangan)
     );
 }
 

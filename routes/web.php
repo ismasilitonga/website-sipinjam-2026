@@ -129,6 +129,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/daftar-pengajuan/{id}/tolak',        [DaftarPengajuanController::class, 'tolak'])->name('pengajuan.tolak');
 
         Route::get('/riwayat-peminjaman', [RiwayatRuanganKetuaController::class, 'index'])->name('riwayat-peminjaman');
+        Route::get('/riwayat-peminjaman/{id}', [RiwayatRuanganKetuaController::class, 'show'])->name('riwayat-peminjaman.show');
+
 
         Route::get('/barang-ormawa/pilih-jenis', function () {return view('ketua.barang-ormawa.pilih-jenis');})->name('barang-ormawa.pilih-jenis');   
         Route::resource('barang-ormawa', BarangOrmawaController::class);

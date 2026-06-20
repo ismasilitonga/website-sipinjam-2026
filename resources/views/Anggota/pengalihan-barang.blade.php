@@ -5,6 +5,99 @@
 
 @section('content')
 
+<style>
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(2px);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 16px;
+    }
+    .modal-overlay.is-open { display: flex; }
+
+    .modal-card {
+        position: relative;
+        width: 100%;
+        max-width: 400px;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+        padding: 24px;
+        animation: modalIn .15s ease-out;
+    }
+    @keyframes modalIn {
+        from { opacity: 0; transform: translateY(6px) scale(.98); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        line-height: 1;
+        color: var(--text-muted);
+        cursor: pointer;
+    }
+    .modal-close:hover { color: #1e293b; }
+
+    .modal-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 14px;
+    }
+    .modal-icon svg { width: 22px; height: 22px; }
+
+    .modal-success .modal-icon { background: #dcfce7; color: #16a34a; }
+    .modal-danger  .modal-icon { background: #fee2e2; color: #dc2626; }
+
+    .modal-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 6px;
+    }
+    .modal-desc {
+        font-size: 13px;
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin: 0 0 14px;
+    }
+
+    .modal-item-box {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 18px;
+        font-size: 13px;
+    }
+    .modal-item-name { font-weight: 600; color: #0f172a; }
+    .modal-item-qty { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+    .modal-item-alasan { color: var(--text-muted); font-size: 12px; margin-top: 6px; }
+    .modal-item-alasan strong { color: #334155; }
+
+    .modal-actions { display: flex; gap: 10px; }
+    .modal-actions .btn { flex: 1; justify-content: center; }
+
+    .btn-outline {
+        background: #fff;
+        border: 1px solid var(--border);
+        color: #334155;
+    }
+    .btn-outline:hover { background: #f8fafc; }
+</style>
+
 @if($pengalihanMasuk->isNotEmpty())
 <div class="alert alert-warning">
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:17px;height:17px;flex-shrink:0;">
@@ -71,8 +164,12 @@
                               style="flex:1;">
                             @csrf
                             <input type="hidden" name="aksi" value="terima">
-                            <button type="submit" class="btn btn-success btn-sm" style="width:100%;justify-content:center;"
-                                onclick="return confirm('Terima pengalihan barang ini?')">
+                            <button type="button" class="btn btn-success btn-sm" style="width:100%;justify-content:center;"
+                                onclick="bukaModalKonfirmasi(this, 'terima')"
+                                data-nama="{{ $pg->dariUser->name ?? '-' }}"
+                                data-barang="{{ $pg->peminjamanBarang->barang->nama ?? '-' }}"
+                                data-jumlah="{{ trim(($pg->peminjamanBarang->jumlah ?? '-') . ' ' . ($pg->peminjamanBarang->barang->satuan ?? '')) }}"
+                                data-alasan="{{ $pg->alasan ?? '' }}">
                                 ✓ Terima
                             </button>
                         </form>
@@ -80,8 +177,12 @@
                               style="flex:1;">
                             @csrf
                             <input type="hidden" name="aksi" value="tolak">
-                            <button type="submit" class="btn btn-danger btn-sm" style="width:100%;justify-content:center;"
-                                onclick="return confirm('Tolak pengalihan barang ini?')">
+                            <button type="button" class="btn btn-danger btn-sm" style="width:100%;justify-content:center;"
+                                onclick="bukaModalKonfirmasi(this, 'tolak')"
+                                data-nama="{{ $pg->dariUser->name ?? '-' }}"
+                                data-barang="{{ $pg->peminjamanBarang->barang->nama ?? '-' }}"
+                                data-jumlah="{{ trim(($pg->peminjamanBarang->jumlah ?? '-') . ' ' . ($pg->peminjamanBarang->barang->satuan ?? '')) }}"
+                                data-alasan="{{ $pg->alasan ?? '' }}">
                                 ✕ Tolak
                             </button>
                         </form>
@@ -110,8 +211,8 @@
 
                 <div class="empty-state" style="padding:28px 0;">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
                     </svg>
                     <p>Tidak ada barang yang bisa kamu alihkan saat ini.</p>
                     <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">
@@ -122,7 +223,7 @@
                 <form method="POST" action="{{ route('anggota.pengalihan-barang.store') }}">
                     @csrf
 
-                    <div class="form-group">
+                        <div class="form-group">
                         <label class="form-label">Pilih Barang yang Dialihkan <span style="color:var(--danger)">*</span></label>
                         <select name="peminjaman_barang_id" class="form-select" required>
                             <option value="">-- Pilih barang --</option>
@@ -138,19 +239,17 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">NIM / Nama Penerima <span style="color:var(--danger)">*</span></label>
-                        <input type="text" name="ke_user_id" class="form-control"
-                               value="{{ old('ke_user_id') }}"
-                               placeholder="Masukkan ID pengguna penerima"
-                               list="userList" required>
+                        <label class="form-label">NIM Penerima <span style="color:var(--danger)">*</span></label>           
+                    <input type="text" name="ke_user_id" class="form-control"
+                        value="{{ old('ke_user_id') }}"
+                        placeholder="Masukkan NIM anggota penerima"required>
                         @error('ke_user_id') <div class="form-error">{{ $message }}</div> @enderror
-                        <div class="form-hint">Masukkan user ID anggota yang akan menerima barang.</div>
-                    </div>
+                    <div class="form-hint">Masukkan NIM anggota (bukan admin/PIC) yang akan menerima barang.</div>
 
                     <div class="form-group">
                         <label class="form-label">Alasan Pengalihan <span style="color:var(--danger)">*</span></label>
                         <textarea name="alasan" class="form-control" rows="3"
-                                  placeholder="Jelaskan alasan pengalihan barang ini" required>{{ old('alasan') }}</textarea>
+                        placeholder="Jelaskan alasan pengalihan barang ini" required>{{ old('alasan') }}</textarea>
                         @error('alasan') <div class="form-error">{{ $message }}</div> @enderror
                     </div>
 
@@ -192,5 +291,99 @@
         @endif
     </div>
 </div>
+
+<div id="modal-konfirmasi" class="modal-overlay" onclick="if(event.target === this) tutupModalKonfirmasi()">
+    <div class="modal-card">
+        <button type="button" class="modal-close" onclick="tutupModalKonfirmasi()" aria-label="Tutup">&times;</button>
+
+        <div id="modal-icon" class="modal-icon"></div>
+
+        <h3 id="modal-title" class="modal-title"></h3>
+        <p id="modal-desc" class="modal-desc"></p>
+
+        <div class="modal-item-box">
+            <div id="modal-item-name" class="modal-item-name"></div>
+            <div id="modal-item-qty" class="modal-item-qty"></div>
+            <div id="modal-item-alasan" class="modal-item-alasan"></div>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn btn-outline" onclick="tutupModalKonfirmasi()">Batal</button>
+            <button type="button" id="modal-confirm-btn" class="btn" onclick="konfirmasiAksi()"></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let formAktif = null;
+
+    const ICON_CHECK = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
+    const ICON_WARNING = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376C1.83 17.806 2.943 20 4.93 20h14.14c1.987 0 3.1-2.194 2.233-3.874L13.93 4.87c-.992-1.92-3.868-1.92-4.86 0L2.697 16.126zM12 16.5h.008v.008H12V16.5z"/></svg>';
+
+    function bukaModalKonfirmasi(btn, aksi) {
+        formAktif = btn.closest('form');
+
+        const data = {
+            nama: btn.dataset.nama || '-',
+            barang: btn.dataset.barang || '-',
+            jumlah: btn.dataset.jumlah || '-',
+            alasan: btn.dataset.alasan || ''
+        };
+
+        const modal = document.getElementById('modal-konfirmasi');
+        const icon = document.getElementById('modal-icon');
+        const title = document.getElementById('modal-title');
+        const desc = document.getElementById('modal-desc');
+        const itemName = document.getElementById('modal-item-name');
+        const itemQty = document.getElementById('modal-item-qty');
+        const itemAlasan = document.getElementById('modal-item-alasan');
+        const confirmBtn = document.getElementById('modal-confirm-btn');
+
+        itemName.textContent = data.barang;
+        itemQty.textContent = 'Jumlah: ' + data.jumlah;
+
+        itemAlasan.textContent = '';
+        if (data.alasan) {
+            const label = document.createElement('strong');
+            label.textContent = 'Alasan: ';
+            itemAlasan.appendChild(label);
+            itemAlasan.appendChild(document.createTextNode(data.alasan));
+            itemAlasan.style.display = 'block';
+        } else {
+            itemAlasan.style.display = 'none';
+        }
+
+        modal.classList.remove('modal-success', 'modal-danger');
+
+        if (aksi === 'terima') {
+            modal.classList.add('modal-success');
+            icon.innerHTML = ICON_CHECK;
+            title.textContent = 'Terima pengalihan barang ini?';
+            desc.textContent = 'Tanggung jawab barang akan berpindah ke kamu setelah dikonfirmasi.';
+            confirmBtn.textContent = '✓ Terima';
+            confirmBtn.className = 'btn btn-success';
+        } else {
+            modal.classList.add('modal-danger');
+            icon.innerHTML = ICON_WARNING;
+            title.textContent = 'Tolak pengalihan barang ini?';
+            desc.textContent = data.nama + ' akan diberi tahu bahwa permintaan ini ditolak. Tindakan ini tidak bisa dibatalkan.';
+            confirmBtn.textContent = '✕ Tolak';
+            confirmBtn.className = 'btn btn-danger';
+        }
+
+        modal.classList.add('is-open');
+    }
+
+    function tutupModalKonfirmasi() {
+        document.getElementById('modal-konfirmasi').classList.remove('is-open');
+        formAktif = null;
+    }
+    function konfirmasiAksi() {
+        if (formAktif) {formAktif.submit();}
+    }
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') tutupModalKonfirmasi();
+    });
+</script>
 
 @endsection

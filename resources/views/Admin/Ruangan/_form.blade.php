@@ -2,7 +2,7 @@
 
 @section('title', isset($ruangan) ? 'Edit Ruangan' : 'Tambah Ruangan')
 @section('subtitle', isset($ruangan)
-    ? 'Perbarui data ruangan: '.$ruangan->nama_ruangan
+    ? 'Perbarui data ruangan: '.$ruangan->nama
     : 'Daftarkan ruangan baru ke sistem')
 
 @section('topbar-action')
@@ -74,13 +74,13 @@
                     </label>
 
                     <input type="text"
-                           name="nama_ruangan"
-                           class="form-control"
-                           value="{{ old('nama_ruangan', $ruangan->nama_ruangan ?? '') }}"
-                           placeholder="Contoh: Ruang Rapat A"
-                           required>
+                     name="nama"
+                    class="form-control"
+                    value="{{ old('nama', $ruangan->nama ?? '') }}"
+                    placeholder="Contoh: Ruang Rapat A"
+                    required>
 
-                    @error('nama_ruangan')
+                    @error('nama')
                         <div class="form-error">{{ $message }}</div>
                     @enderror
                 </div>

@@ -116,7 +116,7 @@ class ValidasiPengajuanController extends Controller
             fputcsv($file, [
                 $i + 1,
                 $item->user->name             ?? '-',
-                $item->ruangan->nama_ruangan  ?? '-',
+                $item->ruangan->nama ?? '-',
                 \Carbon\Carbon::parse($item->tanggal_mulai)->format('d M Y'),
                 \Carbon\Carbon::parse($item->tanggal_mulai)->format('H:i') . '-' . \Carbon\Carbon::parse($item->tanggal_selesai)->format('H:i'),
                 $item->keperluan              ?? '-',

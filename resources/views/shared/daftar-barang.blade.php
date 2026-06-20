@@ -36,24 +36,24 @@
          onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.09)'"
          onmouseout="this.style.transform='';this.style.boxShadow=''">
 
-        <div style="width:100%;height:130px;
-            background:linear-gradient(135deg,#f0fdf4,#dcfce7);
-            display:flex;align-items:center;justify-content:center;overflow:hidden;">
-    @if($barang->foto)
-        <img src="{{ asset('storage/' . $barang->foto) }}" alt="{{ $barang->nama }}"
-             style="width:100%;height:100%;object-fit:cover;">
-    @else
-        <svg fill="none" stroke="#86efac" viewBox="0 0 24 24" style="width:48px;height:48px;">
+        <div style="width:100%;height:140px;
+            background:#f8fafc;
+            display:flex;align-items:center;justify-content:center;overflow:hidden;padding:1px;">
+        @if($barang->foto)
+            <img src="{{ asset('storage/' . $barang->foto) }}" alt="{{ $barang->nama }}"
+             style="width:100%;height:100%;object-fit:contain;">
+        @else
+            <svg fill="none" stroke="#86efac" viewBox="0 0 24 24" style="width:48px;height:48px;">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
-        </svg>
-    @endif
-</div>
+            </svg>
+        @endif
+        </div>
 
         <div style="padding:14px 16px;">
-    <div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:700;margin-bottom:4px;">
+        <div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:700;margin-bottom:4px;">
         {{ $barang->nama }}
-    </div>
+        </div>
 
     @if(!empty($barang->organisasi))
         <div style="font-size:11px;color:#6b7280;margin-bottom:6px;font-weight:600;">

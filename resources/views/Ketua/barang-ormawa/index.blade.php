@@ -102,7 +102,7 @@
             <tbody>
                 @forelse($barang as $b)
                 @php
-                    $isOrmawa = !str_starts_with($b->kode, 'BRG-');
+                 $isOrmawa = !empty($b->organisasi);
                 @endphp
                 <tr>
                     <td style="color:var(--text-muted);font-size:12px;">

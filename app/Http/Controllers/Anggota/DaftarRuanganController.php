@@ -10,7 +10,7 @@ class DaftarRuanganController extends Controller
     public function index()
     {
         $ruangans = Ruangan::orderBy('lantai', 'asc')
-            ->orderBy('nama_ruangan', 'asc')
+            ->orderBy('nama', 'asc')
             ->paginate(11);
 
         return view('shared.daftar-ruangan', compact('ruangans'));

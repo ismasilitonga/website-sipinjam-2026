@@ -205,13 +205,16 @@
         .item-card-title { font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
         .item-card-sub   { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
     </style>
+    @php
+        $pendingKetua = \App\Models\PeminjamanRuangan::where('status', 'menunggu_ketua')
+        ->where('nama_ormawa', auth()->user()->organisasi)
+        ->count();
+    @endphp
     @stack('styles')
-</head>
-<body>
-
-<aside class="sidebar">
-
-    <div class="sidebar-logo" style="display:flex; padding:18px 16px 14px; gap:10px; align-items:center;">
+            </head>
+        <body>
+        <aside class="sidebar">
+        <div class="sidebar-logo" style="display:flex; padding:18px 16px 14px; gap:10px; align-items:center;">
         <div style="width:42px; height:42px; flex-shrink:0;
                     background: url('{{ asset('images/logo.png') }}') center/contain no-repeat;"></div>
         <div class="sidebar-logo-text">
@@ -220,32 +223,40 @@
         </div>
     </div>
 
-    <nav class="sidebar-nav">
+        <nav class="sidebar-nav">
         <div class="nav-label">Utama</div>
         <a href="{{ route('ketua.dashboard') }}"
-           class="nav-item {{ request()->routeIs('ketua.dashboard') ? 'active' : '' }}">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-            </svg>
+                class="nav-item {{ request()->routeIs('ketua.dashboard') ? 'active' : '' }}">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
             Dashboard
         </a>
 
         <div class="nav-label">Pengajuan Anggota</div>
         <a href="{{ route('ketua.daftar-pengajuan') }}"
-           class="nav-item {{ request()->routeIs('ketua.daftar-pengajuan') ? 'active' : '' }}">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+            class="nav-item {{ request()->routeIs('ketua.daftar-pengajuan') ? 'active' : '' }}">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
             Kelola Pengajuan
-        </a>
+             @if($pendingKetua > 0)
+                <span style="margin-left:auto; background:#42c565; color:#fff;
+                     font-size:10px; font-weight:700; min-width:18px; height:18px;
+                     border-radius:999px; display:flex; align-items:center;
+                     justify-content:center; padding:0 5px;">
+                {{ $pendingKetua }}
+                </span>
+            @endif
+            </a>
         <a href="{{ route('ketua.riwayat-peminjaman') }}"
-           class="nav-item {{ request()->routeIs('ketua.riwayat-peminjaman') ? 'active' : '' }}">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+            class="nav-item {{ request()->routeIs('ketua.riwayat-peminjaman') ? 'active' : '' }}">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
             Riwayat Peminjaman
         </a>
 
@@ -253,7 +264,7 @@
         <a href="{{ route('ketua.daftar-ruangan') }}"
            class="nav-item {{ request()->routeIs('ketua.daftar-ruangan') ? 'active' : '' }}">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
             </svg>
             Daftar Ruangan
@@ -261,7 +272,7 @@
         <a href="{{ route('ketua.daftar-barang') }}"
            class="nav-item {{ request()->routeIs('ketua.daftar-barang') ? 'active' : '' }}">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
             </svg>
             Daftar Barang
@@ -269,7 +280,7 @@
         <a href="{{ route('ketua.barang-ormawa.index') }}"
            class="nav-item {{ request()->routeIs('ketua.barang-ormawa.*') ? 'active' : '' }}">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
             </svg>
             Barang Ormawa

@@ -20,16 +20,19 @@ class PengajuanRuanganNotification extends Notification
 
     public function toMail($notifiable): MailMessage
     {
+        $peminjaman = $this->peminjaman_ruangans;
+        $namaRuangan = $peminjaman->ruangan->nama ?? 'Tidak diketahui';
+
         return (new MailMessage)
-            ->subject('Pengajuan Ruangan Baru - ' . $this->peminjaman_ruangans->ruangan->nama_ruangan)
+            ->subject('Pengajuan Ruangan Baru - ' . $namaRuangan)
             ->greeting('Halo, ' . $notifiable->name)
             ->line('Ada pengajuan ruangan baru yang menunggu persetujuan kamu.')
-            ->line('Pengaju: ' . $this->peminjaman_ruangans->user->name)
-            ->line('Ormawa: ' . $this->peminjaman_ruangans->nama_ormawa)
-            ->line('Ruangan: ' . $this->peminjaman_ruangans->ruangan->nama_ruangan)
-            ->line('Tanggal: ' . $this->peminjaman_ruangans->tanggal_mulai)
-            ->line('Keperluan: ' . $this->peminjaman_ruangans->keperluan)
-            ->action('Lihat Pengajuan', url('/'))
+            ->line('Pengaju: ' . $peminjaman->user->name)
+            ->line('Ormawa: ' . $peminjaman->nama_ormawa)
+            ->line('Ruangan: ' . $namaRuangan)
+            ->line('Tanggal: ' . $peminjaman->tanggal_mulai)
+            ->line('Keperluan: ' . $peminjaman->keperluan)
+            ->action('Lihat Pengajuan', url('/ketua/pengajuan-ruangan'))
             ->line('Segera proses pengajuan ini.')
             ->salutation('Salam, Tim SiPinjam');
     }

@@ -39,7 +39,7 @@
                     </td>
                     <td>{{ $p->user->organisasi ?? '-' }}</td>
                     <td>
-                        <div style="font-weight:500;">{{ $p->ruangan->nama_ruangan ?? '-' }}</div>
+                        <div style="font-weight:500;">{{ $p->ruangan->nama ?? '-' }}</div>
                         <div style="font-size:12px;color:var(--text-muted);">{{ $p->ruangan->kode ?? '' }}</div>
                     </td>
                     <td>

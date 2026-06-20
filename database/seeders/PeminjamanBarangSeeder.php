@@ -16,9 +16,9 @@ class PeminjamanBarangSeeder extends Seeder
         $anggotaId = User::where('email', 'isma@gmail.com')->value('id');
         $picId     = User::where('email', 'pic.dpm@gmail.com')->value('id');
 
-        $barang = fn(string $kode) => DB::table('barangs')->where('kode', $kode)->value('id');
+        $barang = fn(string $kode) => DB::table('barang')->where('kode', $kode)->value('id');
 
-        $peminjaman_barangs = [
+        $peminjaman_barang = [
 
         [
                 'user_id'                 => $anggotaId,
@@ -105,14 +105,14 @@ class PeminjamanBarangSeeder extends Seeder
             ],
         ];
 
-        foreach ($peminjaman_barangs as $data) {
-            DB::table('peminjaman_barangs')->insert([
+        foreach ($peminjaman_barang as $data) {
+            DB::table('peminjaman_barang')->insert([
                 ...$data,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
         }
 
-        $this->command->info('✅ PeminjamanBarangSeeder: ' . count($peminjaman_barangs) . ' peminjaman barang dibuat.');
+        $this->command->info('✅ PeminjamanBarangSeeder: ' . count($peminjaman_barang) . ' peminjaman barang dibuat.');
     }
 }
