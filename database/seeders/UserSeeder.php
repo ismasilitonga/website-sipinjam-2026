@@ -76,7 +76,7 @@ class UserSeeder extends Seeder
     [
         'name'       => 'Dimas Prasetyo',
         'email'      => 'ketuasipinjam@gmail.com',
-        'nim'        => '555',
+        'nim'        => '999',
         'role'       => 'ketua',
         'organisasi' => 'BLUG',
         'status'     => 'aktif',
@@ -100,7 +100,7 @@ class UserSeeder extends Seeder
     [
         'name'       => 'Wahyu Hidayat',
         'email'      => 'ismariasilitonga@gmail.com',
-        'nim'        => '777',
+        'nim'        => '888',
         'role'       => 'anggota',
         'organisasi' => 'BLUG',
         'status'     => 'aktif',
