@@ -18,12 +18,12 @@ class DetailAkunAdminController extends Controller
     $user = \App\Models\User::find(Auth::id()); 
 
     $request->validate([
-        'name'         => 'required|string|max:255',
+        'nama'         => 'required|string|max:255',
         'email'        => 'required|email|unique:users,email,' . $user->id,
         'new_password' => 'nullable|min:8|confirmed',
     ]);
 
-    $user->name  = $request->name;
+    $user->nama  = $request->nama;
     $user->email = $request->email;
 
     if ($request->filled('new_password')) {

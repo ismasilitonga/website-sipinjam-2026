@@ -49,9 +49,9 @@
         <table>
             <thead>
                 <tr>
-                    <th>No</th>
-                    <th>Nama</th>
-                    <th>NIM</th>
+                    <th style="padding-right:20px;">No</th>
+                    <th >Nama</th>
+                    <th style="padding-right:40px;">NIM</th>
                     <th>Email</th>
                     <th>Organisasi</th>
                     <th>Role</th>

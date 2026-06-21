@@ -255,9 +255,9 @@
 
     <div class="sidebar-footer">
         <div class="sidebar-user">
-            <div class="sidebar-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'P', 0, 1)) }}</div>
+            <div class="sidebar-avatar">{{ strtoupper(substr(auth()->user()->nama ?? 'P', 0, 1)) }}</div>
             <div>
-                <div class="sidebar-user-name">{{ auth()->user()->name ?? 'Pamdal' }}</div>
+                <div class="sidebar-user-name">{{ auth()->user()->nama ?? 'Pamdal' }}</div>
                 <div class="sidebar-user-role">Petugas Pamdal</div>
             </div>
         </div>

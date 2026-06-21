@@ -40,14 +40,13 @@
             font-size: 14px;
         }
 
-        /* ===== SIDEBAR ===== */
         .sidebar {
             position: fixed; top: 0; left: 0;
             width: var(--sidebar-w);
             height: 100vh;
             background: var(--sidebar-bg);
             display: flex; flex-direction: column;
-            overflow: hidden;       /* sidebar wrapper itself doesn't scroll */
+            overflow: hidden;       
             z-index: 100;
         }
 
@@ -73,10 +72,9 @@
             margin-top: 2px; letter-spacing: .5px; text-transform: uppercase;
         }
 
-        /* nav scrolls independently, footer always stays pinned to bottom */
         .sidebar-nav {
             flex: 1 1 auto;
-            min-height: 0;          /* required so this child can actually scroll inside flex column */
+            min-height: 0;          
             overflow-y: auto;
             padding: 10px 8px;
         }
@@ -105,7 +103,6 @@
         .nav-item.active { background: var(--sidebar-active); color: #fff; }
         .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
 
-        /* footer is a sibling of nav, fixed height, always glued to bottom */
         .sidebar-footer {
             flex: 0 0 auto;
             padding: 10px 8px;
@@ -127,7 +124,6 @@
         .sidebar-user-name { color:#e2e8f0; font-size:12px; font-weight:500; line-height:1.3; }
         .sidebar-user-role { font-size:10px; color:#7e9bf1; line-height:1.3; }
 
-        /* ===== MAIN ===== */
         .main-wrap {
             margin-left: var(--sidebar-w);
             min-height: 100vh;
@@ -210,13 +206,13 @@
         }
         .stat-label { font-size: 12px; color: var(--text-muted); }
 
-        /* ===== TABLE (this is what was breaking out of the card) ===== */
+        /* ===== TABLE ===== */
         .table-wrap {
             width: 100%;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
-        table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 12.5px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
         th {
             background: #f8fafc; text-align: left;
             padding: 8px 10px;
@@ -518,7 +514,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <span id="live-clock" style="font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:0.5px;"></span>
+                <span id="live-clock" style="font-variant-numeric:tabular-nums;font-weight:450;letter-spacing:0.5px;"></span>
             </div>
             @yield('topbar-action')
         </div>

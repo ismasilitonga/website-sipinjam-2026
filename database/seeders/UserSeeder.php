@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
     {
        $users = [
     [
-        'name'       => 'Administrator SC',
+        'nama'       => 'Administrator SC',
         'email'      => 'adminsipinjam@gmail.com',
         'nim'        => '123',
         'role'       => 'admin',
@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
         'status'     => 'aktif'
     ],
     [
-        'name'       => 'Ahmad Fauzan',
+        'nama'       => 'Ahmad Fauzan',
         'email'      => 'sipinjamsc@gmail.com',
         'nim'        => '111',
         'role'       => 'pic',
@@ -32,7 +32,7 @@ class UserSeeder extends Seeder
         'lantai_pic' => 1,
     ],
     [
-        'name'       => 'Ongku Permana Hasibuan',
+        'nam'       => 'Ongku Permana Hasibuan',
         'email'      => 'sipinjamsc@gmail.com',
         'nim'        => '222',
         'role'       => 'pic',
@@ -41,7 +41,7 @@ class UserSeeder extends Seeder
         'lantai_pic' => 2,
     ],
     [
-        'name'       => 'Lonyca Iska Majesty Simatupang',
+        'nama'       => 'Lonyca Iska Majesty Simatupang',
         'email'      => 'sipinjamsc@gmail.com',
         'nim'        => '333',
         'role'       => 'pic',
@@ -50,7 +50,7 @@ class UserSeeder extends Seeder
         'lantai_pic' => 3,
     ],
     [
-        'name'       => 'Budi Santoso',
+        'nama'       => 'Budi Santoso',
         'email'      => 'sipinjamsc@gmail.com',
         'nim'        => '601',
         'role'       => 'pamdal',
@@ -58,7 +58,7 @@ class UserSeeder extends Seeder
         'status'     => 'aktif',
     ],
     [
-        'name'       => 'Rindiani Putri',
+        'nama'       => 'Rindiani Putri',
         'email'      => 'ketuasipinjam@gmail.com',
         'nim'        => '444',
         'role'       => 'ketua',
@@ -66,7 +66,7 @@ class UserSeeder extends Seeder
         'status'     => 'aktif',
     ],
     [
-        'name'       => 'Fajar Ramadhan',
+        'nama'       => 'Fajar Ramadhan',
         'email'      => 'ketuasipinjam@gmail.com',
         'nim'        => '555',
         'role'       => 'ketua',
@@ -74,7 +74,7 @@ class UserSeeder extends Seeder
         'status'     => 'aktif',
     ],
     [
-        'name'       => 'Dimas Prasetyo',
+        'nama'       => 'Dimas Prasetyo',
         'email'      => 'ketuasipinjam@gmail.com',
         'nim'        => '999',
         'role'       => 'ketua',
@@ -82,7 +82,7 @@ class UserSeeder extends Seeder
         'status'     => 'aktif',
     ],
     [
-        'name'       => 'Isma Silitonga',
+        'nama'       => 'Isma Silitonga',
         'email'      => 'ismariasilitonga@gmail.com',
         'nim'        => '666',
         'role'       => 'anggota',
@@ -90,7 +90,7 @@ class UserSeeder extends Seeder
         'status'     => 'aktif',
     ],
     [
-        'name'       => 'Rizky Maulana',
+        'nama'       => 'Rizky Maulana',
         'email'      => 'ismariasilitonga@gmail.com',
         'nim'        => '777',
         'role'       => 'anggota',
@@ -98,7 +98,7 @@ class UserSeeder extends Seeder
         'status'     => 'aktif',
     ],
     [
-        'name'       => 'Wahyu Hidayat',
+        'nama'       => 'Wahyu Hidayat',
         'email'      => 'ismariasilitonga@gmail.com',
         'nim'        => '888',
         'role'       => 'anggota',

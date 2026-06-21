@@ -19,13 +19,13 @@ class DetailAkunPamdalController extends Controller
         $user = Auth::user();
 
         $request->validate([
-            'name'         => 'required|string|max:255',
+            'nama'         => 'required|string|max:255',
             'nim'          => 'required|string|unique:users,nim,' . $user->id,
             'email'        => 'required|email|unique:users,email,' . $user->id,
             'new_password' => 'nullable|min:8|confirmed',
         ]);
 
-        $user->name  = $request->name;
+        $user->nama  = $request->nama;
         $user->nim   = $request->nim;
         $user->email = $request->email;
 

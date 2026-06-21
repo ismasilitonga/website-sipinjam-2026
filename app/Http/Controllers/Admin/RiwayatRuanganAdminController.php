@@ -18,7 +18,6 @@ class RiwayatRuanganAdminController extends Controller
             ->orderBy('nama_ruangan')
             ->get();
 
-        // Riwayat hanya menampilkan peminjaman yang sudah final: disetujui & selesai
         $query = PeminjamanRuangan::with(['user', 'ruangan'])
             ->whereIn('status', ['disetujui', 'selesai']);
 

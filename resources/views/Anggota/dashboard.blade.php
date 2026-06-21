@@ -1,7 +1,7 @@
 @extends('layouts.anggota')
 
 @section('title', 'Dashboard')
-@section('subtitle', "Selamat datang, " . auth()->user()->name)
+@section('subtitle', "Selamat datang, " . auth()->user()->nama)
 
 @section('content')
 

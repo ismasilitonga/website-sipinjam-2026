@@ -19,20 +19,61 @@
 
                 <div class="form-group">
                     <label class="form-label">Pilih Ruangan <span style="color:var(--danger)">*</span></label>
-                    <select name="ruangan_id" class="form-select" required id="ruanganSelect"
-                            onchange="updateRuanganInfo(this)">
-                        <option value="">-- Pilih ruangan tersedia --</option>
-                        @foreach($ruangans as $r)
-                        <option value="{{ $r->id }}"
-                            data-gedung="{{ $r->gedung ?? '' }}"
-                            data-lantai="{{ $r->lantai ?? '' }}"
-                            data-kapasitas="{{ $r->kapasitas ?? '' }}"
-                            data-fasilitas="{{ $r->fasilitas ?? '' }}"
-                            {{ old('ruangan_id', request('ruangan_id')) == $r->id ? 'selected' : '' }}>
-                            {{ $r->nama }}{{ $r->gedung ? ' – '.$r->gedung : '' }}{{ $r->kapasitas ? ' ('.$r->kapasitas.' org)' : '' }}
-                        </option>
-                        @endforeach
-                    </select>
+
+                    <input type="hidden" name="ruangan_id" id="ruangan_id_input"
+                           value="{{ old('ruangan_id', request('ruangan_id')) }}">
+
+                    <div id="ruangan-dropdown" style="position:relative;">
+                        <div id="ruangan-trigger" class="form-select"
+                             style="cursor:pointer;user-select:none;position:relative;
+                                    display:flex;align-items:center;justify-content:space-between;
+                                    padding-right:34px;">
+                            <span id="ruangan-label">
+                                @php
+                                    $selectedRuangan = $ruangans->firstWhere('id', old('ruangan_id', request('ruangan_id')));
+                                @endphp
+                                @if($selectedRuangan)
+                                    {{ $selectedRuangan->nama_ruangan }}{{ $selectedRuangan->gedung ? ' – '.$selectedRuangan->gedung : '' }}{{ $selectedRuangan->kapasitas ? ' ('.$selectedRuangan->kapasitas.' org)' : '' }}
+                                @else
+                                    -- Pilih ruangan tersedia --
+                                @endif
+                            </span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                 style="width:14px;height:14px;position:absolute;right:12px;top:50%;
+                                        transform:translateY(-50%);color:var(--text-muted);pointer-events:none;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+
+                        <div id="ruangan-panel"
+                             style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;
+                                    background:#fff;border:1px solid var(--border);border-radius:8px;
+                                    box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:999;
+                                    max-height:220px;overflow-y:auto;">
+
+                            <div class="ruangan-option" data-value=""
+                                 data-label="-- Pilih ruangan tersedia --"
+                                 style="padding:10px 14px;font-size:14px;cursor:pointer;
+                                        color:#1e293b;border-bottom:1px solid #f3f4f6;">
+                                -- Pilih ruangan tersedia --
+                            </div>
+
+                            @foreach($ruangans as $r)
+                            <div class="ruangan-option"
+                                 data-value="{{ $r->id }}"
+                                 data-gedung="{{ $r->gedung ?? '' }}"
+                                 data-lantai="{{ $r->lantai ?? '' }}"
+                                 data-kapasitas="{{ $r->kapasitas ?? '' }}"
+                                 data-fasilitas="{{ $r->fasilitas ?? '' }}"
+                                 data-label="{{ $r->nama_ruangan }}{{ $r->gedung ? ' – '.$r->gedung : '' }}{{ $r->kapasitas ? ' ('.$r->kapasitas.' org)' : '' }}"
+                                 style="padding:10px 14px;font-size:14px;cursor:pointer;
+                                        color:#1e293b;border-bottom:1px solid #f3f4f6;
+                                    {{ old('ruangan_id', request('ruangan_id')) == $r->id ? 'background:#ede9fe;color:#6d28d9;font-weight:600;' : '' }}">
+                                {{ $r->nama_ruangan }}{{ $r->gedung ? ' – '.$r->gedung : '' }}{{ $r->kapasitas ? ' ('.$r->kapasitas.' org)' : '' }}
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
                     @error('ruangan_id') <div class="form-error">{{ $message }}</div> @enderror
 
                     <div id="ruanganInfo" style="display:none;margin-top:10px;padding:12px 14px;
@@ -135,21 +176,71 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    function updateRuanganInfo(sel) {
-        const opt = sel.options[sel.selectedIndex];
-        const info = document.getElementById('ruanganInfo');
-        if (!sel.value) { info.style.display = 'none'; return; }
-        document.getElementById('infoGedung').textContent    = opt.dataset.gedung    || '—';
-        document.getElementById('infoLantai').textContent    = opt.dataset.lantai ? 'Lt. '+opt.dataset.lantai : '—';
-        document.getElementById('infoKapasitas').textContent = opt.dataset.kapasitas ? opt.dataset.kapasitas+' orang' : '—';
-        document.getElementById('infoFasilitas').textContent = opt.dataset.fasilitas || '—';
-        info.style.display = 'block';
-    }
-
     window.addEventListener('DOMContentLoaded', () => {
-        const sel = document.getElementById('ruanganSelect');
-        if (sel.value) updateRuanganInfo(sel);
 
+        // ===== Custom dropdown Pilih Ruangan =====
+        const trigger = document.getElementById('ruangan-trigger');
+        const panel   = document.getElementById('ruangan-panel');
+        const label   = document.getElementById('ruangan-label');
+        const input   = document.getElementById('ruangan_id_input');
+        const options = document.querySelectorAll('.ruangan-option');
+        const info    = document.getElementById('ruanganInfo');
+
+        function showInfo(opt) {
+            if (!opt || !opt.dataset.value) {
+                info.style.display = 'none';
+                return;
+            }
+            document.getElementById('infoGedung').textContent    = opt.dataset.gedung    || '—';
+            document.getElementById('infoLantai').textContent    = opt.dataset.lantai    ? 'Lt. '+opt.dataset.lantai      : '—';
+            document.getElementById('infoKapasitas').textContent = opt.dataset.kapasitas ? opt.dataset.kapasitas+' orang' : '—';
+            document.getElementById('infoFasilitas').textContent = opt.dataset.fasilitas || '—';
+            info.style.display = 'block';
+        }
+
+        trigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        });
+
+        options.forEach(function (opt) {
+            opt.addEventListener('mouseenter', function () {
+                this.style.background = '#f5f3ff';
+            });
+            opt.addEventListener('mouseleave', function () {
+                this.style.background = this.dataset.value === input.value ? '#ede9fe' : '';
+            });
+            opt.addEventListener('click', function () {
+                input.value = this.dataset.value;
+                label.textContent = this.dataset.label;
+                panel.style.display = 'none';
+
+                options.forEach(o => {
+                    o.style.background  = '';
+                    o.style.color       = '#1e293b';
+                    o.style.fontWeight  = '';
+                });
+                if (this.dataset.value) {
+                    this.style.background = '#ede9fe';
+                    this.style.color      = '#6d28d9';
+                    this.style.fontWeight = '600';
+                }
+
+                showInfo(this);
+            });
+        });
+
+        document.addEventListener('click', function () {
+            panel.style.display = 'none';
+        });
+
+        // Tampilkan info ruangan kalau sudah ada nilai sebelumnya (validasi error / old input)
+        if (input.value) {
+            const selected = document.querySelector('.ruangan-option[data-value="' + input.value + '"]');
+            showInfo(selected);
+        }
+
+        // ===== Tanggal & jam (tidak berubah) =====
         function getNowWIB() {
             const now = new Date();
             const wibStr = now.toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' });

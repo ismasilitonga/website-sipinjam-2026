@@ -52,7 +52,7 @@
                             </div>
                         @endif
                     </td>
-                    <td style="font-weight:600;font-size:13px;">{{ $ruangan->nama_ruangan}}</td>
+                    <td style="font-weight:500;font-size:13px;">{{ $ruangan->nama_ruangan}}</td>
                     <td style="font-size:12.5px;color:var(--text-muted);">{{ $ruangan->kode }}</td>
                     <td style="font-size:12.5px;">
                         {{ $ruangan->gedung ?? '-' }}

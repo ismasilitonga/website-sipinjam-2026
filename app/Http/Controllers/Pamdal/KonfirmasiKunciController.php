@@ -19,7 +19,7 @@ class KonfirmasiKunciController extends Controller
                 $q->where(function ($sub) use ($search) {
                     $sub->where('nama_ormawa', 'like', "%{$search}%")
                         ->orWhereHas('user', function ($user) use ($search) {
-                            $user->where('name', 'like', "%{$search}%");
+                            $user->where('nama', 'like', "%{$search}%");
                         })
                         ->orWhereHas('ruangan', function ($ruangan) use ($search) {
                             $ruangan->where('nama_ruangan', 'like', "%{$search}%");
@@ -32,7 +32,7 @@ class KonfirmasiKunciController extends Controller
             return response()->json(
                 $query->get()->map(fn($p) => [
                     'id' => $p->id,
-                    'user_name' => $p->user->name ?? '-',
+                    'user_nama' => $p->user->nama ?? '-',
                     'nama_ormawa' => $p->nama_ormawa,
                     'ruangan_nama' => $p->ruangan->nama_ruangan ?? '-',
                     'tanggal_mulai' => \Carbon\Carbon::parse($p->tanggal_mulai)->format('d M Y'),

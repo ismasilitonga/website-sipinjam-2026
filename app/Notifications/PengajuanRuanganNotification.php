@@ -27,7 +27,7 @@ class PengajuanRuanganNotification extends Notification
             ->subject('Pengajuan Ruangan Baru - ' . $namaRuangan)
             ->greeting('Halo, ' . $notifiable->nama)
             ->line('Ada pengajuan ruangan baru yang menunggu persetujuan kamu.')
-            ->line('Pengaju: ' . $peminjaman->user->name)
+            ->line('Pengaju: ' . $peminjaman->user->nama)
             ->line('Ormawa: ' . $peminjaman->nama_ormawa)
             ->line('Ruangan: ' . $namaRuangan)
             ->line('Tanggal: ' . $peminjaman->tanggal_mulai)

@@ -11,7 +11,7 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --sidebar-w: 255px;
+            --sidebar-w: 200px;
             --bg: #f0f4ff;
             --sidebar-bg: #1a1f36;
             --sidebar-hover: #252c4a;
@@ -26,11 +26,11 @@
             --success: #059669;
             --danger: #dc2626;
             --warning: #d97706;
-            --radius: 14px;
+            --radius: 10px;
             --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.05);
         }
 
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
 
         .sidebar {
             position: fixed; top: 0; left: 0;
@@ -40,77 +40,77 @@
             overflow-y: auto; z-index: 100;
         }
         .sidebar-logo {
-            padding: 22px 20px 18px;
+            padding: 16px 14px 12px;
             border-bottom: 1px solid rgba(255,255,255,.06);
-            display: flex; align-items: center; gap: 10px;
+            display: flex; align-items: center; gap: 9px;
         }
-       
+
         .sidebar-logo-text span {
             font-family: 'Sora', sans-serif;
             font-size: 16px; font-weight: 700; color: #fff;
             display: block;
         }
-        .sidebar-logo-text small { font-size: 10px; color: #ffffff; letter-spacing: .4px; }
+        .sidebar-logo-text small { font-size: 9px; color: #ffffff; letter-spacing: .4px; }
 
-        .sidebar-nav { padding: 14px 10px; flex: 1; }
+        .sidebar-nav { padding: 10px 8px; flex: 1; }
         .nav-label {
-            font-size: 10px; font-weight: 700;
-            color: #94a3b8; letter-spacing: 1.2px;
-            text-transform: uppercase; padding: 10px 10px 4px;
+            font-size: 9px; font-weight: 700;
+            color: #94a3b8; letter-spacing: 1px;
+            text-transform: uppercase; padding: 10px 6px 4px;
         }
         .nav-item {
-            display: flex; align-items: center; gap: 9px;
-            padding: 9px 12px; border-radius: 9px;
+            display: flex; align-items: center; gap: 8px;
+            padding: 7px 9px; border-radius: 7px;
             color: #ffffff; text-decoration: none;
-            font-size: 13px; font-weight: 500;
-            transition: all .15s; margin-bottom: 1px;
+            font-size: 12px; font-weight: 500;
+            transition: all .15s; margin-bottom: 2px;
         }
         .nav-item:hover { background: var(--sidebar-hover); color: #c7d2fe; }
         .nav-item.active { background: var(--sidebar-active); color: #fff; }
-        .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+        .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
 
         .sidebar-footer {
-            padding: 14px 10px;
+            padding: 10px 8px;
             border-top: 1px solid rgba(255,255,255,.06);
         }
         .sidebar-user {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 12px; border-radius: 9px;
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 9px; border-radius: 7px;
         }
         .sidebar-avatar {
-            width: 34px; height: 34px; border-radius: 50%;
+            width: 26px; height: 26px; border-radius: 50%;
             background: linear-gradient(135deg, var(--accent), var(--accent-2));
             display: flex; align-items: center; justify-content: center;
-            color: #fff; font-size: 13px; font-weight: 700; flex-shrink: 0;
+            color: #fff; font-size: 11px; font-weight: 700; flex-shrink: 0;
         }
-        .sidebar-user-info .name { color: #e2e8f0; font-size: 13px; font-weight: 600; }
-        .sidebar-user-info .org  { color: #64748b; font-size: 11px; }
+        .sidebar-user-info .name { color: #e2e8f0; font-size: 12px; font-weight: 600; }
+        .sidebar-user-info .org  { color: #64748b; font-size: 10px; }
 
         .main-wrap { margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
 
         .topbar {
             background: var(--white);
             border-bottom: 1px solid var(--border);
-            padding: 14px 28px;
+            padding: 12px 20px;
             display: flex; align-items: center; justify-content: space-between;
             position: sticky; top: 0; z-index: 50;
         }
         .topbar-left {}
-        .topbar-title { font-family: 'Sora', sans-serif; font-size: 17px; font-weight: 700; color: var(--text); }
+        .topbar-title { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); }
         .topbar-sub   { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
 
-        .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); margin-bottom: 18px; }
+        .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
         .breadcrumb a { color: var(--accent); text-decoration: none; }
         .breadcrumb span { color: #cbd5e1; }
 
-        .page-content { padding: 26px 28px; flex: 1; }
+        .page-content { padding: 18px; flex: 1; }
 
         .alert {
-            padding: 12px 16px; border-radius: 10px;
-            font-size: 13.5px; margin-bottom: 20px;
-            display: flex; align-items: flex-start; gap: 9px;
+            padding: 10px 14px; border-radius: 8px;
+            font-size: 13px; margin-bottom: 16px;
+            display: flex; align-items: flex-start; gap: 8px;
         }
-        .alert svg { width: 17px; height: 17px; flex-shrink: 0; margin-top: 1px; }
+        .alert svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
         .alert-success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
         .alert-danger  { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
         .alert-info    { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
@@ -123,44 +123,44 @@
             box-shadow: var(--shadow);
         }
         .card-header {
-            padding: 18px 20px 0;
+            padding: 15px 16px 0;
             display: flex; align-items: center; justify-content: space-between;
         }
-        .card-title { font-family: 'Sora', sans-serif; font-size: 14.5px; font-weight: 700; }
-        .card-body  { padding: 20px; }
+        .card-title { font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; }
+        .card-body  { padding: 16px; }
 
         .stat-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 14px; margin-bottom: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 14px; margin-bottom: 22px;
         }
         .stat-card {
             background: var(--white);
             border-radius: var(--radius); border: 1px solid var(--border);
-            box-shadow: var(--shadow); padding: 20px;
-            display: flex; flex-direction: column; gap: 12px;
+            box-shadow: var(--shadow); padding: 16px;
+            display: flex; flex-direction: column; gap: 10px;
         }
-        .stat-icon { width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; }
-        .stat-icon svg { width: 21px; height: 21px; }
-        .stat-value { font-family: 'Sora', sans-serif; font-size: 28px; font-weight: 700; line-height: 1; }
-        .stat-label { font-size: 12.5px; color: var(--text-muted); }
+        .stat-icon { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+        .stat-icon svg { width: 19px; height: 19px; }
+        .stat-value { font-family: 'Sora', sans-serif; font-size: 25px; font-weight: 700; line-height: 1; }
+        .stat-label { font-size: 12px; color: var(--text-muted); }
 
         .table-wrap { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
         th {
             background: #f8fafc; text-align: left;
-            padding: 10px 14px; font-size: 11px; font-weight: 700;
+            padding: 8px 10px; font-size: 10.5px; font-weight: 700;
             color: var(--text-muted); text-transform: uppercase;
             letter-spacing: .5px; border-bottom: 1px solid var(--border);
         }
-        td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        td { padding: 9px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: #fafbff; }
 
         .badge {
             display: inline-flex; align-items: center;
-            padding: 3px 10px; border-radius: 999px;
-            font-size: 11.5px; font-weight: 600;
+            padding: 2px 9px; border-radius: 999px;
+            font-size: 11px; font-weight: 600;
         }
         .badge-blue   { background: #eef2ff; color: #4338ca; }
         .badge-green  { background: #dcfce7; color: #15803d; }
@@ -171,31 +171,31 @@
         .badge-purple { background: #ede9fe; color: #6d28d9; }
 
         .btn {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 9px 18px; border-radius: 9px;
-            font-size: 13px; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 6px 12px; border-radius: 7px;
+            font-size: 12px; font-weight: 500;
             cursor: pointer; border: none; text-decoration: none;
             transition: all .15s; font-family: inherit;
         }
-        .btn svg { width: 15px; height: 15px; }
+        .btn svg { width: 13px; height: 13px; }
         .btn-primary  { background: var(--accent); color: #fff; }
         .btn-primary:hover  { background: #4338ca; }
         .btn-success  { background: var(--success); color: #fff; }
         .btn-success:hover  { background: #047857; }
         .btn-danger   { background: var(--danger); color: #fff; }
         .btn-danger:hover   { background: #b91c1c; }
-        .btn-outline  { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
+        .btn-outline  { background: transparent; color: var(--text); border: 1px solid var(--border); }
         .btn-outline:hover  { background: #f8fafc; }
         .btn-cyan     { background: var(--accent-2); color: #fff; }
         .btn-cyan:hover     { background: #0891b2; }
-        .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 7px; }
+        .btn-sm { padding: 4px 8px; font-size: 10.5px; border-radius: 6px; }
 
-        .form-group { margin-bottom: 18px; }
-        .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; font-size: 12.5px; font-weight: 500; color: var(--text); margin-bottom: 5px; }
         .form-control, .form-select, textarea.form-control {
-            width: 100%; padding: 9px 12px;
-            border: 1.5px solid var(--border); border-radius: 9px;
-            font-size: 13.5px; font-family: inherit;
+            width: 100%; padding: 8px 11px;
+            border: 1px solid var(--border); border-radius: 7px;
+            font-size: 13px; font-family: inherit;
             background: var(--white); color: var(--text);
             transition: border-color .15s, box-shadow .15s; outline: none;
         }
@@ -203,16 +203,16 @@
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(79,70,229,.1);
         }
-        textarea.form-control { resize: vertical; min-height: 100px; }
-        .form-hint  { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-        .form-error { font-size: 12px; color: var(--danger); margin-top: 4px; }
-        .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        textarea.form-control { resize: vertical; min-height: 90px; }
+        .form-hint  { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+        .form-error { font-size: 11px; color: var(--danger); margin-top: 4px; }
+        .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
 
-        .pagination-wrap { padding: 14px 20px; border-top: 1px solid var(--border); }
+        .pagination-wrap { padding: 12px 16px; border-top: 1px solid var(--border); }
         .pagination-wrap .pagination { display: flex; gap: 4px; list-style: none; }
         .pagination-wrap .page-link {
-            padding: 6px 11px; border-radius: 7px; font-size: 13px;
+            padding: 5px 10px; border-radius: 6px; font-size: 12px;
             color: var(--text); text-decoration: none;
             border: 1px solid var(--border); background: var(--white);
             transition: all .15s;
@@ -221,25 +221,25 @@
         .pagination-wrap .active .page-link { background: var(--accent); color: #fff; border-color: var(--accent); }
         .pagination-wrap .disabled .page-link { opacity: .4; pointer-events: none; }
         .pagination-wrap .page-link svg {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             display: block;
         }
 
-        .empty-state { text-align: center; padding: 56px 20px; color: var(--text-muted); }
-        .empty-state svg { width: 46px; height: 46px; margin-bottom: 12px; opacity: .35; }
-        .empty-state p { font-size: 14px; }
+        .empty-state { text-align: center; padding: 48px 16px; color: var(--text-muted); }
+        .empty-state svg { width: 42px; height: 42px; margin-bottom: 10px; opacity: .35; }
+        .empty-state p { font-size: 13.5px; }
 
         .detail-row { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
         .detail-row:last-child { border-bottom: none; }
         .detail-label {
-            width: 190px; flex-shrink: 0; padding: 12px 16px;
-            font-size: 13px; font-weight: 600; color: var(--text-muted);
+            width: 170px; flex-shrink: 0; padding: 10px 14px;
+            font-size: 12.5px; font-weight: 500; color: var(--text-muted);
             background: #f8fafc;
         }
-        .detail-value { padding: 12px 16px; font-size: 13.5px; }
+        .detail-value { padding: 10px 14px; font-size: 13px; }
 
-        .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+        .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
         .item-card {
             background: var(--white); border-radius: var(--radius);
             border: 1px solid var(--border); box-shadow: var(--shadow);
@@ -247,21 +247,33 @@
         }
         .item-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.09); }
         .item-card-img {
-            width: 100%; height: 140px;
+            width: 100%; height: 120px;
             background: linear-gradient(135deg, #eef2ff, #e0f2fe);
             display: flex; align-items: center; justify-content: center;
         }
-        .item-card-img svg { width: 48px; height: 48px; color: #a5b4fc; }
-        .item-card-body { padding: 14px 16px; }
-        .item-card-title { font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
-        .item-card-sub   { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+        .item-card-img svg { width: 42px; height: 42px; color: #a5b4fc; }
+        .item-card-body { padding: 12px 14px; }
+        .item-card-title { font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+        .item-card-sub   { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 880px) {
+            :root { --sidebar-w: 64px; }
+            .sidebar-logo-text,
+            .nav-label,
+            .sidebar-user-info { display: none; }
+            .nav-item { justify-content: center; padding: 9px; }
+            .sidebar-user { justify-content: center; }
+            .page-content { padding: 12px; }
+            .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+        }
     </style>
     @stack('styles')
 </head>
 <body>
 <aside class="sidebar">
-<div class="sidebar-logo" style="padding: 18px 16px 14px; gap: 10px; align-items: center;">
-    <div style="width: 42px; height: 42px; flex-shrink: 0;
+<div class="sidebar-logo" style="padding: 16px 14px 12px; gap: 9px; align-items: center;">
+    <div style="width: 34px; height: 34px; flex-shrink: 0;
                 background: url('{{ asset('images/logo.png') }}') center/contain no-repeat;">
     </div>
     <div class="sidebar-logo-text">
@@ -399,7 +411,7 @@
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="nav-item" style="width:100%;background:none;cursor:pointer;border:none;">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:17px;height:17px;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
@@ -416,7 +428,8 @@
     <div class="topbar-sub">@yield('subtitle')</div>
 </div>
         <div style="display:flex;align-items:center;gap:14px;">
-<div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#000000;">                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;flex-shrink:0;">
+<div style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:#000000;">                
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;flex-shrink:0;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
