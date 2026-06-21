@@ -218,9 +218,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         timeout = setTimeout(() => {
             fetch(`${url}?search=${encodeURIComponent(keyword)}`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`Server merespons status ${res.status}`);
+                }
+                return res.json();
+            })
             .then(data => {
                 tableBody.innerHTML = '';
 
@@ -238,8 +246,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 data.forEach((u, i) => {
                     const badge   = roleClass[u.role] ?? 'badge-gray';
-                    const initial = u.name.charAt(0).toUpperCase();
-                    const namaEsc = u.name.replace(/'/g, "\\'");
+                    const initial = u.nama.charAt(0).toUpperCase();
+                    const namaEsc = u.nama.replace(/'/g, "\\'");
                     tableBody.innerHTML += `
                         <tr>
                             <td style="color:var(--text-muted);font-size:13px;">${i + 1}</td>
@@ -250,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                                 font-size:13px;font-weight:600;color:#1d4ed8;flex-shrink:0;">
                                         ${initial}
                                     </div>
-                                    <span style="font-weight:500;">${u.name}</span>
+                                    <span style="font-weight:500;">${u.nama}</span>
                                 </div>
                             </td>
                             <td style="font-size:13px;font-family:monospace;">${u.nim}</td>
@@ -269,6 +277,17 @@ document.addEventListener('DOMContentLoaded', function () {
                             </td>
                         </tr>`;
                 });
+            })
+            .catch(err => {
+                console.error('Search gagal:', err);
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <p>Terjadi kesalahan saat mencari data. Coba lagi.</p>
+                            </div>
+                        </td>
+                    </tr>`;
             });
         }, 300);
     });

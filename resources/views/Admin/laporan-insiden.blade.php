@@ -40,7 +40,7 @@
                         {{ ($insidens->currentPage() - 1) * $insidens->perPage() + $loop->iteration }}
                     </td>
                     <td>
-                        <div style="font-weight:600;font-size:13px;">{{ $ins->user->name ?? '-' }}</div>
+                        <div style="font-weight:600;font-size:13px;">{{ $ins->user->nama ?? '-' }}</div>
                         <div style="font-size:11px;color:var(--text-muted);">{{ $ins->user->organisasi ?? '' }}</div>
                     </td>
                     <td>

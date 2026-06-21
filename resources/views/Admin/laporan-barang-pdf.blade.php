@@ -23,7 +23,7 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($Peminjaman_Ruangan as $i => $item)
+            @forelse($peminjaman_barangs as $i => $item)
             <tr>
                 <td>{{ $i + 1 }}</td>
                 <td>{{ $item->user->nama   ?? '-' }}</td>

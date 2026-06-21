@@ -48,7 +48,7 @@ class TindakLanjutInsidenController extends Controller
             foreach ($data as $i => $item) {
                 fputcsv($file, [
                     $i + 1,
-                    $item->user->name ?? '-',
+                    $item->user->nama ?? '-',
                     $item->judul,
                     $item->lokasi,
                     ucfirst($item->status),

@@ -13,13 +13,15 @@ class KelolaUserController extends Controller
     {
         $search = $request->input('search');
 
-            $query = User::where('status', 'aktif')
+        $query = User::where('status', 'aktif')
             ->when($search, function ($q) use ($search) {
-                $q->where('name', 'like', "%$search%")
-                  ->orWhere('email', 'like', "%$search%")
-                  ->orWhere('nim', 'like', "%$search%")
-                  ->orWhere('organisasi', 'like', "%$search%")
-                  ->orWhere('role', 'like', "%$search%");
+                $q->where(function ($q2) use ($search) {
+                    $q2->where('nama', 'like', "%$search%")
+                       ->orWhere('email', 'like', "%$search%")
+                       ->orWhere('nim', 'like', "%$search%")
+                       ->orWhere('organisasi', 'like', "%$search%")
+                       ->orWhere('role', 'like', "%$search%");
+                });
             })
             ->latest();
 
@@ -27,7 +29,7 @@ class KelolaUserController extends Controller
             return response()->json(
                 $query->get()->map(fn($u) => [
                     'id'         => $u->id,
-                    'name'       => $u->name,
+                    'nama'       => $u->nama,
                     'nim'        => $u->nim,
                     'email'      => $u->email,
                     'organisasi' => $u->organisasi ?? '-',
@@ -48,7 +50,7 @@ class KelolaUserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'       => 'required|string|max:255',
+            'nama'       => 'required|string|max:255',
             'email'      => 'required|email|unique:users,email',
             'nim'        => 'required|string|unique:users,nim',
             'password'   => 'required|min:8',
@@ -57,7 +59,7 @@ class KelolaUserController extends Controller
         ]);
 
         User::create([
-            'name'       => $request->name,
+            'nama'       => $request->nama,
             'email'      => $request->email,
             'nim'        => $request->nim,
             'password'   => Hash::make($request->password),
@@ -86,7 +88,7 @@ class KelolaUserController extends Controller
         $user = User::findOrFail($id);
 
         $request->validate([
-            'name'       => 'required|string|max:255',
+            'nama'       => 'required|string|max:255',
             'email'      => 'required|email|unique:users,email,' . $id,
             'nim'        => 'required|string|unique:users,nim,' . $id,
             'role'       => 'required|in:anggota,ketua,pic,admin,pamdal',
@@ -94,7 +96,7 @@ class KelolaUserController extends Controller
             'password'   => 'nullable|min:8',
         ]);
 
-        $user->name       = $request->name;
+        $user->nama       = $request->nama;
         $user->email      = $request->email;
         $user->nim        = $request->nim;
         $user->role       = $request->role;

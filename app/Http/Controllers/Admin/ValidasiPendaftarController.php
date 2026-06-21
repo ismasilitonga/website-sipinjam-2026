@@ -50,7 +50,7 @@ class ValidasiPendaftarController extends Controller
             foreach ($data as $i => $item) {
                 fputcsv($file, [
                     $i + 1,
-                    $item->user->name    ?? '-',
+                    $item->user->nama    ?? '-',
                     $item->ruangan->nama_ruangan ?? '-',
                     $item->tanggal_mulai,
                     ucfirst(str_replace('_', ' ', $item->status)),
@@ -63,12 +63,12 @@ class ValidasiPendaftarController extends Controller
 
     public function exportPdf()
     {
-        $peminjamanRuangans = PeminjamanRuangan::with(['user', 'ruangan'])->latest()->get();
+        $peminjaman_ruangan = PeminjamanRuangan::with(['user', 'ruangan'])->latest()->get();
 
         $options = new \Dompdf\Options();
         $options->set('isHtml5ParserEnabled', true);
         $dompdf = new \Dompdf\Dompdf($options);
-        $html   = view('admin.laporan-pdf', compact('peminjamanRuangans'))->render();
+        $html   = view('admin.laporan-pdf', compact('peminjaman_ruangan'))->render();
 
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'landscape');
@@ -96,7 +96,7 @@ class ValidasiPendaftarController extends Controller
             foreach ($data as $i => $item) {
                 fputcsv($file, [
                     $i + 1,
-                    $item->user->name       ?? '-',
+                    $item->user->nama       ?? '-',
                     $item->barang->nama     ?? '-',
                     $item->jumlah,
                     $item->tanggal_pinjam,

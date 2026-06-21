@@ -112,7 +112,7 @@
                                 cursor: pointer; user-select: none; position: relative;">
                         <span id="dropdown-label">
                             @if(request('ruangan_id') && $ruangans->firstWhere('id', request('ruangan_id')))
-                                {{ $ruangans->firstWhere('id', request('ruangan_id'))->nama }}
+                                {{ $ruangans->firstWhere('id', request('ruangan_id'))->nama_ruangan }}
                             @else
                                 Semua Ruangan
                             @endif
@@ -140,7 +140,7 @@
                         style="padding: 8px 12px; font-size: 13px; cursor: pointer;
                         color: #1e293b; border-bottom: 1px solid #f3f4f6;
                     {{ request('ruangan_id') == $r->id ? 'background: #ede9fe; color: #6d28d9; font-weight: 600;' : '' }}">
-                    {{ $r->nama }}
+                    {{ $r->nama_ruangan }}
                     </div>
                 @endforeach
                 </div>
@@ -212,7 +212,7 @@
                             <div style="font-size: 11px; color: var(--text-muted);">{{ $p->user->nim ?? '' }}</div>
                         </td>
                         <td style="font-size: 12.5px;">{{ $p->nama_ormawa ?? '-' }}</td>
-                        <td style="font-size: 13px; font-weight: 500; white-space: nowrap;">{{ $p->ruangan->nama_ruangan?? '-' }}</td>
+                        <td style="font-size: 13px; font-weight: 500; white-space: nowrap;">{{ $p->ruangan->nama_ruangan ?? '-' }}</td>
                         <td style="font-size: 12px; white-space: nowrap;">
                             {{ \Carbon\Carbon::parse($p->tanggal_mulai)->translatedFormat('d M Y') }}
                         </td>

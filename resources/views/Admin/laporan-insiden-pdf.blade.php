@@ -31,7 +31,7 @@
             @forelse($insidens as $i => $item)
             <tr>
                 <td>{{ $i + 1 }}</td>
-                <td>{{ $item->user->name ?? '-' }}</td>
+                <td>{{ $item->user->nama ?? '-' }}</td>
                 <td>{{ $item->judul }}</td>
                 <td>{{ $item->lokasi }}</td>
                 <td>{{ ucfirst($item->status) }}</td>
