@@ -55,19 +55,18 @@ class ValidasiPengajuanController extends Controller
         return back()->with('success', 'Pengajuan berhasil ditolak.');
     }
 
-        public function status()
-    {
-        $lantai = (string) auth()->user()->lantai_pic;
+       public function status()
+{
+    $lantai = (string) auth()->user()->lantai_pic;
 
-        $peminjaman_ruangans = PeminjamanRuangan::with(['user', 'ruangan'])
-            ->whereIn('status', ['menunggu_ketua', 'menunggu_pic', 'disetujui', 'ditolak'])
-            ->whereHas('ruangan', fn($q) => $q->where('lantai', $lantai))
-            ->latest()
-            ->paginate(15);
+    $peminjaman_ruangans = PeminjamanRuangan::with(['user', 'ruangan'])
+        ->whereIn('status', ['menunggu_ketua', 'menunggu_pic', 'ditolak'])
+        ->whereHas('ruangan', fn($q) => $q->where('lantai', $lantai))
+        ->latest()
+        ->paginate(15);
 
-        return view('PIC.status-peminjaman', compact('peminjaman_ruangans'));
-    }
-
+    return view('PIC.status-peminjaman', compact('peminjaman_ruangans'));
+}
          public function detail($id)
     {
         $lantai = (string) auth()->user()->lantai_pic;
@@ -137,7 +136,8 @@ class ValidasiPengajuanController extends Controller
             ->whereHas('ruangan', fn($q) => $q->where('lantai', $lantai))
             ->latest()
             ->get();
-
+        
+            
         $options = new Options();
         $options->set('isHtml5ParserEnabled', true);
 

@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Status Peminjaman')
-@section('subtitle', 'Pantau semua aktivitas peminjaman ruangan')
+@section('subtitle', 'Daftar peminjaman yang menunggu validasi atau ditolak')
 
 @section('topbar-action')
     <a href="{{ route('admin.laporan.unduh') }}" class="btn btn-outline">
@@ -49,20 +49,14 @@
                     <td>
                         @php
                             $statusLabel = match($p->status) {
-                                'disetujui'      => 'Disetujui',
                                 'ditolak'        => 'Ditolak',
-                                'berjalan'       => 'Berjalan',
-                                'selesai'        => 'Selesai',
                                 'menunggu_pic',
                                 'menunggu_ketua' => 'Menunggu',
                                 default          => 'Menunggu',
                             };
                             $badgeClass = match($p->status) {
-                                'disetujui' => 'badge-green',
-                                'ditolak'   => 'badge-red',
-                                'berjalan'  => 'badge-blue',
-                                'selesai'   => 'badge-gray',
-                                default     => 'badge-orange',
+                                'ditolak' => 'badge-red',
+                                default   => 'badge-orange',
                             };
                         @endphp
                         <span class="badge {{ $badgeClass }}">{{ $statusLabel }}</span>
@@ -74,7 +68,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" style="text-align:center;">Tidak ada data peminjaman.</td>
+                    <td colspan="7" style="text-align:center;">Tidak ada peminjaman yang perlu ditinjau.</td>
                 </tr>
                 @endforelse
             </tbody>

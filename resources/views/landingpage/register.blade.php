@@ -29,7 +29,7 @@
             align-items:center;
             justify-content:center;
             background-image:url("{{ asset('images/Me.png') }}");
-            background-size:500px;
+            background-size:350px;
             background-position:center;
             background-repeat:no-repeat;
             background-attachment:fixed;
@@ -49,25 +49,25 @@
             position:relative;
             z-index:1;
             width:100%;
-            max-width:650px;
+            max-width:450px;
         }
 
         .card{
             background:rgba(255,255,255,.90);
             backdrop-filter:blur(var(--blur-strength));
-            border-radius:28px;
+            border-radius:26px;
             padding:40px;
             box-shadow:0 24px 60px rgba(0,0,0,.18);
         }
 
         .header{
             text-align:center;
-            margin-bottom:30px;
+            margin-bottom:28px;
         }
 
         .logo{
-            width:64px;
-            height:64px;
+            width:60px;
+            height:45px;
             margin:0 auto 12px;
             background-image:url("{{ asset('images/logo.png') }}");
             background-size:contain;
@@ -77,7 +77,7 @@
 
         .header h2{
             color:var(--primary);
-            font-size:1.8rem;
+            font-size:1.1rem;
         }
 
         .header p{
@@ -85,16 +85,16 @@
         }
 
         .form-group{
-            margin-bottom:15px;
+            margin-bottom:13px;
         }
 
         input,
         select{
             width:100%;
-            padding:13px 16px;
+            padding:13px 14px;
             border:1px solid #d1d5db;
             border-radius:12px;
-            font-size:.95rem;
+            font-size: 0.85rem;
             font-family:'Poppins',sans-serif;
         }
 
@@ -104,7 +104,6 @@
             border-color:var(--primary);
         }
 
-        /* === Password show/hide icon === */
         .password-wrapper{
             position:relative;
         }
@@ -130,8 +129,8 @@
         }
 
         .toggle-password svg{
-            width:20px;
-            height:20px;
+            width:18px;
+            height:18px;
             display:block;
         }
 
@@ -142,7 +141,7 @@
             border-radius:14px;
             background:linear-gradient(135deg,var(--primary),var(--secondary));
             color:white;
-            font-size:1rem;
+            font-size:0.85rem;
             font-weight:600;
             cursor:pointer;
             margin-top:10px;
@@ -167,7 +166,7 @@
         .back-home{
             display:block;
             text-align:center;
-            margin-top:18px;
+            margin-top:16px;
             color:white;
             text-decoration:none;
         }
@@ -176,7 +175,6 @@
 <body>
 
 <div class="wrapper">
-
     <div class="card">
 
         <div class="header">
