@@ -6,6 +6,7 @@
     <title>Daftar Akun - SiPinjam</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <style>
         :root {
@@ -112,26 +113,22 @@
             padding-right:46px;
         }
 
-        .toggle-password{
-            position:absolute;
-            top:50%;
-            right:14px;
-            transform:translateY(-50%);
-            display:flex;
-            align-items:center;
-            cursor:pointer;
-            color:#94a3b8;
-            user-select:none;
+        .toggle-password {
+            position: absolute;
+            right: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            padding: 4px;
+            transition: color 0.2s;
         }
 
-        .toggle-password:hover{
-            color:var(--primary);
-        }
-
-        .toggle-password svg{
-            width:18px;
-            height:18px;
-            display:block;
+        .toggle-password:hover {
+            color: var(--primary);
         }
 
         .btn{
@@ -153,22 +150,25 @@
 
         .footer-link{
             text-align:center;
-            margin-top:20px;
+            margin-top:18px;
             color:#64748b;
+            font-size:0.85rem;
         }
 
         .footer-link a{
             color:var(--primary);
             text-decoration:none;
-            font-weight:600;
+            font-weight:480;
+            font-size:0.85rem;
         }
 
         .back-home{
             display:block;
             text-align:center;
-            margin-top:16px;
+            margin-top:14px;
             color:white;
             text-decoration:none;
+            font-size:0.85rem;
         }
     </style>
 </head>
@@ -183,21 +183,21 @@
             <p>SiPinjam - Politeknik Negeri Batam</p>
         </div>
 
-    @if ($errors->any())
-    <div style="
-        background:#fee2e2;
-        color:#991b1b;
-        padding:12px;
-        border-radius:10px;
-        margin-bottom:15px;
-        ">
-        <ul style="margin:0;padding-left:18px;">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+        @if ($errors->any())
+        <div style="
+            background:#fee2e2;
+            color:#991b1b;
+            padding:12px;
+            border-radius:10px;
+            margin-bottom:15px;
+            ">
+            <ul style="margin:0;padding-left:18px;">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
 
         <form action="{{ route('register.store') }}" method="POST">
         @csrf
@@ -233,25 +233,25 @@
 
             <div class="form-group">
                 <div class="password-wrapper">
-                    <input type="password" name="password" id="password" placeholder="Kata Sandi" required>
-                    <span class="toggle-password" onclick="togglePassword('password', this)" aria-label="Tampilkan kata sandi">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                    </span>
+                    <input type="password" name="password" id="password"
+                           placeholder="Kata Sandi" required>
+                    <button type="button" class="toggle-password"
+                            onclick="togglePassword('password', 'eye-icon-1')"
+                            aria-label="Tampilkan kata sandi">
+                        <i class="fas fa-eye" id="eye-icon-1"></i>
+                    </button>
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="password-wrapper">
-                    <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Konfirmasi Kata Sandi" required>
-                    <span class="toggle-password" onclick="togglePassword('password_confirmation', this)" aria-label="Tampilkan konfirmasi kata sandi">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                    </span>
+                    <input type="password" name="password_confirmation" id="password_confirmation"
+                           placeholder="Konfirmasi Kata Sandi" required>
+                    <button type="button" class="toggle-password"
+                            onclick="togglePassword('password_confirmation', 'eye-icon-2')"
+                            aria-label="Tampilkan konfirmasi kata sandi">
+                        <i class="fas fa-eye" id="eye-icon-2"></i>
+                    </button>
                 </div>
             </div>
 
@@ -263,9 +263,7 @@
 
         <div class="footer-link">
             Sudah punya akun?
-            <a href="{{ route('landingpage.pilih-login') }}">
-                Masuk
-            </a>
+            <a href="{{ route('landingpage.pilih-login') }}">Masuk</a>
         </div>
 
     </div>
@@ -277,25 +275,16 @@
 </div>
 
 <script>
-    const eyeIcon = `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-        </svg>`;
-
-    const eyeOffIcon = `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.62 21.62 0 0 1 5.06-6.94"></path>
-            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-3.22 4.56"></path>
-            <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"></path>
-            <line x1="1" y1="1" x2="23" y2="23"></line>
-        </svg>`;
-
-    function togglePassword(fieldId, iconEl) {
+    function togglePassword(fieldId, iconId) {
         const field = document.getElementById(fieldId);
-        const isHidden = field.type === 'password';
-        field.type = isHidden ? 'text' : 'password';
-        iconEl.innerHTML = isHidden ? eyeOffIcon : eyeIcon;
+        const icon  = document.getElementById(iconId);
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            field.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
     }
 </script>
 

@@ -30,7 +30,7 @@
         }
         .login-wrapper {
             position: relative; z-index: 1;
-            width: 100%; max-width: 460px;
+            width: 100%; max-width: 430px;
             animation: fadeUp 0.4s cubic-bezier(0.4,0,0.2,1);
         }
         @keyframes fadeUp {
@@ -60,7 +60,7 @@
             font-size: 0.88rem; font-weight: 600; margin-bottom: 10px;
         }
         .card-header h2 {
-            font-size: 1.5rem; font-weight: 700;
+            font-size: 1.2rem; font-weight: 700;
             color: var(--dark); margin-bottom: 6px;
         }
         .card-header p { font-size: 0.85rem; color: #64748b; }
@@ -112,7 +112,7 @@
             width: 100%; padding: 14px;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white; border: none; border-radius: 12px;
-            font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600;
+            font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 600;
             cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 8px 24px rgba(47,126,161,0.35);
             display: flex; align-items: center; justify-content: center; gap: 9px;
@@ -120,13 +120,12 @@
         .btn-login:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(47,126,161,0.4); }
         .btn-login:active { transform: scale(0.98); }
 
-        /* Divider */
         .back-link-wrap {
             text-align: center; margin-top: 22px;
         }
         .back-link {
             display: inline-flex; align-items: center; gap: 7px;
-            color: #64748b; font-size: 0.85rem; font-weight: 500;
+            color: #64748b; font-size: 0.80rem; font-weight: 500;
             text-decoration: none; transition: color 0.2s;
         }
         .back-link:hover { color: var(--primary); }
@@ -194,7 +193,7 @@
                     <input type="checkbox" id="remember" name="remember">
                     <label for="remember">Ingat saya</label>
                 </div>
-                <a href="#" class="forgot-link">Lupa kata sandi?</a>
+                <a href="{{ route('password.request') }}" class="forgot-link">Lupa kata sandi?</a>
             </div>
 
             <button type="submit" class="btn-login">

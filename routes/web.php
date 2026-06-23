@@ -56,6 +56,7 @@ Route::get('/panduan', [LandingPageController::class, 'panduan'])->name('landing
 Route::get('/pilih-login', [LandingPageController::class, 'pilihLogin'])->name('landingpage.pilih-login');
 Route::get('/register', [LandingPageController::class, 'register'])->name('landingpage.register');
 Route::post('/register', [LandingPageController::class, 'store'])->name('register.store');
+Route::get('/lupa-kata-sandi', function () {return view('landingpage.lupa-katasandi');})->name('password.request');
 
 Route::get('/pilih-login/admin',   [LandingPageController::class, 'pilihAdmin'])->name('landingpage.pilih-login.admin');
 Route::get('/pilih-login/anggota', [LandingPageController::class, 'pilihAnggota'])->name('landingpage.pilih-login.anggota');
