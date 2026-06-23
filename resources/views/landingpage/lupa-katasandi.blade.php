@@ -264,7 +264,7 @@
                     <label>Alamat Email <span>*</span></label>
                     <div class="input-wrap">
                         <i class="fas fa-envelope prefix-icon"></i>
-                        <input type="email" id="input-email" placeholder="contoh: polibatam@gmail.com" required>
+                        <input type="email" id="input-email" placeholder="contoh: ormawa@gmail.com" required>
                     </div>
                 </div>
                 <button type="submit" class="btn-primary">

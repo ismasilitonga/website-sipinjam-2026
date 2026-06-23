@@ -74,7 +74,7 @@
         }
 
         .page-hero {
-            padding: 80px 8% 50px;
+            padding: 90px 8% 55px;
             text-align: center;
             position: relative;
         }
