@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LupaKatasandiController;
 
 use App\Http\Controllers\Anggota\DashboardAnggotaController;
 use App\Http\Controllers\Anggota\DaftarRuanganController;
@@ -44,7 +45,6 @@ use App\Http\Controllers\Admin\KelolaOrmawaController;
 use App\Http\Controllers\Admin\RiwayatRuanganAdminController;
 use App\Http\Controllers\Admin\ValidasiPendaftarController;
 use App\Http\Controllers\Admin\KelolaRuanganController;
-
 use App\Http\Controllers\Pamdal\DashboardPamdalController;
 use App\Http\Controllers\Pamdal\DetailAkunPamdalController;
 use App\Http\Controllers\Pamdal\KonfirmasiKunciController;
@@ -57,6 +57,10 @@ Route::get('/pilih-login', [LandingPageController::class, 'pilihLogin'])->name('
 Route::get('/register', [LandingPageController::class, 'register'])->name('landingpage.register');
 Route::post('/register', [LandingPageController::class, 'store'])->name('register.store');
 Route::get('/lupa-kata-sandi', function () {return view('landingpage.lupa-katasandi');})->name('password.request');
+Route::post('/lupa-kata-sandi/kirim-otp',   [LupaKatasandiController::class, 'sendOtp'])->name('password.send-otp');
+Route::post('/lupa-kata-sandi/verifikasi',   [LupaKatasandiController::class, 'verifyOtp'])->name('password.verify-otp');
+Route::post('/lupa-kata-sandi/reset',        [LupaKatasandiController::class, 'resetPassword'])->name('password.reset');
+
 
 Route::get('/pilih-login/admin',   [LandingPageController::class, 'pilihAdmin'])->name('landingpage.pilih-login.admin');
 Route::get('/pilih-login/anggota', [LandingPageController::class, 'pilihAnggota'])->name('landingpage.pilih-login.anggota');

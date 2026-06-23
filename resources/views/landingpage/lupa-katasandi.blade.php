@@ -358,135 +358,190 @@
 
 <script>
     let currentStep = 1;
-    let verifiedEmail = '';
+let verifiedEmail = '';
 
-    /* ── Alert ── */
-    function showAlert(type, msg) {
-        const box = document.getElementById('alert-box');
-        box.style.display = 'flex';
-        box.className = type === 'success' ? 'alert-success' : 'alert-error';
-        box.innerHTML = `<i class="fas fa-${type === 'success' ? 'circle-check' : 'circle-exclamation'}"></i> ${msg}`;
-        setTimeout(() => { box.style.display = 'none'; }, 4000);
+function showAlert(type, msg) {
+    const box = document.getElementById('alert-box');
+    box.style.display = 'flex';
+    box.className = type === 'success' ? 'alert-success' : 'alert-error';
+    box.innerHTML = `<i class="fas fa-${type === 'success' ? 'circle-check' : 'circle-exclamation'}"></i> ${msg}`;
+    setTimeout(() => { box.style.display = 'none'; }, 4000);
+}
+
+function goStep(step) {
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + step).classList.add('active');
+    const titles = {
+        1: ['Lupa Kata Sandi', 'Masukkan email terdaftar untuk menerima kode verifikasi.'],
+        2: ['Verifikasi OTP', 'Masukkan 6 digit kode yang dikirim ke email kamu.'],
+        3: ['Buat Kata Sandi Baru', 'Kata sandi baru harus berbeda dari sebelumnya.'],
+    };
+    if (titles[step]) {
+        document.getElementById('main-title').textContent = titles[step][0];
+        document.getElementById('main-desc').textContent  = titles[step][1];
     }
-
-    /* ── Step navigation ── */
-    function goStep(step) {
-        document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('panel-' + step).classList.add('active');
-
-        const titles = {
-            1: ['Lupa Kata Sandi', 'Masukkan email terdaftar untuk menerima kode verifikasi.'],
-            2: ['Verifikasi OTP', 'Masukkan 6 digit kode yang dikirim ke email kamu.'],
-            3: ['Buat Kata Sandi Baru', 'Kata sandi baru harus berbeda dari sebelumnya.'],
-        };
-        if (titles[step]) {
-            document.getElementById('main-title').textContent = titles[step][0];
-            document.getElementById('main-desc').textContent  = titles[step][1];
-        }
-
-        /* Update step indicator */
-        for (let i = 1; i <= 3; i++) {
-            const el = document.getElementById('s' + i);
-            el.classList.remove('active', 'done');
-            if (i < step)  el.classList.add('done');
-            if (i === step) el.classList.add('active');
-        }
-        for (let i = 1; i <= 2; i++) {
-            const line = document.getElementById('line' + i);
-            line.classList.toggle('done', i < step);
-        }
-
-        currentStep = step;
+    for (let i = 1; i <= 3; i++) {
+        const el = document.getElementById('s' + i);
+        el.classList.remove('active', 'done');
+        if (i < step)  el.classList.add('done');
+        if (i === step) el.classList.add('active');
     }
-
-    /* ── STEP 1: Kirim email ── */
-    document.getElementById('form-email').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const email = document.getElementById('input-email').value.trim();
-        if (!email) return;
-
-        verifiedEmail = email;
-        document.getElementById('email-display').textContent = email;
-
-        /* TODO: ganti dengan fetch ke route Laravel */
-        /* fetch('/password/send-otp', { method:'POST', ... }) */
-
-        showAlert('success', 'Kode OTP berhasil dikirim ke ' + email);
-        setTimeout(() => goStep(2), 800);
-    });
-
-    /* ── OTP auto-focus ── */
-    const otpInputs = document.querySelectorAll('.otp-digit');
-    otpInputs.forEach((inp, idx) => {
-        inp.addEventListener('input', () => {
-            inp.value = inp.value.replace(/\D/g, '');
-            if (inp.value && idx < otpInputs.length - 1) otpInputs[idx + 1].focus();
-        });
-        inp.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && !inp.value && idx > 0) otpInputs[idx - 1].focus();
-        });
-    });
-
-    /* ── STEP 2: Verifikasi OTP ── */
-    document.getElementById('form-otp').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const otp = Array.from(otpInputs).map(i => i.value).join('');
-        if (otp.length < 6) {
-            showAlert('error', 'Masukkan 6 digit kode OTP.');
-            return;
-        }
-
-        /* TODO: verifikasi ke server */
-        showAlert('success', 'Kode OTP valid!');
-        setTimeout(() => goStep(3), 800);
-    });
-
-    /* ── Resend OTP ── */
-    function resendOtp(e) {
-        e.preventDefault();
-        otpInputs.forEach(i => i.value = '');
-        otpInputs[0].focus();
-        showAlert('success', 'Kode OTP baru telah dikirim ulang.');
+    for (let i = 1; i <= 2; i++) {
+        document.getElementById('line' + i).classList.toggle('done', i < step);
     }
+    currentStep = step;
+}
 
-    /* ── STEP 3: Reset password ── */
-    document.getElementById('form-reset').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const np = document.getElementById('new-password').value;
-        const cp = document.getElementById('confirm-password').value;
+// STEP 1: Kirim OTP ke server
+document.getElementById('form-email').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = document.getElementById('input-email').value.trim();
+    const btn = this.querySelector('button[type=submit]');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
 
-        if (np.length < 8) {
-            showAlert('error', 'Kata sandi minimal 8 karakter.');
-            return;
-        }
-        if (np !== cp) {
-            showAlert('error', 'Konfirmasi kata sandi tidak cocok.');
-            return;
-        }
-
-        /* TODO: kirim ke server untuk update password */
-
-        document.getElementById('step-indicator').style.display = 'none';
-        document.getElementById('main-title').textContent = '';
-        document.getElementById('main-desc').textContent  = '';
-        document.getElementById('back-wrap').style.display = 'none';
-
-        document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('panel-success').classList.add('active');
-    });
-
-    /* ── Toggle password ── */
-    function togglePass(fieldId, iconId) {
-        const field = document.getElementById(fieldId);
-        const icon  = document.getElementById(iconId);
-        if (field.type === 'password') {
-            field.type = 'text';
-            icon.classList.replace('fa-eye', 'fa-eye-slash');
+    fetch('{{ route("password.send-otp") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ email })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            verifiedEmail = email;
+            document.getElementById('email-display').textContent = email;
+            showAlert('success', data.message);
+            setTimeout(() => goStep(2), 800);
         } else {
-            field.type = 'password';
-            icon.classList.replace('fa-eye-slash', 'fa-eye');
+            showAlert('error', data.message);
         }
+    })
+    .catch(() => showAlert('error', 'Terjadi kesalahan. Coba lagi.'))
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim Kode Verifikasi';
+    });
+});
+
+// OTP auto-focus
+const otpInputs = document.querySelectorAll('.otp-digit');
+otpInputs.forEach((inp, idx) => {
+    inp.addEventListener('input', () => {
+        inp.value = inp.value.replace(/\D/g, '');
+        if (inp.value && idx < otpInputs.length - 1) otpInputs[idx + 1].focus();
+    });
+    inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !inp.value && idx > 0) otpInputs[idx - 1].focus();
+    });
+});
+
+// STEP 2: Verifikasi OTP ke server
+document.getElementById('form-otp').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const otp = Array.from(otpInputs).map(i => i.value).join('');
+    if (otp.length < 6) { showAlert('error', 'Masukkan 6 digit kode OTP.'); return; }
+
+    const btn = this.querySelector('button[type=submit]');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memverifikasi...';
+
+    fetch('{{ route("password.verify-otp") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ email: verifiedEmail, otp })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('success', data.message);
+            setTimeout(() => goStep(3), 800);
+        } else {
+            showAlert('error', data.message);
+        }
+    })
+    .catch(() => showAlert('error', 'Terjadi kesalahan. Coba lagi.'))
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> Verifikasi Kode';
+    });
+});
+
+// Kirim ulang OTP
+function resendOtp(e) {
+    e.preventDefault();
+    otpInputs.forEach(i => i.value = '');
+    otpInputs[0].focus();
+
+    fetch('{{ route("password.send-otp") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ email: verifiedEmail })
+    })
+    .then(r => r.json())
+    .then(data => showAlert(data.success ? 'success' : 'error', data.message))
+    .catch(() => showAlert('error', 'Gagal mengirim ulang. Coba lagi.'));
+}
+
+// STEP 3: Reset password ke server
+document.getElementById('form-reset').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const np = document.getElementById('new-password').value;
+    const cp = document.getElementById('confirm-password').value;
+    if (np.length < 8) { showAlert('error', 'Kata sandi minimal 8 karakter.'); return; }
+    if (np !== cp)     { showAlert('error', 'Konfirmasi kata sandi tidak cocok.'); return; }
+
+    const btn = this.querySelector('button[type=submit]');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+    fetch('{{ route("password.reset") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ email: verifiedEmail, password: np, password_confirmation: cp })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('step-indicator').style.display = 'none';
+            document.getElementById('main-title').textContent = '';
+            document.getElementById('main-desc').textContent  = '';
+            document.getElementById('back-wrap').style.display = 'none';
+            document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panel-success').classList.add('active');
+        } else {
+            showAlert('error', data.message);
+        }
+    })
+    .catch(() => showAlert('error', 'Terjadi kesalahan. Coba lagi.'))
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-key"></i> Simpan Kata Sandi Baru';
+    });
+});
+
+function togglePass(fieldId, iconId) {
+    const field = document.getElementById(fieldId);
+    const icon  = document.getElementById(iconId);
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
     }
+}
 </script>
 
 </body>
