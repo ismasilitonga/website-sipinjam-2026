@@ -23,25 +23,27 @@ class DaftarPengajuanController extends Controller
         return view('ketua.daftar-pengajuan', compact('pengajuans'));
     }
 
-   public function setujui(Request $request, $id)
-{
-    $peminjaman = PeminjamanRuangan::where('id', $id)
-        ->where('nama_ormawa', Auth::user()->organisasi)
-        ->firstOrFail();
+    public function setujui(Request $request, $id)
+    {
+        $peminjaman = PeminjamanRuangan::where('id', $id)
+            ->where('nama_ormawa', Auth::user()->organisasi)
+            ->firstOrFail();
 
-    $peminjaman->update(['status' => 'menunggu_pic']);
-    $lantai = $peminjaman->ruangan->lantai;
+        $peminjaman->update(['status' => 'menunggu_pic']);
 
-    $pic = User::where('role', 'pic')
-               ->where('lantai_pic', $lantai)
-               ->first();
+        // Gunakan CAST agar tidak type mismatch antara lantai_pic (int) dan lantai ruangan (string)
+        $lantai = (string) $peminjaman->ruangan->lantai;
 
-    if ($pic) {
-        $pic->notify(new PengajuanDisetujuiKetuaNotification($peminjaman));
+        $pic = User::where('role', 'pic')
+                   ->whereRaw('CAST(lantai_pic AS CHAR) = ?', [$lantai])
+                   ->first();
+
+        if ($pic) {
+            $pic->notify(new PengajuanDisetujuiKetuaNotification($peminjaman));
+        }
+
+        return back()->with('success', 'Pengajuan disetujui dan diteruskan ke PIC.');
     }
-
-    return back()->with('success', 'Pengajuan disetujui dan diteruskan ke PIC.');
-}
 
     public function tolak(Request $request, $id)
     {
