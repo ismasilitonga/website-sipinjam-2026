@@ -11,7 +11,7 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --sidebar-w: 200px;
+            --sidebar-w: 210px;
             --bg: #f8f7ff;
             --sidebar-bg: #1e1b4b;
             --sidebar-hover: #2e2a5e;
@@ -217,7 +217,6 @@
         .item-card-title { font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
         .item-card-sub   { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 880px) {
             :root { --sidebar-w: 64px; }
             .sidebar-logo span, .sidebar-logo small,

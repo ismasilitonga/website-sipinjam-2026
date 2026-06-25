@@ -11,7 +11,7 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --sidebar-w: 200px;
+            --sidebar-w: 210px;
             --bg: #f0fdf4;
             --sidebar-bg: #0f2318;
             --sidebar-hover: #1a3826;

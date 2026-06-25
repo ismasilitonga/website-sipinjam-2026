@@ -191,16 +191,16 @@
     <div class="table-wrap" style="overflow-x: auto;">
         <table style="width: 100%;">
             <thead>
-                <tr>
-                    <th style="width: 40px;">No</th>
-                    <th>Peminjam</th>
-                    <th>Ormawa</th>
-                    <th>Ruangan</th>
-                    <th>Tanggal</th>
-                    <th>Status</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
+             <tr>
+                <th style="width: 50px;">No</th>
+                <th style="width: 140px;">Peminjam</th>
+                <th style="width: 90px;">Ormawa</th>
+                <th style="width: 150px;">Ruangan</th>
+                <th style="width: 120px;">Tanggal</th>
+                <th style="width: 100px;">Status</th>
+                <th style="width: 70px;">Aksi</th>
+            </tr>
+        </thead>
             <tbody>
                 @forelse($riwayat as $p)
                     <tr>

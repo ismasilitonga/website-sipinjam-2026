@@ -14,12 +14,7 @@
         td { padding: 7px 10px; border-bottom: 1px solid #e5e7eb; font-size: 10.5px; }
         tr:nth-child(even) td { background: #f8f7ff; }
 
-        .badge { padding: 2px 8px; border-radius: 10px; font-size: 9.5px; font-weight: 600; }
-        .badge-selesai   { background: #e5e7eb; color: #374151; }
-        .badge-disetujui { background: #d1fae5; color: #065f46; }
-        .badge-ditolak   { background: #fee2e2; color: #991b1b; }
-
-        .footer { margin-top: 14px; font-size: 9px; color: #94a3b8; text-align: right; }
+        .footer { margin-top: 14px; font-size: 10px; color: #94a3b8; text-align: right; }
     </style>
 </head>
 <body>
@@ -61,14 +56,13 @@
                     <td>{{ $p->keperluan ?? '-' }}</td>
                     <td>
                         @php
-                            [$badgeClass, $badgeLabel] = match($p->status) {
-                                'selesai'   => ['badge-selesai',   'Selesai'],
-                                'disetujui' => ['badge-disetujui', 'Disetujui'],
-                                'ditolak'   => ['badge-ditolak',   'Ditolak'],
-                                default     => ['badge-selesai',   ucfirst($p->status)],
+                            [$warna, $label] = match($p->status) {
+                                'disetujui' => ['#065f46', 'Disetujui'],
+                                'selesai'   => ['#374151', 'Selesai'],
+                                default     => ['#374151', ucfirst($p->status)],
                             };
                         @endphp
-                        <span class="badge {{ $badgeClass }}">{{ $badgeLabel }}</span>
+                        <span style="font-size: 10px; font-weight: 700; color: {{ $warna }};">{{ $label }}</span>
                     </td>
                 </tr>
             @empty

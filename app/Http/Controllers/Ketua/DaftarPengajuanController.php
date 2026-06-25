@@ -30,8 +30,6 @@ class DaftarPengajuanController extends Controller
             ->firstOrFail();
 
         $peminjaman->update(['status' => 'menunggu_pic']);
-
-        // Gunakan CAST agar tidak type mismatch antara lantai_pic (int) dan lantai ruangan (string)
         $lantai = (string) $peminjaman->ruangan->lantai;
 
         $pic = User::where('role', 'pic')
@@ -48,7 +46,6 @@ class DaftarPengajuanController extends Controller
     public function tolak(Request $request, $id)
     {
         $request->validate(['alasan_tolak' => 'required|string|max:500']);
-
         $peminjaman = PeminjamanRuangan::where('id', $id)
             ->where('nama_ormawa', Auth::user()->organisasi)
             ->firstOrFail();

@@ -43,5 +43,8 @@
             @endforelse
         </tbody>
     </table>
+    <div style="text-align: right; font-size: 10px; color: #555; margin-top: 8px;">
+        Total: {{ count($insidens) }} data insiden
+    </div>
 </body>
 </html>

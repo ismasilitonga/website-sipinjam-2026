@@ -48,39 +48,39 @@
                             </div>
                         </td>
                         <td>
-                        <form id="serahForm{{ $pb->id }}" method="POST"
-                            action="{{ route('pic.serah-terima.konfirmasi', $pb->id) }}"
-                            enctype="multipart/form-data">
-                         @csrf
-                        <input type="file" name="foto_serah" id="foto_serah_hidden_{{ $pb->id }}"
+                            <form id="serahForm{{ $pb->id }}" method="POST"
+                                action="{{ route('pic.serah-terima.konfirmasi', $pb->id) }}"
+                                enctype="multipart/form-data">
+                                @csrf
+                                <input type="file" name="foto_serah" id="foto_serah_hidden_{{ $pb->id }}"
                                 accept="image/*" style="display: none;">
-                        <button type="button" class="btn btn-success btn-sm"
+                                <button type="button" class="btn btn-success btn-sm"
                                 onclick="openSerahModal('{{ $pb->id }}', '{{ addslashes($pb->user->nama ?? '-') }}', '{{ addslashes($pb->barang->nama ?? '-') }}')">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 13px; height: 13px;">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                            </svg>
-                          Serahkan
-                        </button>
-                      </form>
-                    </td>
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 13px; height: 13px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                              </svg>
+                             Serahkan
+                            </button>
+                          </form>
+                        </td>
                     </tr>
                 @empty
                     <tr>
                     <td colspan="8">
-                <div class="empty-state" style="padding: 28px 20px;">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    <div class="empty-state" style="padding: 28px 20px;">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                  <p>Tidak ada barang yang menunggu untuk diserahkan.</p>
-                </div>
-             </td>
-          </tr>
-         @endforelse
-       </tbody>
-     </table>
+                     <p>Tidak ada barang yang menunggu untuk diserahkan.</p>
+                  </div>
+                 </td>
+                </tr>
+               @endforelse
+           </tbody>
+        </table>
+      </div>
     </div>
-  </div>
 
 <div class="card">
     <div class="card-header" style="padding-bottom: 16px;">
@@ -126,93 +126,89 @@
                             {{ \Carbon\Carbon::parse($pb->waktu_diserahkan)->format('d M Y, H:i') }}
                         </td>
                         <td>
-                               @if($pb->foto_serah)
-                            <a href="{{ Storage::url($pb->foto_serah) }}" target="_blank">
-                                  <img src="{{ Storage::url($pb->foto_serah) }}"
-                                 style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid #e5e7eb;">
-                            </a>
+                            @if($pb->foto_serah)
+                                <a href="{{ Storage::url($pb->foto_serah) }}" target="_blank">
+                                    <img src="{{ Storage::url($pb->foto_serah) }}"
+                                        style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid #e5e7eb;">
+                                </a>
                             @else
-                            <span style="font-size: 11px; color: var(--text-muted);">—</span>
-                         @endif
+                                <span style="font-size: 11px; color: var(--text-muted);">—</span>
+                            @endif
                         </td>
                         <td style="font-size: 12.5px;">
-                        <span style="{{ $terlambat ? 'color: #dc2626; font-weight: 700;' : '' }}">
-                        {{ \Carbon\Carbon::parse($pb->tanggal_kembali_rencana)->format('d M Y') }}
-                        </span>
-                        @if($terlambat)
-                        <span class="badge badge-red" style="margin-left: 4px; font-size: 10px;">Terlambat</span>
-                        @endif
+                            <span style="{{ $terlambat ? 'color: #dc2626; font-weight: 700;' : '' }}">
+                                {{ \Carbon\Carbon::parse($pb->tanggal_kembali_rencana)->format('d M Y') }}
+                            </span>
+                            @if($terlambat)
+                                <span class="badge badge-red" style="margin-left: 4px; font-size: 10px;">Terlambat</span>
+                            @endif
+                        </td>
+                        <td><span class="badge badge-blue">Dipinjam</span></td>
+                        <td>
+                            <form id="kembaliForm{{ $pb->id }}" method="POST"
+                                action="{{ route('pic.terima-kembali', $pb->id) }}"
+                                enctype="multipart/form-data">
+                                @csrf
+                                <input type="file" name="foto_kembali" id="foto_kembali_hidden_{{ $pb->id }}" accept="image/*" style="display: none;">
+                                <input type="hidden" name="kondisi_barang" id="kondisi_hidden_{{ $pb->id }}">
+                                <input type="hidden" name="catatan_kondisi" id="catatan_hidden_{{ $pb->id }}">
+                                <button type="button" class="btn btn-primary btn-sm"
+                                        onclick="openKembaliModal('{{ $pb->id }}', '{{ addslashes($pb->user->nama ?? '-') }}', '{{ addslashes($pb->barang->nama ?? '-') }}')">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 13px; height: 13px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                         d="M7 16V4m0 0L3 8m4-4l4 4"/>
+                                    </svg>
+                                    Terima Kembali
+                                </button>
+                            </form>
+                          </td>
+                        </tr>
+                    @empty
+                    <tr>
+                        <td colspan="9">
+                        <div class="empty-state" style="padding: 28px 20px;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <p>Tidak ada barang yang sedang dipinjam.</p>
+                    </div>
                     </td>
-                    <td><span class="badge badge-blue">Dipinjam</span></td>
-                    <td>
-                <form id="kembaliForm{{ $pb->id }}" method="POST"
-                    action="{{ route('pic.terima-kembali', $pb->id) }}"
-                    enctype="multipart/form-data">
-                    @csrf
-                <input type="file"   name="foto_kembali"    id="foto_kembali_hidden_{{ $pb->id }}" accept="image/*" style="display: none;">
-                <input type="hidden" name="kondisi_barang"  id="kondisi_hidden_{{ $pb->id }}">
-                <input type="hidden" name="catatan_kondisi" id="catatan_hidden_{{ $pb->id }}">
-                <button type="button" class="btn btn-primary btn-sm"
-                     onclick="openKembaliModal('{{ $pb->id }}', '{{ addslashes($pb->user->nama ?? '-') }}', '{{ addslashes($pb->barang->nama ?? '-') }}')">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 13px; height: 13px;">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M7 16V4m0 0L3 8m4-4l4 4"/>
-                   </svg>
-                  Terima Kembali
-                 </button>
-               </form>
-              </td>
-            </tr>
-                @empty
-            <tr>
-            <td colspan="9">
-            <div class="empty-state" style="padding: 28px 20px;">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M5 13l4 4L19 7"/>
-            </svg>
-          <p>Tidak ada barang yang sedang dipinjam.</p>
-         </div>
-        </td>
-       </tr>
-      @endforelse
-     </tbody>
-    </table>
-   </div>
-  </div>
+                </tr>
+            @endforelse
+            </tbody>
+           </table>
+        </div>
+    </div>
 
-<div class="card" style="margin-top: 20px;">
+    <div class="card" style="margin-top: 20px;">
     <div class="card-header" style="padding-bottom: 16px;">
         <span class="card-title">📋 Riwayat Serah Terima Barang</span>
         <span class="badge badge-blue" id="riwayatCount">{{ $riwayat->count() }} item</span>
     </div>
 
-<div style="padding: 16px 20px; border-bottom: 1px solid #f1f5f9; display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
-    <div style="display: flex; flex-direction: column; gap: 4px;">
-        <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Minggu</label>
-        <input type="week" id="filterMinggu"
-               style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #374151; background: white;">
+    <div style="padding: 16px 20px; border-bottom: 1px solid #f1f5f9; display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+            <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Minggu</label>
+            <input type="week" id="filterMinggu"
+                   style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #374151; background: white;">
         </div>
         <div style="display: flex; flex-direction: column; gap: 4px;">
             <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Bulan</label>
             <input type="month" id="filterBulan"
                    style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #374151; background: white;">
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 4px;">
-            <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Ormawa</label>
-            <input type="text" id="filterOrmawa" placeholder="Cari nama ormawa..."
-                    style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #374151; background: white; min-width: 150px;">
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 4px;">
-            <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Barang</label>
-            <input type="text" id="filterBarang" placeholder="Cari nama barang..."
-                    style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #374151; background: white; min-width: 180px;">
-                </div>
-            <button onclick="resetFilter()" class="btn-reset">Reset</button>
-                </div>
-                <div class="table-wrap">
-                <table id="riwayatTable">
-                <thead>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 220px;max-width: 320px;">
+            <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Cari</label>
+            <input type="text" id="filterSearch" placeholder="Cari peminjam, ormawa, atau barang..."
+                   style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #374151; background: white;">
+        </div>
+        <button onclick="resetFilter()" class="btn-reset">Reset</button>
+    </div>
+
+    <div class="table-wrap">
+        <table id="riwayatTable">
+            <thead>
                 <tr>
                     <th>No</th>
                     <th>Peminjam</th>
@@ -231,6 +227,7 @@
                     <tr class="riwayat-row"
                         data-ormawa="{{ $pb->nama_ormawa }}"
                         data-barang="{{ $pb->barang->nama ?? '' }}"
+                        data-peminjam="{{ $pb->user->nama ?? '' }}"
                         data-tanggal="{{ \Carbon\Carbon::parse($pb->waktu_diterima_kembali)->format('Y-m-d') }}">
                         <td style="font-size: 12px; color: var(--text-muted);" class="row-no">{{ $i + 1 }}</td>
                         <td>
@@ -288,15 +285,15 @@
                         </td>
                     </tr>
                 @endforelse
-                </tbody>
+            </tbody>
         </table>
         <div id="noFilterResult" style="display: none; padding: 28px; text-align: center; color: var(--text-muted); font-size: 13px;">
             Tidak ada data yang sesuai filter.
         </div>
         <div id="paginationWrap" style="display: flex; align-items: center; justify-content: flex-start; gap: 6px; padding: 16px;">
-       </div>
-     </div>
+        </div>
     </div>
+</div>
 
 <div class="modal-overlay" id="serahModal">
     <div class="custom-modal">
@@ -356,7 +353,7 @@
         <div style="margin-bottom: 12px; text-align: left;">
             <label style="font-size: 13px; font-weight: 600;">Catatan Kondisi</label>
             <textarea id="modalCatatanKondisi" rows="3" placeholder="Contoh: terdapat goresan pada bagian samping"
-                      style="width: 100%; margin-top: 6px; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;"></textarea>
+                      style="width: 100%; margin-top: 6px; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-family: inherit;"></textarea>
         </div>
         <div class="modal-actions">
             <button type="button" class="btn-cancel" onclick="closeKembaliModal()">Batal</button>
@@ -402,7 +399,6 @@
 }
 .btn-reset:hover { background: #6d28d9; }
 .btn-reset:active { transform: scale(0.95); }
-
 .pg-btn {
     width: 34px; height: 34px; border-radius: 8px; border: 1px solid #e2e8f0;
     background: white; color: #374151; font-size: 13px; font-weight: 600;
@@ -436,7 +432,6 @@ function closeSerahModal() {
 function submitSerahForm() {
     if (!selectedSerahId) return;
     const fotoInput = document.getElementById('fotoSerahInput');
-
     if (fotoInput && fotoInput.files.length > 0) {
         try {
             const hiddenInput = document.getElementById('foto_serah_hidden_' + selectedSerahId);
@@ -444,15 +439,11 @@ function submitSerahForm() {
             dt.items.add(fotoInput.files[0]);
             hiddenInput.files = dt.files;
         } catch (err) {
-            console.error('Gagal melampirkan foto serah, lanjut submit tanpa foto:', err);
+            console.error('Gagal melampirkan foto serah:', err);
         }
     }
     const form = document.getElementById('serahForm' + selectedSerahId);
-    if (!form) {
-        console.error('Form serahForm' + selectedSerahId + ' tidak ditemukan');
-        return;
-    }
-    form.submit();
+    if (form) form.submit();
 }
 
 function openKembaliModal(id, peminjam, barang) {
@@ -474,9 +465,7 @@ function closeKembaliModal() {
 
 function submitKembaliForm() {
     if (!selectedKembaliId) return;
-
     const fotoInput = document.getElementById('fotoKembaliInput');
-
     if (fotoInput && fotoInput.files.length > 0) {
         try {
             const hiddenInput = document.getElementById('foto_kembali_hidden_' + selectedKembaliId);
@@ -484,21 +473,15 @@ function submitKembaliForm() {
             dt.items.add(fotoInput.files[0]);
             hiddenInput.files = dt.files;
         } catch (err) {
-            console.error('Gagal melampirkan foto kembali, lanjut submit tanpa foto:', err);
+            console.error('Gagal melampirkan foto kembali:', err);
         }
     }
-
     document.getElementById('kondisi_hidden_' + selectedKembaliId).value =
         document.getElementById('modalKondisiBarang').value;
     document.getElementById('catatan_hidden_' + selectedKembaliId).value =
         document.getElementById('modalCatatanKondisi').value;
-
     const form = document.getElementById('kembaliForm' + selectedKembaliId);
-    if (!form) {
-        console.error('Form kembaliForm' + selectedKembaliId + ' tidak ditemukan');
-        return;
-    }
-    form.submit();
+    if (form) form.submit();
 }
 
 function previewModalFoto(input, imgId, previewId, placeholderId) {
@@ -517,19 +500,19 @@ let currentPage = 1;
 let visibleRows = [];
 
 function applyFilter() {
-    const minggu = document.getElementById('filterMinggu').value;
-    const bulan  = document.getElementById('filterBulan').value;
-    const ormawa = document.getElementById('filterOrmawa').value.toLowerCase();
-    const barang = document.getElementById('filterBarang').value.toLowerCase();
-    const rows   = document.querySelectorAll('.riwayat-row');
+    const minggu  = document.getElementById('filterMinggu').value;
+    const bulan   = document.getElementById('filterBulan').value;
+    const keyword = document.getElementById('filterSearch').value.toLowerCase();
+    const rows    = document.querySelectorAll('.riwayat-row');
 
     visibleRows = [];
     rows.forEach(row => {
-        const tgl       = row.dataset.tanggal;
-        const rowOrmawa = row.dataset.ormawa.toLowerCase();
-        const rowBarang = row.dataset.barang.toLowerCase();
-        const date      = new Date(tgl);
-        let show        = true;
+        const tgl      = row.dataset.tanggal;
+        const ormawa   = row.dataset.ormawa.toLowerCase();
+        const barang   = row.dataset.barang.toLowerCase();
+        const peminjam = row.dataset.peminjam.toLowerCase();
+        const date     = new Date(tgl);
+        let show       = true;
 
         if (minggu) {
             const [wYear, wWeek] = minggu.split('-W').map(Number);
@@ -539,8 +522,9 @@ function applyFilter() {
             const [bYear, bMonth] = bulan.split('-').map(Number);
             if (date.getFullYear() !== bYear || date.getMonth() + 1 !== bMonth) show = false;
         }
-        if (ormawa && !rowOrmawa.includes(ormawa)) show = false;
-        if (barang && !rowBarang.includes(barang))  show = false;
+        if (keyword && !ormawa.includes(keyword) && !barang.includes(keyword) && !peminjam.includes(keyword)) {
+            show = false;
+        }
 
         row.style.display = 'none';
         if (show) visibleRows.push(row);
@@ -548,6 +532,13 @@ function applyFilter() {
 
     currentPage = 1;
     renderPage();
+}
+
+function resetFilter() {
+    document.getElementById('filterMinggu').value = '';
+    document.getElementById('filterBulan').value  = '';
+    document.getElementById('filterSearch').value = '';
+    applyFilter();
 }
 
 function renderPage() {
@@ -599,14 +590,6 @@ function renderPagination(totalPage) {
     wrap.appendChild(next);
 }
 
-function resetFilter() {
-    document.getElementById('filterMinggu').value = '';
-    document.getElementById('filterBulan').value  = '';
-    document.getElementById('filterOrmawa').value = '';
-    document.getElementById('filterBarang').value = '';
-    applyFilter();
-}
-
 function getISOWeek(date) {
     const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -616,9 +599,7 @@ function getISOWeek(date) {
 
 document.getElementById('filterMinggu').addEventListener('change', applyFilter);
 document.getElementById('filterBulan').addEventListener('change', applyFilter);
-document.getElementById('filterOrmawa').addEventListener('input', applyFilter);
-document.getElementById('filterBarang').addEventListener('input', applyFilter);
-
+document.getElementById('filterSearch').addEventListener('input', applyFilter);
 document.addEventListener('DOMContentLoaded', applyFilter);
 </script>
 @endsection

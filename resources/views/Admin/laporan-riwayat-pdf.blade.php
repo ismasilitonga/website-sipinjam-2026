@@ -14,7 +14,7 @@
         td { padding: 7px 10px; border-bottom: 1px solid #e5e7eb; font-size: 10.5px; }
         tr:nth-child(even) td { background: #f8f7ff; }
 
-        .footer { margin-top: 14px; font-size: 9px; color: #94a3b8; text-align: right; }
+        .footer { margin-top: 14px; font-size: 11px; color: #94a3b8; text-align: right; }
     </style>
 </head>
 <body>
@@ -74,8 +74,13 @@
                 </tr>
             @endforelse
         </tbody>
+        <tfoot>
+    <tr>
+        <td colspan="8" style="text-align: right; padding-top: 8px;">
+            Total: {{ $data->count() }} data peminjaman
+        </td>
+    </tr>
+</tfoot>
     </table>
-
-    <div class="footer">Total: {{ $data->count() }} data peminjaman</div>
 </body>
 </html>

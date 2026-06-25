@@ -39,5 +39,8 @@
             @endforelse
         </tbody>
     </table>
+    <p style="text-align: right; font-size: 10px; color: #555; margin-top: 8px;">
+        Total: {{ $peminjaman_ruangan->count() }} data peminjaman ruangan
+    </p>
 </body>
 </html>

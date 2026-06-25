@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body { font-family: sans-serif; font-size: 11px; color: #1e293b; }
+        body { font-family: sans-serif; font-size: 10px; color: #1e293b; }
         h2 { text-align: center; margin-bottom: 4px; font-size: 16px; }
         p.sub { text-align: center; color: #64748b; margin-bottom: 16px; font-size: 10px; }
         table { width: 100%; border-collapse: collapse; }
@@ -42,6 +42,13 @@
             <tr><td colspan="7" style="text-align:center;">Tidak ada data.</td></tr>
             @endforelse
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7" style="text-align: right; font-weight: bold; padding-top: 8px;">
+                    Total: {{ count($insidens) }} data insiden
+                </td>
+            </tr>
+        </tfoot>
     </table>
 </body>
 </html>

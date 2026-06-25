@@ -11,7 +11,7 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --sidebar-w: 200px;
+            --sidebar-w: 210px;
             --bg: #f4f6fb;
             --sidebar-bg: #0f172a;
             --sidebar-hover: #1e293b;
@@ -353,7 +353,6 @@
         .item-card-title { font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
         .item-card-sub   { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 880px) {
             :root { --sidebar-w: 64px; }
             .sidebar-logo-text,
@@ -433,12 +432,12 @@
         </a>
 
         <a href="{{ route('admin.riwayat-peminjaman') }}"
-            class="nav-item {{ request()->routeIs('admin.riwayat-peminjaman') ? 'active' : '' }}"
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            <span class="nav-label">Riwayat Peminjaman</span>
+             class="nav-item {{ request()->routeIs('admin.riwayat-peminjaman*') ? 'active' : '' }}">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span class="nav-label">Riwayat Peminjaman</span>
         </a>
 
         <div class="nav-section-label">Inventaris</div>

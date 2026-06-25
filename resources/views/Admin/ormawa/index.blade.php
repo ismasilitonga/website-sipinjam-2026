@@ -107,15 +107,16 @@
                 <col style="width:90px;">
                 <col style="width:240px;">
             </colgroup>
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Nama Organisasi</th>
-                    <th>Kontak</th>
-                    <th>Deskripsi</th>
-                    <th style="text-align:center;">Anggota</th>
-                    <th>Status</th>
-                    <th>Aksi</th>
+                
+                <thead>
+                    <tr>
+                    <th style="width: 50px;">No</th>
+                    <th style="width: 140px;">Nama Organisasi</th>
+                    <th style="width: 90px;">Kontak</th>
+                    <th style="width: 150px;">Deskripsi</th>
+                    <th style="width: 120px;">Anggota</th>
+                    <th style="width: 100px;">Status</th>
+                    <th style="width: 50px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -160,46 +161,45 @@
                     </td>
 
                    <td data-label="Aksi">
-    <div style="display:flex;gap:6px;align-items:center;">
-        <a href="{{ route('admin.ormawa.show', $o->id) }}"
-           class="btn btn-outline btn-sm">Lihat Anggota</a>
-        <a href="{{ route('admin.ormawa.edit', $o->id) }}"
-           class="btn btn-outline btn-sm">Edit</a>
-        <button type="button" class="btn btn-danger btn-sm"
-            onclick="bukaModalOrmawa('{{ $o->id }}', '{{ addslashes($o->singkatan) }}')">
-            Hapus
-        </button>
-    </div>
-</td>
+                    <div style="display:flex;gap:6px;align-items:center;">
+                    <a href="{{ route('admin.ormawa.show', $o->id) }}"
+                        class="btn btn-outline btn-sm">Lihat Anggota</a>
+                    <a href="{{ route('admin.ormawa.edit', $o->id) }}"
+                        class="btn btn-outline btn-sm">Edit</a>
+                    <button type="button" class="btn btn-danger btn-sm"
+                        onclick="bukaModalOrmawa('{{ $o->id }}', '{{ addslashes($o->singkatan) }}')">
+                     Hapus
+                    </button>
+                </div>
+                </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7">
-                        <div class="empty-state">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                            </svg>
-                            <p>Belum ada ormawa terdaftar.</p>
-                        </div>
-                    </td>
-                </tr>
+                <td colspan="7">
+                <div class="empty-state">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                <p>Belum ada ormawa terdaftar.</p>
+                </div>
+              </td>
+            </tr>
                 @endforelse
-            </tbody>
-        </table>
-    </div>
-</div>
+             </tbody>
+           </table>
+          </div>
+        </div>
+            <div id="modalHapusOrmawa" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);
+            z-index:9999;align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:12px;padding:32px 28px;width:100%;max-width:400px;
+            box-shadow:0 10px 40px rgba(0,0,0,0.18);margin:16px;">
 
-<div id="modalHapusOrmawa" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);
-     z-index:9999;align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:12px;padding:32px 28px;width:100%;max-width:400px;
-                box-shadow:0 10px 40px rgba(0,0,0,0.18);margin:16px;">
-
-        <div style="width:52px;height:52px;border-radius:50%;background:#fee2e2;
-                    display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+            <div style="width:52px;height:52px;border-radius:50%;background:#fee2e2;
+            display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
             <svg width="26" height="26" fill="none" stroke="#dc2626" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0a1 1 0 00-1-1h-4a1 1 0 00-1 1H5"/>
+            <path stroke-linecap="round" stroke-linejoin="round"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0a1 1 0 00-1-1h-4a1 1 0 00-1 1H5"/>
             </svg>
         </div>
 
@@ -222,14 +222,14 @@
                        background:#dc2626;color:#fff;font-size:14px;font-weight:600;cursor:pointer;">
                 Ya, Hapus
             </button>
+           </div>
+         </div>
         </div>
-    </div>
-</div>
 
-<form id="formHapusOrmawa" method="POST" style="display:none;">
+    <form id="formHapusOrmawa" method="POST" style="display:none;">
     @csrf
     @method('DELETE')
-</form>
+    </form>
 
 <script>
 const baseUrlOrmawa = "{{ url('admin/ormawa') }}";

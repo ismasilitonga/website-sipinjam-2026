@@ -19,16 +19,16 @@
     <div class="table-wrap">
         <table>
             <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Peminjam</th>
-                    <th>Organisasi</th>
-                    <th>Ruangan</th>
-                    <th>Tanggal & Waktu</th>
-                    <th>Status</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
+        <tr>
+            <th style="width: 50px;">No</th>
+            <th style="width: 120px;">Peminjam</th>
+            <th style="width: 80px;">Organisasi</th>
+            <th style="width: 130px;">Ruangan</th>
+            <th style="width: 150px;">Tanggal & Waktu</th>
+            <th style="width: 80px;">Status</th>
+            <th style="width: 70px;">Aksi</th>
+        </tr>
+        </thead>
             <tbody>
                 @forelse($peminjaman_ruangans as $p)
                 <tr>

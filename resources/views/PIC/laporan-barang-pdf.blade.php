@@ -37,6 +37,9 @@
             <tr><td colspan="7" style="text-align:center;">Tidak ada data.</td></tr>
             @endforelse
         </tbody>
-    </table>
+     </table>
+    <p style="text-align: right; font-size: 10px; color: #555; margin-top: 8px;">
+        Total: {{ $peminjaman_barangs->count() }} data peminjaman barang
+    </p>
 </body>
 </html>
