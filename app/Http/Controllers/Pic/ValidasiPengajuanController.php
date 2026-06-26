@@ -155,12 +155,38 @@ class ValidasiPengajuanController extends Controller
     }
 
         public function setujuiBarang($id)
-    {
-        $peminjaman_barang = PeminjamanBarang::findOrFail($id);
-        $peminjaman_barang->update(['status' => 'disetujui']);
+{
+    $peminjaman = PeminjamanBarang::with('barang')->findOrFail($id);
 
-        return back()->with('success', 'Peminjaman barang berhasil disetujui.');
+    if ($peminjaman->status !== 'menunggu_pic') {
+        return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya.');
     }
+    $sudahDipinjam = PeminjamanBarang::where('barang_id', $peminjaman->barang_id)
+        ->where('id', '!=', $peminjaman->id)
+        ->where('status', 'disetujui')
+        ->where('tanggal_pinjam', '<=', $peminjaman->tanggal_kembali_rencana)
+        ->where('tanggal_kembali_rencana', '>=', $peminjaman->tanggal_pinjam)
+        ->sum('jumlah');
+
+    $stokTersedia = $peminjaman->barang->stok - $sudahDipinjam;
+
+    if ($peminjaman->jumlah > $stokTersedia) {
+        $peminjaman->update([
+            'status'       => 'ditolak',
+            'alasan_tolak' => 'Stok tidak mencukupi pada tanggal yang kamu pilih. Barang sudah dipinjam oleh peminjam lain pada tanggal yang sama.',
+        ]);
+
+        return back()->with('error',
+            'Gagal menyetujui: stok ' . $peminjaman->barang->nama . 
+            ' tidak mencukupi (tersedia ' . max(0, $stokTersedia) . ' dari ' . 
+            $peminjaman->barang->stok . '). Pengajuan otomatis ditolak.'
+        );
+    }
+
+    $peminjaman->update(['status' => 'disetujui']);
+
+    return back()->with('success', 'Peminjaman barang berhasil disetujui.');
+}
 
         public function tolakBarang($id)
     {

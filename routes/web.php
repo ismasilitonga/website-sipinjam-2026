@@ -99,7 +99,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/pengajuan-ruangan/{id}/batal',[PengajuanRuanganController::class, 'cancel'])->name('pengajuan-ruangan.cancel');
         Route::get('/pengajuan-barang',               [PengajuanBarangController::class, 'index'])->name('pengajuan-barang');
         Route::post('/pengajuan-barang',              [PengajuanBarangController::class, 'store'])->name('pengajuan-barang.store');
-
+        Route::get('/pengajuan-barang/cek-stok',      [PengajuanBarangController::class, 'cekStok'])->name('pengajuan-barang.cek-stok');
+        
         Route::get('/handover',                         [HandoverAnggotaController::class, 'index'])->name('handover');
         Route::get('/pengalihan-barang',                [PengalihanBarangController::class, 'index'])->name('pengalihan-barang');
         Route::post('/pengalihan-barang',               [PengalihanBarangController::class, 'store'])->name('pengalihan-barang.store');

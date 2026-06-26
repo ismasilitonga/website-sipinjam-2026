@@ -1,6 +1,6 @@
 @extends('layouts.anggota')
 
-@section('title', 'Validasi Peminjaman Barang')
+@section('title', 'Riwayat Peminjaman Barang')
 @section('subtitle', 'Semua pengajuan barang yang pernah kamu ajukan')
 
 @section('topbar-action')
@@ -16,7 +16,7 @@
 
 <div class="card">
     <div class="card-header" style="padding-bottom:16px;">
-        <span class="card-title">Validasi Peminjaman Barang</span>
+        <span class="card-title">Riwayat Peminjaman Barang</span>
         <span class="badge badge-gray">{{ $riwayat->total() }} data</span>
     </div>
 
@@ -83,10 +83,10 @@
                             <span class="badge badge-red" style="margin-left:4px;font-size:10px;">Terlambat</span>
                         @endif
                     </td>
-                    <td style="font-size:12.5px;max-width:160px;">
-                        <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ $pb->keperluan }}">
-                            {{ $pb->keperluan }}
-                        </div>
+                    <td style="font-size:12.5px;min-width:160px;">
+                    <div style="word-wrap:break-word;white-space:normal;">
+                    {{ $pb->keperluan }}
+                    </div>
                     </td>
                     <td>
                         @php

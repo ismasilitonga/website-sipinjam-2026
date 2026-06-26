@@ -28,18 +28,18 @@ class PengajuanRuanganController extends Controller
         'jam_selesai.after' => 'Jam selesai harus setelah jam mulai.',
     ]);
 
-        $bentrok = PeminjamanRuangan::where('ruangan_id', $request->ruangan_id)
-            ->where('status', '!=', 'ditolak')
-            ->where(function ($q) use ($request) {
-                $mulai   = $request->tanggal_penggunaan . ' ' . $request->jam_mulai;
-                $selesai = $request->tanggal_penggunaan . ' ' . $request->jam_selesai;
-                $q->whereBetween('tanggal_mulai', [$mulai, $selesai])
-                  ->orWhereBetween('tanggal_selesai', [$mulai, $selesai]);
-            })->exists();
+       $mulai   = $request->tanggal_penggunaan . ' ' . $request->jam_mulai;
+       $selesai = $request->tanggal_penggunaan . ' ' . $request->jam_selesai;
 
-        if ($bentrok) {
-            return back()->withInput()->with('error', 'Ruangan sudah dipesan pada waktu tersebut.');
-        }
+        $bentrok = PeminjamanRuangan::where('ruangan_id', $request->ruangan_id)
+        ->whereNotIn('status', ['ditolak', 'selesai'])
+        ->where('tanggal_mulai', '<', $selesai)
+        ->where('tanggal_selesai', '>', $mulai)
+        ->exists();
+
+    if ($bentrok) {
+    return back()->withInput()->with('error', 'Ruangan sudah dipesan pada waktu tersebut. Silakan pilih jam lain.');
+    }
 
     $ruangan = PeminjamanRuangan::create([
     'user_id'          => Auth::id(),
