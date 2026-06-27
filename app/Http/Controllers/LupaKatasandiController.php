@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Models\User;
-use App\Models\OtpCode;
+use App\Models\KodeOtp;
 
 class LupaKatasandiController extends Controller
 {
@@ -21,15 +21,16 @@ class LupaKatasandiController extends Controller
 
         $otp = rand(100000, 999999);
 
-        OtpCode::where('email', $request->email)->delete();
+KodeOtp::where('email', $request->email)->delete();
 
-        OtpCode::create([
-            'email'       => $request->email,
-            'otp'         => $otp,
-            'is_verified' => false,
-            'expires_at'  => now()->addMinutes(5),
-        ]);
+KodeOtp::create([
+    'email'       => $request->email,
+    'otp'         => $otp,
+    'is_verified' => false,
+    'expires_at'  => now()->addMinutes(5),
+]);
 
+        
         Mail::send('emails.otp', ['otp' => $otp, 'user' => $user], function ($m) use ($request) {
             $m->to($request->email)->subject('Kode OTP Reset Kata Sandi - SiPinjam');
         });
@@ -44,7 +45,7 @@ class LupaKatasandiController extends Controller
             'otp'   => 'required|digits:6',
         ]);
 
-        $otpRecord = OtpCode::where('email', $request->email)
+        $otpRecord = KodeOtp::where('email', $request->email)
                             ->where('otp', $request->otp)
                             ->where('is_verified', false)
                             ->first();
@@ -70,7 +71,7 @@ class LupaKatasandiController extends Controller
             'password' => 'required|min:8|confirmed',
         ]);
 
-        $otpRecord = OtpCode::where('email', $request->email)
+        $otpRecord = KodeOtp::where('email', $request->email)
                             ->where('is_verified', true)
                             ->first();
 
@@ -87,7 +88,7 @@ class LupaKatasandiController extends Controller
         $user->password = bcrypt($request->password);
         $user->save();
 
-        $otpRecord->delete();
+        $otpRecord->update(['is_verified' => true]);
 
         return response()->json(['success' => true, 'message' => 'Kata sandi berhasil diubah.']);
     }

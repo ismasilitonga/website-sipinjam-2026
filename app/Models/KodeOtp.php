@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class OtpCode extends Model
+class KodeOtp extends Model
 {
+    protected $table = 'kode_otp'; 
+
     protected $fillable = [
         'email',
         'otp',
