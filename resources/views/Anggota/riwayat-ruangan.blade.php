@@ -27,13 +27,12 @@
             <div style="font-size:13px;color:#6b7280;margin-top:6px;">Pengajuan ruangan ini akan dibatalkan dan tidak bisa dikembalikan.</div>
         </div>
 <div style="display:flex;gap:10px;justify-content:center;align-items:center;margin-top:8px;">
-<button onclick="tutupModal()" style="width:120px;height:40px;border:1.5px solid #d1d5db;border-radius:8px;background:#fff;font-size:14px;cursor:pointer;">Tidak</button>
+    <button onclick="tutupModal()" style="width:120px;height:40px;border:1.5px solid #d1d5db;border-radius:8px;background:#fff;font-size:14px;cursor:pointer;">Tidak</button>
     <button onclick="document.getElementById('formBatal').submit()"
-        class="btn btn-primary"
-        style="width:120px;height:40px;background:#ef4444;border-color:#ef4444;">
+        style="width:120px;height:40px;background:#ef4444;border:1.5px solid #ef4444;border-radius:8px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;">
         Ya, Batalkan
     </button>
-        </div>
+</div>
         <form id="formBatal" method="POST" style="display:none;">
             @csrf
             @method('DELETE')

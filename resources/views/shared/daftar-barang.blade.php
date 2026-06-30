@@ -28,6 +28,29 @@
 
 @section('content')
 
+<div style="margin-bottom:16px;">
+    <form method="GET" action="{{ url()->current() }}" style="display:flex;gap:8px;max-width:420px;">
+        <div style="position:relative;flex:1;">
+            <svg fill="none" stroke="#9ca3af" viewBox="0 0 24 24"
+                 style="width:16px;height:16px;position:absolute;left:10px;top:50%;transform:translateY(-50%);">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/>
+            </svg>
+            <input type="text" name="search" value="{{ request('search') }}"
+                   placeholder="Cari barang..."
+                   style="width:100%;height:36px;padding:0 10px 0 32px;border:1.5px solid var(--border);
+                          border-radius:8px;font-size:13px;background:#fff;">
+        </div>
+        <button type="submit" class="btn btn-primary" style="height:36px;padding:0 16px;font-size:13px;">Cari</button>
+        @if(request('search'))
+            <a href="{{ url()->current() }}" class="btn btn-outline"
+               style="height:36px;padding:0 14px;font-size:13px;display:flex;align-items:center;">
+                Reset
+            </a>
+        @endif
+    </form>
+</div>
+
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:15px;">
     @forelse($barangs as $barang)
     <div style="background:#fff;border-radius:14px;border:1px solid var(--border);
