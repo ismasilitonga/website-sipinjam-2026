@@ -30,6 +30,7 @@
             --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 14px rgba(0,0,0,.05);
         }
 
+        html, body { overflow-x: hidden; width: 100%; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
 
         .sidebar {
@@ -55,7 +56,7 @@
         .nav-section { font-size: 9px; font-weight: 700; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; padding: 10px 6px 4px; }
 
         .nav-item {
-            display: flex; align-items: center; gap: 8px;
+            display: flex; align-items: flex-start; gap: 8px;
             padding: 7px 9px; border-radius: 7px;
             color: #ffffff; text-decoration: none;
             font-size: 12px; font-weight: 500;
@@ -69,7 +70,8 @@
             box-shadow: 0 4px 14px rgba(124,58,237,.4), 0 0 18px rgba(124,58,237,.25);
             transform: translateX(2px);
         }
-        .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+        .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; margin-top: 1px; }
+        .nav-text { white-space: normal; line-height: 1.3; padding-top: 1px; }
 
         .nav-badge {
             margin-left: auto; font-size: 10px; font-weight: 700;
@@ -93,6 +95,10 @@
         .sidebar-user-name { color: #ffffff; font-size: 12px; font-weight: 600; }
         .sidebar-user-role { color: #7791f8; font-size: 10px; }
 
+        .sidebar::-webkit-scrollbar { width: 5px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 10px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+
         .main-wrap { margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
 
         .topbar {
@@ -101,6 +107,7 @@
             display: flex; align-items: center; justify-content: space-between;
             position: sticky; top: 0; z-index: 50;
         }
+        .topbar-left { display: flex; align-items: center; gap: 10px; }
         .topbar-title { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700; }
         .topbar-sub   { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
 
@@ -126,13 +133,14 @@
             background: var(--white); border-radius: var(--radius); border: 1px solid var(--border);
             box-shadow: var(--shadow); padding: 16px;
             display: flex; flex-direction: column; gap: 10px;
+            min-width: 0;
         }
         .stat-icon { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
         .stat-icon svg { width: 19px; height: 19px; }
         .stat-value { font-family: 'Sora', sans-serif; font-size: 25px; font-weight: 700; line-height: 1; }
         .stat-label { font-size: 12px; color: var(--text-muted); }
 
-        .table-wrap { overflow-x: auto; }
+        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
         th { background: #fafafa; text-align: left; padding: 8px 10px; font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid var(--border); }
         td { padding: 9px 10px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
@@ -217,21 +225,121 @@
         .item-card-title { font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
         .item-card-sub   { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
 
+        .hamburger-btn {
+            display: none;
+            align-items: center; justify-content: center;
+            width: 34px; height: 34px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--white);
+            cursor: pointer;
+            flex-shrink: 0;
+            padding: 0; margin: 0;
+        }
+        .hamburger-btn svg { width: 18px; height: 18px; color: var(--text); }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(15, 23, 42, .5);
+            z-index: 99;
+            opacity: 0;
+            transition: opacity .22s ease;
+        }
+        .sidebar-overlay.open { display: block; opacity: 1; }
+
+.hscroll-row {
+    display: flex;
+    gap: 20px;
+}
+
+.hscroll-row > .card:first-child {
+    flex: 2;
+    min-width: 0;
+}
+
+.hscroll-row > .card:last-child {
+    flex: 1;
+    max-width: 350px;
+}
+
         @media (max-width: 880px) {
-            :root { --sidebar-w: 64px; }
-            .sidebar-logo span, .sidebar-logo small,
-            .nav-section, .sidebar-user-name, .sidebar-user-role { display: none; }
-            .nav-item { justify-content: center; padding: 9px; }
-            .sidebar-user { justify-content: center; }
+            .hamburger-btn { display: inline-flex; }
+
+            .sidebar {
+                width: 260px;
+                max-width: 78vw;
+                transform: translateX(-100%);
+                transition: transform .25s ease;
+                box-shadow: none;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 10px 0 30px rgba(0,0,0,.25);
+            }
+
+            .sidebar-logo span,
+            .sidebar-logo small,
+            .nav-section,
+            .sidebar-user-name,
+            .sidebar-user-role { display: revert; }
+            .nav-item { justify-content: flex-start; padding: 9px 10px; font-size: 13px; }
+            .nav-item svg { width: 17px; height: 17px; }
+            .sidebar-user { justify-content: flex-start; }
+
+            .main-wrap { margin-left: 0; }
             .page-content { padding: 12px; }
             .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+
+            .stat-grid {
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                scroll-snap-type: x proximity;
+                -webkit-overflow-scrolling: touch;
+                gap: 10px;
+                margin-bottom: 18px;
+                padding-bottom: 6px;
+                scrollbar-width: thin;
+            }
+            .stat-grid::-webkit-scrollbar { height: 4px; }
+            .stat-grid::-webkit-scrollbar-thumb { background: rgba(15,23,42,.15); border-radius: 10px; }
+            .stat-card {
+                flex: 0 0 auto;
+                width: 132px;
+                scroll-snap-align: start;
+                padding: 12px 10px;
+                gap: 8px;
+                border-radius: 10px;
+            }
+            .stat-icon { width: 30px; height: 30px; border-radius: 7px; }
+            .stat-icon svg { width: 15px; height: 15px; }
+            .stat-value { font-size: 20px; }
+            .stat-label { font-size: 10.5px; line-height: 1.2; word-break: break-word; }
+
+            .hscroll-row {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                scroll-snap-type: x proximity;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 6px;
+            }
+            .hscroll-row::-webkit-scrollbar { height: 4px; }
+            .hscroll-row::-webkit-scrollbar-thumb { background: rgba(15,23,42,.15); border-radius: 10px; }
+            .hscroll-row > .card:first-child,
+            .hscroll-row > .card:last-child {
+                flex: 0 0 88% !important;
+                min-width: 260px;
+                scroll-snap-align: start;
+                max-width: none !important;
+            }
         }
     </style>
     @stack('styles')
 </head>
 <body>
 
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
         <div class="sidebar-logo-icon"></div>
         <div>
@@ -248,7 +356,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
             </svg>
-            Dashboard
+            <span class="nav-text">Dashboard</span>
         </a>
 
         <div class="nav-section">Pengajuan</div>
@@ -258,7 +366,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            Validasi Pengajuan Ruangan
+            <span class="nav-text">Validasi Pengajuan Ruangan</span>
             @php
                 $lantaiPic = (string) auth()->user()->lantai_pic;
                 $pending   = \App\Models\PeminjamanRuangan::where('status', 'menunggu_pic')
@@ -276,7 +384,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
             </svg>
-            Status Peminjaman
+            <span class="nav-text">Status Peminjaman</span>
         </a>
 
         <a href="{{ route('pic.riwayat-peminjaman') }}"
@@ -285,21 +393,22 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            Riwayat Peminjaman Ruangan
+            <span class="nav-text">Riwayat Peminjaman Ruangan</span>
         </a>
 
-       <a href="{{ route('pic.riwayat.barang') }}"
-        class="nav-item {{ request()->routeIs('pic.riwayat.barang', 'pic.barang.detail') ? 'active' : '' }}">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
-    </svg>
-        Validasi Peminjaman Barang
-    @php $pendingBarang = \App\Models\PeminjamanBarang::where('status', 'menunggu_pic')->count(); @endphp
-        @if($pendingBarang > 0)
-            <span class="nav-badge">{{ $pendingBarang }}</span>
-        @endif
+        <a href="{{ route('pic.riwayat.barang') }}"
+           class="nav-item {{ request()->routeIs('pic.riwayat.barang', 'pic.barang.detail') ? 'active' : '' }}">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
+            </svg>
+            <span class="nav-text">Validasi Peminjaman Barang</span>
+            @php $pendingBarang = \App\Models\PeminjamanBarang::where('status', 'menunggu_pic')->count(); @endphp
+            @if($pendingBarang > 0)
+                <span class="nav-badge">{{ $pendingBarang }}</span>
+            @endif
         </a>
+
         <div class="nav-section">Serah Terima</div>
         <a href="{{ route('pic.serah-terima') }}"
            class="nav-item {{ request()->routeIs('pic.serah-terima') ? 'active' : '' }}">
@@ -307,7 +416,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
             </svg>
-            Serah Terima Barang
+            <span class="nav-text">Serah Terima Barang</span>
         </a>
 
         <div class="nav-section">Inventaris</div>
@@ -317,7 +426,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
             </svg>
-            Kelola Ruangan
+            <span class="nav-text">Kelola Ruangan</span>
         </a>
 
         <a href="{{ route('pic.barang.index') }}"
@@ -326,7 +435,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
             </svg>
-            Kelola Barang
+            <span class="nav-text">Kelola Barang</span>
         </a>
 
         <div class="nav-section">Laporan</div>
@@ -336,7 +445,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
             </svg>
-            Laporan Insiden
+            <span class="nav-text">Laporan Insiden</span>
             @php $insidenAktif = \App\Models\Insiden::whereIn('status', ['dilaporkan', 'ditindaklanjuti'])->count(); @endphp
             @if($insidenAktif > 0)
                 <span class="nav-badge">{{ $insidenAktif }}</span>
@@ -349,7 +458,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
-            Unduh Laporan
+            <span class="nav-text">Unduh Laporan</span>
         </a>
     </nav>
 
@@ -368,7 +477,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
             </svg>
-            Profil Saya
+            <span class="nav-text">Profil Saya</span>
         </a>
 
         <form method="POST" action="{{ route('logout') }}">
@@ -378,17 +487,26 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
-                Keluar
+                <span class="nav-text">Keluar</span>
             </button>
         </form>
     </div>
 </aside>
 
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <div class="main-wrap">
     <header class="topbar">
-        <div>
-            <div class="topbar-title">@yield('title', 'Dashboard')</div>
-            <div class="topbar-sub">@yield('subtitle', 'Portal PIC · SiPinjam')</div>
+        <div class="topbar-left">
+            <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Buka menu">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <div>
+                <div class="topbar-title">@yield('title', 'Dashboard')</div>
+                <div class="topbar-sub">@yield('subtitle', 'Portal PIC · SiPinjam')</div>
+            </div>
         </div>
         <div style="display: flex; align-items: center; gap: 14px;">
             <div style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #000000;">
@@ -442,6 +560,34 @@
     }
     updateClock();
     setInterval(updateClock, 1000);
+
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const sidebarEl = document.getElementById('sidebar');
+    const overlayEl = document.getElementById('sidebarOverlay');
+
+    function openSidebar() {
+        sidebarEl.classList.add('open');
+        overlayEl.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+        sidebarEl.classList.remove('open');
+        overlayEl.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    hamburgerBtn?.addEventListener('click', function () {
+        sidebarEl.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+    overlayEl?.addEventListener('click', closeSidebar);
+
+    document.querySelectorAll('.sidebar .nav-item').forEach(function (el) {
+        el.addEventListener('click', closeSidebar);
+    });
+
+    window.addEventListener('resize', function () {
+        if (window.innerWidth > 880) closeSidebar();
+    });
 </script>
 @stack('scripts')
 </body>

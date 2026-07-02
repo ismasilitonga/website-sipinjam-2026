@@ -281,7 +281,7 @@
         }
         .sidebar-overlay.open { display: block; opacity: 1; }
 
-        .hscroll-row {
+    .hscroll-row {
     display: flex;
     gap: 20px;
 }
