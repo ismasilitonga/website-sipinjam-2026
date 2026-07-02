@@ -63,76 +63,76 @@
     </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;">
+<div class="hscroll-row" style="align-items:flex-start;">
 
-    <div class="card">
-    <div class="card-header" style="padding-bottom:16px;">
-        <div>
-            <span class="card-title">Jadwal Penggunaan Ruangan Hari Ini</span>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">
-                {{ now()->isoFormat('dddd, D MMMM Y') }}
+    <div class="card" style="flex:1 1 0; min-width:340px;">
+        <div class="card-header" style="padding-bottom:12px;">
+            <div>
+                <span class="card-title">Jadwal Penggunaan Ruangan Hari Ini</span>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">
+                    {{ now()->isoFormat('dddd, D MMMM Y') }}
+                </div>
             </div>
+            <a href="{{ route('anggota.riwayat-ruangan') }}" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:600;">Lihat semua →</a>
         </div>
-        <a href="{{ route('anggota.riwayat-ruangan') }}" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:600;">Lihat semua →</a>
-    </div>
-    <div class="table-wrap">
-        <table>
-            <thead>
-                <tr>
-                    <th>Ruangan</th>
-                    <th>Ormawa</th>
-                    <th>Waktu</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($ruanganAktifHariIni as $p)
-                @php
-                    $mulai   = \Carbon\Carbon::parse($p->tanggal_mulai);
-                    $selesai = \Carbon\Carbon::parse($p->tanggal_selesai);
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ruangan</th>
+                        <th>Ormawa</th>
+                        <th>Waktu</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($ruanganAktifHariIni as $p)
+                    @php
+                        $mulai   = \Carbon\Carbon::parse($p->tanggal_mulai);
+                        $selesai = \Carbon\Carbon::parse($p->tanggal_selesai);
 
-                   $statusLive = match($p->status) {
-                   'disetujui' => ['badge-yellow', '🟡 Akan Digunakan'],
-                   'berjalan'  => ['badge-green', '🟢 Sedang Digunakan'],
-                   'selesai'   => ['badge-gray', '⚪ Selesai'],
-                    default     => ['badge-gray', $p->status],
-                    };
-                @endphp
-                <tr>
-                    <td>
-                        <div style="font-weight:600;">{{ $p->ruangan->nama_ruangan ?? '-' }}</div>
-                        <div style="font-size:11.5px;color:var(--text-muted);">{{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->lantai) ? ' · Lt.'.$p->ruangan->lantai : '' }}</div>
-                    </td>
-                    <td style="font-size:13px;">
-                        <div style="font-weight:500;">{{ $p->nama_ormawa }}</div>
-                        <div style="font-size:11.5px;color:var(--text-muted);">{{ $p->keperluan }}</div>
-                    </td>
-                    <td style="font-size:13px;white-space:nowrap;">
-                        {{ $mulai->format('H:i') }}–{{ $selesai->format('H:i') }}
-                    </td>
-                    <td>
-                        <span class="badge {{ $statusLive[0] }}" style="white-space:nowrap;">{{ $statusLive[1] }}</span>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="4">
-                        <div class="empty-state" style="padding:30px 20px;">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                            <p>Tidak ada ruangan yang digunakan hari ini.</p>
-                        </div>
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+                        $statusLive = match($p->status) {
+                            'disetujui' => ['badge-yellow', '🟡 Akan Digunakan'],
+                            'berjalan'  => ['badge-green', '🟢 Sedang Digunakan'],
+                            'selesai'   => ['badge-gray', '⚪ Selesai'],
+                            default     => ['badge-gray', $p->status],
+                        };
+                    @endphp
+                    <tr>
+                        <td>
+                            <div style="font-weight:600;">{{ $p->ruangan->nama_ruangan ?? '-' }}</div>
+                            <div style="font-size:11.5px;color:var(--text-muted);">{{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->lantai) ? ' · Lt.'.$p->ruangan->lantai : '' }}</div>
+                        </td>
+                        <td style="font-size:13px;">
+                            <div style="font-weight:500;">{{ $p->nama_ormawa }}</div>
+                            <div style="font-size:11.5px;color:var(--text-muted);">{{ $p->keperluan }}</div>
+                        </td>
+                        <td style="font-size:13px;white-space:nowrap;">
+                            {{ $mulai->format('H:i') }}–{{ $selesai->format('H:i') }}
+                        </td>
+                        <td>
+                            <span class="badge {{ $statusLive[0] }}" style="white-space:nowrap;">{{ $statusLive[1] }}</span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4">
+                            <div class="empty-state" style="padding:16px 20px;">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:26px;height:26px;margin-bottom:6px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <p>Tidak ada ruangan yang digunakan hari ini.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 
-    <div class="card">
+    <div class="card" style="flex:0 0 300px; min-width:260px;">
         <div class="card-header">
             <span class="card-title">Aksi Cepat</span>
         </div>

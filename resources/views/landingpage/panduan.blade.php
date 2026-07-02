@@ -66,6 +66,27 @@
         }
         .menu a:hover, .menu a.active { background: rgba(255,255,255,0.2); }
 
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            z-index: 1100;
+        }
+        .hamburger span {
+            width: 24px;
+            height: 3px;
+            background: white;
+            border-radius: 2px;
+            transition: 0.3s;
+        }
+        .hamburger.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
         .main-content-glass {
             background: var(--glass-white);
             backdrop-filter: blur(var(--blur-strength));
@@ -240,6 +261,33 @@
             .page-hero h1 { font-size: 1.5rem; }
             .step-card { flex-direction: column; gap: 12px; }
             .cta-banner { padding: 30px 20px; }
+
+            .hamburger { display: flex; }
+
+            .menu {
+                position: fixed;
+                top: 60px;
+                right: 0;
+                flex-direction: column;
+                background: rgba(47, 126, 161, 0.97);
+                backdrop-filter: blur(var(--blur-strength));
+                width: 200px;
+                height: 0;
+                overflow: hidden;
+                gap: 0;
+                transition: height 0.3s ease;
+                border-radius: 0 0 0 12px;
+                align-items: stretch;
+            }
+            .menu.open {
+                height: auto;
+                padding: 10px 0;
+            }
+            .menu a {
+                text-align: center;
+                border-radius: 0;
+                padding: 0.75rem 1rem;
+            }
         }
     </style>
 </head>
@@ -250,7 +298,12 @@
             <div class="logo"></div>
             <b>SiPinjam</b>
         </a>
-        <div class="menu">
+
+        <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+
+        <div class="menu" id="navMenu">
             <a href="{{ route('landingpage') }}">Beranda</a>
             <a href="{{ route('landingpage.tentang') }}">Tentang</a>
             <a href="{{ route('landingpage.panduan') }}" class="active">Panduan</a>
@@ -462,6 +515,24 @@
         document.querySelectorAll('#tab-ruangan .fade-in').forEach((el, i) => {
             setTimeout(() => el.classList.add('visible'), 200 + i * 80);
         });
+
+        (function initNavbarHamburger() {
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            const navMenu = document.getElementById('navMenu');
+            if (!hamburgerBtn || !navMenu) return;
+
+            hamburgerBtn.addEventListener('click', () => {
+                hamburgerBtn.classList.toggle('active');
+                navMenu.classList.toggle('open');
+            });
+
+            navMenu.querySelectorAll('a').forEach((link) => {
+                link.addEventListener('click', () => {
+                    hamburgerBtn.classList.remove('active');
+                    navMenu.classList.remove('open');
+                });
+            });
+        })();
     </script>
 </body>
 </html>

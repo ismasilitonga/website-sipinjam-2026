@@ -30,6 +30,7 @@
             --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.05);
         }
 
+        html, body { overflow-x: hidden; width: 100%; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
 
         .sidebar {
@@ -44,7 +45,6 @@
             border-bottom: 1px solid rgba(255,255,255,.06);
             display: flex; align-items: center; gap: 9px;
         }
-
         .sidebar-logo-text span {
             font-family: 'Sora', sans-serif;
             font-size: 16px; font-weight: 700; color: #fff;
@@ -68,6 +68,7 @@
         .nav-item:hover { background: var(--sidebar-hover); color: #c7d2fe; }
         .nav-item.active { background: var(--sidebar-active); color: #fff; }
         .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+        .nav-text { white-space: nowrap; }
 
         .sidebar-footer {
             padding: 10px 8px;
@@ -86,6 +87,10 @@
         .sidebar-user-info .name { color: #e2e8f0; font-size: 12px; font-weight: 600; }
         .sidebar-user-info .org  { color: #64748b; font-size: 10px; }
 
+        .sidebar::-webkit-scrollbar { width: 5px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 10px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+
         .main-wrap { margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
 
         .topbar {
@@ -95,7 +100,7 @@
             display: flex; align-items: center; justify-content: space-between;
             position: sticky; top: 0; z-index: 50;
         }
-        .topbar-left {}
+        .topbar-left { display: flex; align-items: center; gap: 10px; }
         .topbar-title { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); }
         .topbar-sub   { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
 
@@ -139,13 +144,14 @@
             border-radius: var(--radius); border: 1px solid var(--border);
             box-shadow: var(--shadow); padding: 16px;
             display: flex; flex-direction: column; gap: 10px;
+            min-width: 0;
         }
         .stat-icon { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
         .stat-icon svg { width: 19px; height: 19px; }
         .stat-value { font-family: 'Sora', sans-serif; font-size: 25px; font-weight: 700; line-height: 1; }
         .stat-label { font-size: 12px; color: var(--text-muted); }
 
-        .table-wrap { overflow-x: auto; }
+        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
         th {
             background: #f8fafc; text-align: left;
@@ -220,11 +226,7 @@
         .pagination-wrap .page-link:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
         .pagination-wrap .active .page-link { background: var(--accent); color: #fff; border-color: var(--accent); }
         .pagination-wrap .disabled .page-link { opacity: .4; pointer-events: none; }
-        .pagination-wrap .page-link svg {
-            width: 14px;
-            height: 14px;
-            display: block;
-        }
+        .pagination-wrap .page-link svg { width: 14px; height: 14px; display: block; }
 
         .empty-state { text-align: center; padding: 48px 16px; color: var(--text-muted); }
         .empty-state svg { width: 42px; height: 42px; margin-bottom: 10px; opacity: .35; }
@@ -256,31 +258,125 @@
         .item-card-title { font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
         .item-card-sub   { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
 
-        /* ===== RESPONSIVE ===== */
+        .hamburger-btn {
+            display: none;
+            align-items: center; justify-content: center;
+            width: 34px; height: 34px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--white);
+            cursor: pointer;
+            flex-shrink: 0;
+            padding: 0; margin: 0;
+        }
+        .hamburger-btn svg { width: 18px; height: 18px; color: var(--text); }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(15, 23, 42, .5);
+            z-index: 99;
+            opacity: 0;
+            transition: opacity .22s ease;
+        }
+        .sidebar-overlay.open { display: block; opacity: 1; }
+
+        .hscroll-row {
+    display: flex;
+    gap: 20px;
+}
+
+.hscroll-row > .card:first-child {
+    flex: 2;
+}
+
+.hscroll-row > .card:last-child {
+    flex: 1;
+    max-width: 420px;
+}
+
         @media (max-width: 880px) {
-            :root { --sidebar-w: 64px; }
+            .hamburger-btn { display: inline-flex; }
+
+            .sidebar {
+                width: 260px;             
+                max-width: 78vw;        
+                transform: translateX(-100%);
+                transition: transform .25s ease;
+                box-shadow: none;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 10px 0 30px rgba(0,0,0,.25);
+            }
+
             .sidebar-logo-text,
             .nav-label,
-            .sidebar-user-info { display: none; }
-            .nav-item { justify-content: center; padding: 9px; }
-            .sidebar-user { justify-content: center; }
+            .sidebar-user-info,
+            .nav-text { display: revert; }
+            .nav-item { justify-content: flex-start; padding: 9px 10px; font-size: 13px; }
+            .nav-item svg { width: 17px; height: 17px; }
+            .sidebar-user { justify-content: flex-start; }
+
+            .main-wrap { margin-left: 0; }
             .page-content { padding: 12px; }
             .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+
+            .stat-grid {
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                scroll-snap-type: x proximity;
+                -webkit-overflow-scrolling: touch;
+                gap: 10px;
+                margin-bottom: 18px;
+                padding-bottom: 6px;
+                scrollbar-width: thin;
+            }
+            .stat-grid::-webkit-scrollbar { height: 4px; }
+            .stat-grid::-webkit-scrollbar-thumb { background: rgba(15,23,42,.15); border-radius: 10px; }
+            .stat-card {
+                flex: 0 0 auto;
+                width: 132px;
+                scroll-snap-align: start;
+                padding: 12px 10px;
+                gap: 8px;
+                border-radius: 10px;
+            }
+            .stat-icon { width: 30px; height: 30px; border-radius: 7px; }
+            .stat-icon svg { width: 15px; height: 15px; }
+            .stat-value { font-size: 20px; }
+            .stat-label { font-size: 10.5px; line-height: 1.2; word-break: break-word; }
+
+            .hscroll-row {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                scroll-snap-type: x proximity;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 6px;
+            }
+            .hscroll-row::-webkit-scrollbar { height: 4px; }
+            .hscroll-row::-webkit-scrollbar-thumb { background: rgba(15,23,42,.15); border-radius: 10px; }
+            .hscroll-row > .card {
+                flex: 0 0 88%;
+                min-width: 260px;
+                scroll-snap-align: start;
+            }
         }
     </style>
     @stack('styles')
 </head>
 <body>
-<aside class="sidebar">
-<div class="sidebar-logo" style="padding: 16px 14px 12px; gap: 9px; align-items: center;">
-    <div style="width: 34px; height: 34px; flex-shrink: 0;
-                background: url('{{ asset('images/logo.png') }}') center/contain no-repeat;">
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <div style="width: 34px; height: 34px; flex-shrink: 0;
+                    background: url('{{ asset('images/logo.png') }}') center/contain no-repeat;">
+        </div>
+        <div class="sidebar-logo-text">
+            <span>SiPinjam</span>
+            <small>PORTAL ANGGOTA</small>
+        </div>
     </div>
-    <div class="sidebar-logo-text">
-        <span>SiPinjam</span>
-        <small>PORTAL ANGGOTA</small>
-    </div>
-</div>
 
     <nav class="sidebar-nav">
         <div class="nav-label">Utama</div>
@@ -290,7 +386,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
             </svg>
-            Dashboard
+            <span class="nav-text">Dashboard</span>
         </a>
 
         <div class="nav-label">Katalog</div>
@@ -300,7 +396,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
             </svg>
-            Daftar Ruangan
+            <span class="nav-text">Daftar Ruangan</span>
         </a>
         <a href="{{ route('anggota.daftar-barang') }}"
            class="nav-item {{ request()->routeIs('anggota.daftar-barang') ? 'active' : '' }}">
@@ -308,7 +404,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
             </svg>
-            Daftar Barang
+            <span class="nav-text">Daftar Barang</span>
         </a>
 
         <div class="nav-label">Pengajuan</div>
@@ -318,7 +414,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 4v16m8-8H4"/>
             </svg>
-            Ajukan Ruangan
+            <span class="nav-text">Ajukan Ruangan</span>
         </a>
         <a href="{{ route('anggota.pengajuan-barang') }}"
            class="nav-item {{ request()->routeIs('anggota.pengajuan-barang') ? 'active' : '' }}">
@@ -326,7 +422,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
-            Ajukan Barang
+            <span class="nav-text">Ajukan Barang</span>
         </a>
 
         <div class="nav-label">Pemakaian</div>
@@ -336,7 +432,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
             </svg>
-            Check-in
+            <span class="nav-text">Check-in</span>
         </a>
         <a href="{{ route('anggota.checkout') }}"
            class="nav-item {{ request()->routeIs('anggota.checkout') ? 'active' : '' }}">
@@ -344,7 +440,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
             </svg>
-            Check-out
+            <span class="nav-text">Check-out</span>
         </a>
         <a href="{{ route('anggota.handover') }}"
            class="nav-item {{ request()->routeIs('anggota.handover') ? 'active' : '' }}">
@@ -352,7 +448,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
             </svg>
-            Handover
+            <span class="nav-text">Handover</span>
         </a>
         <a href="{{ route('anggota.pengalihan-barang') }}"
            class="nav-item {{ request()->routeIs('anggota.pengalihan-barang') ? 'active' : '' }}">
@@ -360,7 +456,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
             </svg>
-            Pengalihan Barang
+            <span class="nav-text">Pengalihan Barang</span>
         </a>
 
         <div class="nav-label">Laporan & Riwayat</div>
@@ -370,7 +466,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
             </svg>
-            Lapor Insiden
+            <span class="nav-text">Lapor Insiden</span>
         </a>
         <a href="{{ route('anggota.riwayat-insiden') }}"
            class="nav-item {{ request()->routeIs('anggota.riwayat-insiden') || request()->routeIs('anggota.detail-laporan') ? 'active' : '' }}">
@@ -378,7 +474,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
             </svg>
-            Riwayat Insiden
+            <span class="nav-text">Riwayat Insiden</span>
         </a>
         <a href="{{ route('anggota.riwayat-ruangan') }}"
            class="nav-item {{ request()->routeIs('anggota.riwayat-ruangan') ? 'active' : '' }}">
@@ -386,7 +482,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            Riwayat Ruangan
+            <span class="nav-text">Riwayat Ruangan</span>
         </a>
         <a href="{{ route('anggota.riwayat-barang') }}"
            class="nav-item {{ request()->routeIs('anggota.riwayat-barang') ? 'active' : '' }}">
@@ -394,7 +490,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            Riwayat Barang
+            <span class="nav-text">Riwayat Barang</span>
         </a>
     </nav>
 
@@ -406,7 +502,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
             </svg>
-            Profil Saya
+            <span class="nav-text">Profil Saya</span>
         </a>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
@@ -415,21 +511,30 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
-                Keluar
+                <span class="nav-text">Keluar</span>
             </button>
         </form>
     </div>
 </aside>
 
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <div class="main-wrap">
     <header class="topbar">
-       <div class="topbar-left">
-    <div class="topbar-title">@yield('title', 'Dashboard')</div>
-    <div class="topbar-sub">@yield('subtitle')</div>
-</div>
+        <div class="topbar-left">
+            <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Buka menu">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <div>
+                <div class="topbar-title">@yield('title', 'Dashboard')</div>
+                <div class="topbar-sub">@yield('subtitle')</div>
+            </div>
+        </div>
         <div style="display:flex;align-items:center;gap:14px;">
-<div style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:#000000;">                
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;flex-shrink:0;">
+            <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:#000000;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;flex-shrink:0;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
@@ -473,6 +578,34 @@
     }
     updateClock();
     setInterval(updateClock, 1000);
+
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const sidebarEl = document.getElementById('sidebar');
+    const overlayEl = document.getElementById('sidebarOverlay');
+
+    function openSidebar() {
+        sidebarEl.classList.add('open');
+        overlayEl.classList.add('open');
+        document.body.style.overflow = 'hidden'; 
+    }
+    function closeSidebar() {
+        sidebarEl.classList.remove('open');
+        overlayEl.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    hamburgerBtn?.addEventListener('click', function () {
+        sidebarEl.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+    overlayEl?.addEventListener('click', closeSidebar);
+
+    document.querySelectorAll('.sidebar .nav-item').forEach(function (el) {
+        el.addEventListener('click', closeSidebar);
+    });
+
+    window.addEventListener('resize', function () {
+        if (window.innerWidth > 880) closeSidebar();
+    });
 </script>
 @stack('scripts')
 </body>

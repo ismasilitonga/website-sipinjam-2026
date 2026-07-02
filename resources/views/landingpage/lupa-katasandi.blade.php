@@ -65,7 +65,6 @@
         }
         .card-header p { font-size: 0.85rem; color: #64748b; line-height: 1.6; }
 
-        /* Step indicator */
         .steps {
             display: flex; align-items: center; justify-content: center;
             gap: 0; margin-bottom: 28px;
@@ -124,7 +123,6 @@
         }
         .input-wrap:focus-within .prefix-icon { color: var(--primary); }
 
-        /* OTP input */
         .otp-wrap {
             display: flex; gap: 10px; justify-content: center;
         }
@@ -202,11 +200,9 @@
         }
         .to-home:hover { color: white; }
 
-        /* Panel tiap step */
         .step-panel { display: none; }
         .step-panel.active { display: block; }
 
-        /* Success screen */
         .success-screen { text-align: center; padding: 10px 0; }
         .success-screen .check-circle {
             width: 72px; height: 72px; border-radius: 50%;
@@ -236,7 +232,6 @@
             <p id="main-desc">Masukkan email terdaftar untuk menerima kode verifikasi.</p>
         </div>
 
-        <!-- Step Indicator -->
         <div class="steps" id="step-indicator">
             <div class="step active" id="s1">
                 <div class="step-circle">1</div>
@@ -254,10 +249,8 @@
             </div>
         </div>
 
-        <!-- Alert placeholder -->
         <div id="alert-box" style="display:none;"></div>
 
-        <!-- STEP 1: Input Email -->
         <div class="step-panel active" id="panel-1">
             <form id="form-email">
                 <div class="form-group">
@@ -273,7 +266,6 @@
             </form>
         </div>
 
-        <!-- STEP 2: Input OTP -->
         <div class="step-panel" id="panel-2">
             <p style="text-align:center; font-size:0.83rem; color:#64748b; margin-bottom:20px;">
                 Kode dikirim ke <strong id="email-display" style="color:var(--dark);"></strong>
@@ -300,7 +292,6 @@
             </div>
         </div>
 
-        <!-- STEP 3: Reset Password -->
         <div class="step-panel" id="panel-3">
             <form id="form-reset">
                 <div class="form-group">
@@ -329,7 +320,6 @@
             </form>
         </div>
 
-        <!-- STEP 4: Sukses -->
         <div class="step-panel" id="panel-success">
             <div class="success-screen">
                 <div class="check-circle">
@@ -392,7 +382,6 @@ function goStep(step) {
     currentStep = step;
 }
 
-// STEP 1: Kirim OTP ke server
 document.getElementById('form-email').addEventListener('submit', function(e) {
     e.preventDefault();
     const email = document.getElementById('input-email').value.trim();
@@ -426,7 +415,6 @@ document.getElementById('form-email').addEventListener('submit', function(e) {
     });
 });
 
-// OTP auto-focus
 const otpInputs = document.querySelectorAll('.otp-digit');
 otpInputs.forEach((inp, idx) => {
     inp.addEventListener('input', () => {
@@ -438,7 +426,6 @@ otpInputs.forEach((inp, idx) => {
     });
 });
 
-// STEP 2: Verifikasi OTP ke server
 document.getElementById('form-otp').addEventListener('submit', function(e) {
     e.preventDefault();
     const otp = Array.from(otpInputs).map(i => i.value).join('');
@@ -472,7 +459,6 @@ document.getElementById('form-otp').addEventListener('submit', function(e) {
     });
 });
 
-// Kirim ulang OTP
 function resendOtp(e) {
     e.preventDefault();
     otpInputs.forEach(i => i.value = '');
@@ -491,7 +477,6 @@ function resendOtp(e) {
     .catch(() => showAlert('error', 'Gagal mengirim ulang. Coba lagi.'));
 }
 
-// STEP 3: Reset password ke server
 document.getElementById('form-reset').addEventListener('submit', function(e) {
     e.preventDefault();
     const np = document.getElementById('new-password').value;

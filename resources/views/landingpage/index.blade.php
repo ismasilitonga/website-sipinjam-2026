@@ -115,7 +115,8 @@
             display: inline-block;
         }
         .btn-primary { background: var(--primary); color: var(--white); box-shadow: 0 6px 16px rgba(47, 126, 161, 0.2); }
-        .btn-secondary { background: var(--white); color: var(--primary); border: 2px solid var(--primary); margin-left: 8px; }
+        .btn-secondary { background: var(--white); color: var(--primary); border: 2px solid var(--primary); }
+        .hero-buttons {display: flex;flex-wrap: wrap; gap: 12px;}
         .btn:hover { transform: translateY(-2px); }
 
         .hero-image img { width: 100%; max-width: 380px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
@@ -237,26 +238,95 @@
             margin-top: 32px;
         }
 
-        @media (max-width: 768px) {
-            .hero { flex-direction: column; text-align: center; padding-top: 90px; }
-            .feature-card { flex: 0 0 220px; }
-        }
+    .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    z-index: 1100;
+}
+.hamburger span {
+    width: 24px;
+    height: 3px;
+    background: white;
+    border-radius: 2px;
+    transition: 0.3s;
+}
+.hamburger.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+@media (max-width: 768px) {
+    .hero { 
+        flex-direction: column; 
+        text-align: center; 
+        padding-top: 90px; 
+    }
+    .feature-card { flex: 0 0 220px; }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+    }
+    .btn {
+        width: 100%;
+        max-width: 280px;
+        text-align: center;
+    }
+
+    .hamburger { display: flex; }
+
+    .menu {
+        position: fixed;
+        top: 60px;
+        right: 0;
+        flex-direction: column;
+        background: rgba(47, 126, 161, 0.97);
+        backdrop-filter: blur(var(--blur-strength));
+        width: 200px;
+        height: 0;
+        overflow: hidden;
+        gap: 0;
+        transition: height 0.3s ease;
+        border-radius: 0 0 0 12px;
+        align-items: stretch;
+    }
+    .menu.open {
+        height: auto;
+        padding: 10px 0;
+    }
+    .menu a {
+        text-align: center;
+        border-radius: 0;
+        padding: 0.75rem 1rem;
+    }
+}
+
     </style>
 </head>
 <body>
 
     <nav class="navbar">
-        <a href="{{ route('landingpage') }}" class="nav-left">
-            <div class="logo"></div>
-            <b>SiPinjam</b>
-        </a>
-        <div class="menu">
-            <a href="{{ route('landingpage') }}" class="active">Beranda</a>
-            <a href="{{ route('landingpage.tentang') }}">Tentang</a>
-            <a href="{{ route('landingpage.panduan') }}">Panduan</a>
-            <a href="{{ route('landingpage.pilih-login') }}">Masuk</a>
-        </div>
-    </nav>
+    <a href="{{ route('landingpage') }}" class="nav-left">
+        <div class="logo"></div>
+        <b>SiPinjam</b>
+    </a>
+
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+    </button>
+
+    <div class="menu" id="navMenu">
+        <a href="{{ route('landingpage') }}" class="active">Beranda</a>
+        <a href="{{ route('landingpage.tentang') }}">Tentang</a>
+        <a href="{{ route('landingpage.panduan') }}">Panduan</a>
+        <a href="{{ route('landingpage.pilih-login') }}">Masuk</a>
+    </div>
+</nav>
 
     <div class="main-content-glass">
 
@@ -264,7 +334,7 @@
             <div class="hero-content">
                 <h1>Fasilitas Ormawa dalam Genggaman.</h1>
                 <p>Manajemen peminjaman ruangan dan barang Student Center Politeknik Negeri Batam.</p>
-                <div>
+                <div class="hero-buttons">
                     <a href="{{ route('landingpage.pilih-login') }}" class="btn btn-primary">Mulai Peminjaman</a>
                     <a href="{{ route('landingpage.panduan') }}" class="btn btn-secondary">Lihat Panduan</a>
                 </div>
@@ -378,6 +448,14 @@
 
     <script>
         const cards = document.querySelectorAll('.feature-card');
+
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const navMenu = document.getElementById('navMenu');
+
+        hamburgerBtn.addEventListener('click', () => {
+        hamburgerBtn.classList.toggle('active');
+        navMenu.classList.toggle('open');
+});
 
         function checkCenter() {
             const centerX = window.innerWidth / 2;

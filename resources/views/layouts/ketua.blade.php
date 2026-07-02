@@ -30,6 +30,7 @@
             --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.05);
         }
 
+        html, body { overflow-x: hidden; width: 100%; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
 
         .sidebar {
@@ -83,6 +84,10 @@
         .ormawa-name { color: #a7f3c0; font-size: 12px; font-weight: 600; }
         .ormawa-role { color: #ffffff; font-size: 10px; }
 
+        .sidebar::-webkit-scrollbar { width: 5px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 10px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+
         .main-wrap { margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
 
         .topbar {
@@ -90,7 +95,10 @@
             padding: 12px 20px;
             display: flex; align-items: center; justify-content: space-between;
             position: sticky; top: 0; z-index: 50;
+            gap: 12px; flex-wrap: wrap;
         }
+        .topbar-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .topbar-right { display: flex; align-items: center; gap: 14px; }
         .topbar-title { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); }
         .topbar-sub   { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
 
@@ -112,13 +120,13 @@
         .card-body   { padding: 16px; }
 
         .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 22px; }
-        .stat-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+        .stat-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
         .stat-icon { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
         .stat-icon svg { width: 19px; height: 19px; }
         .stat-value { font-family: 'Sora', sans-serif; font-size: 25px; font-weight: 700; line-height: 1; }
         .stat-label { font-size: 12px; color: var(--text-muted); }
 
-        .table-wrap { overflow-x: auto; }
+        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
         th { background: #f8fafc; text-align: left; padding: 8px 10px; font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid var(--border); }
         td { padding: 9px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
@@ -161,6 +169,7 @@
         .form-hint  { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
         .form-error { font-size: 11px; color: var(--danger); margin-top: 4px; }
         .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
 
         .pagination-wrap { padding: 12px 16px; border-top: 1px solid var(--border); }
         .pagination-wrap .pagination { display: flex; gap: 4px; list-style: none; }
@@ -205,18 +214,118 @@
         .item-card-title { font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
         .item-card-sub   { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
 
+        /* ===== Hamburger + overlay (mobile sidebar) ===== */
+        .hamburger-btn {
+            display: none;
+            align-items: center; justify-content: center;
+            width: 34px; height: 34px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--white);
+            cursor: pointer;
+            flex-shrink: 0;
+            padding: 0; margin: 0;
+        }
+        .hamburger-btn svg { width: 18px; height: 18px; color: var(--text); }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(15, 23, 42, .5);
+            z-index: 99;
+            opacity: 0;
+            transition: opacity .22s ease;
+        }
+        .sidebar-overlay.open { display: block; opacity: 1; }
+
+        /* ===== Horizontal scroll row (Jadwal + panel samping, dsb) ===== */
+        .hscroll-row { display: flex; gap: 14px; }
+        .hscroll-row > .card,
+        .hscroll-row > .hscroll-col { flex: 1 1 320px; min-width: 280px; }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 880px) {
-            :root { --sidebar-w: 64px; }
-            .sidebar-logo-text,
-            .nav-item span.nav-label-text,
-            .nav-label,
-            .ormawa-name,
-            .ormawa-role { display: none; }
-            .nav-item { justify-content: center; padding: 9px; }
-            .sidebar-ormawa { justify-content: center; }
+            .hamburger-btn { display: inline-flex; }
+
+            .sidebar {
+                width: 260px;
+                max-width: 78vw;
+                transform: translateX(-100%);
+                transition: transform .25s ease;
+                box-shadow: none;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 10px 0 30px rgba(0,0,0,.25);
+            }
+
+            .nav-item { justify-content: flex-start; padding: 9px 10px; font-size: 13px; }
+            .nav-item svg { width: 17px; height: 17px; }
+            .sidebar-ormawa { justify-content: flex-start; }
+
+            .main-wrap { margin-left: 0; }
+            .topbar {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 10px 14px;
+                gap: 8px;
+            }
+            .topbar-right {
+                width: 100%;
+                justify-content: space-between;
+                padding-top: 8px;
+                border-top: 1px solid var(--border);
+            }
+            .topbar-title { font-size: 14.5px; }
+            .topbar-sub { font-size: 11px; }
             .page-content { padding: 12px; }
-            .form-grid-2 { grid-template-columns: 1fr; }
+            .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+
+            .stat-grid {
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                scroll-snap-type: x proximity;
+                -webkit-overflow-scrolling: touch;
+                gap: 10px;
+                margin-bottom: 18px;
+                padding-bottom: 6px;
+                scrollbar-width: thin;
+            }
+            .stat-grid::-webkit-scrollbar { height: 4px; }
+            .stat-grid::-webkit-scrollbar-thumb { background: rgba(15,35,24,.15); border-radius: 10px; }
+            .stat-card {
+                flex: 0 0 auto;
+                width: 148px;
+                scroll-snap-align: start;
+                padding: 12px 10px;
+                gap: 8px;
+                border-radius: 10px;
+            }
+            .stat-icon { width: 30px; height: 30px; border-radius: 7px; }
+            .stat-icon svg { width: 15px; height: 15px; }
+            .stat-value { font-size: 20px; }
+            .stat-label { font-size: 10.5px; line-height: 1.2; word-break: break-word; }
+
+            .hscroll-row {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                scroll-snap-type: x proximity;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 6px;
+            }
+            .hscroll-row::-webkit-scrollbar { height: 4px; }
+            .hscroll-row::-webkit-scrollbar-thumb { background: rgba(15,35,24,.15); border-radius: 10px; }
+            .hscroll-row > .card,
+            .hscroll-row > .hscroll-col {
+                flex: 0 0 88%;
+                min-width: 260px;
+                scroll-snap-align: start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .topbar-sub { display: none; }
         }
     </style>
     @php
@@ -225,10 +334,10 @@
         ->count();
     @endphp
     @stack('styles')
-            </head>
-        <body>
-        <aside class="sidebar">
-        <div class="sidebar-logo" style="display:flex; padding:16px 14px 12px; gap:9px; align-items:center;">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
         <div style="width:34px; height:34px; flex-shrink:0;
                     background: url('{{ asset('images/logo.png') }}') center/contain no-repeat;"></div>
         <div class="sidebar-logo-text">
@@ -237,25 +346,25 @@
         </div>
     </div>
 
-        <nav class="sidebar-nav">
+    <nav class="sidebar-nav">
         <div class="nav-label">Utama</div>
         <a href="{{ route('ketua.dashboard') }}"
                 class="nav-item {{ request()->routeIs('ketua.dashboard') ? 'active' : '' }}">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-        </svg>
-            Dashboard
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            </svg>
+            <span>Dashboard</span>
         </a>
 
         <div class="nav-label">Pengajuan Anggota</div>
         <a href="{{ route('ketua.daftar-pengajuan') }}"
             class="nav-item {{ request()->routeIs('ketua.daftar-pengajuan') ? 'active' : '' }}">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-            Kelola Pengajuan
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>Kelola Pengajuan</span>
              @if($pendingKetua > 0)
                 <span style="margin-left:auto; background:#42c565; color:#fff;
                      font-size:10px; font-weight:700; min-width:18px; height:18px;
@@ -267,37 +376,37 @@
             </a>
         <a href="{{ route('ketua.riwayat-peminjaman') }}"
             class="nav-item {{ request()->routeIs('ketua.riwayat-peminjaman') ? 'active' : '' }}">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-            Riwayat Peminjaman
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>Riwayat Peminjaman</span>
         </a>
 
         <div class="nav-label">Katalog</div>
         <a href="{{ route('ketua.daftar-ruangan') }}"
            class="nav-item {{ request()->routeIs('ketua.daftar-ruangan') ? 'active' : '' }}">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
             </svg>
-            Daftar Ruangan
+            <span>Daftar Ruangan</span>
         </a>
         <a href="{{ route('ketua.daftar-barang') }}"
            class="nav-item {{ request()->routeIs('ketua.daftar-barang') ? 'active' : '' }}">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
             </svg>
-            Daftar Barang
+            <span>Daftar Barang</span>
         </a>
         <a href="{{ route('ketua.barang-ormawa.index') }}"
            class="nav-item {{ request()->routeIs('ketua.barang-ormawa.*') ? 'active' : '' }}">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
             </svg>
-            Barang Ormawa
+            <span>Barang Ormawa</span>
         </a>
     </nav>
 
@@ -315,7 +424,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
             </svg>
-            Profil Saya
+            <span>Profil Saya</span>
         </a>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
@@ -324,29 +433,37 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
-                Keluar
+                <span>Keluar</span>
             </button>
         </form>
     </div>
-
 </aside>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <div class="main-wrap">
     <header class="topbar">
-        <div>
-            <div class="topbar-title">@yield('title', 'Tambah Barang')</div>
-            <div class="topbar-sub">@yield('subtitle', 'Form tambah barang ormawa')</div>
+        <div class="topbar-left">
+            <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Buka menu">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <div>
+                <div class="topbar-title">@yield('title', 'Tambah Barang')</div>
+                <div class="topbar-sub">@yield('subtitle', 'Form tambah barang ormawa')</div>
+            </div>
         </div>
-        <div style="display:flex;align-items:center;gap:14px;">
-        <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:#000000;">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;flex-shrink:0;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <span id="live-clock" style="font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:0.5px;"></span>
-    </div>
-    @yield('topbar-action')
-    </div>
+        <div class="topbar-right">
+            <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:#000000;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;flex-shrink:0;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span id="live-clock" style="font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:0.5px;"></span>
+            </div>
+            @yield('topbar-action')
+        </div>
     </header>
 
     <main class="page-content">
@@ -372,6 +489,7 @@
         @yield('content')
     </main>
 </div>
+
 <script>
     function updateClock() {
         const now = new Date();
@@ -382,6 +500,34 @@
     }
     updateClock();
     setInterval(updateClock, 1000);
+
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const sidebarEl = document.getElementById('sidebar');
+    const overlayEl = document.getElementById('sidebarOverlay');
+
+    function openSidebar() {
+        sidebarEl.classList.add('open');
+        overlayEl.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+        sidebarEl.classList.remove('open');
+        overlayEl.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    hamburgerBtn?.addEventListener('click', function () {
+        sidebarEl.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+    overlayEl?.addEventListener('click', closeSidebar);
+
+    document.querySelectorAll('.sidebar .nav-item').forEach(function (el) {
+        el.addEventListener('click', closeSidebar);
+    });
+
+    window.addEventListener('resize', function () {
+        if (window.innerWidth > 880) closeSidebar();
+    });
 </script>
 @stack('scripts')
 </body>
