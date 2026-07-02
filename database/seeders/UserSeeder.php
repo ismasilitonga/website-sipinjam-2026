@@ -58,7 +58,7 @@ class UserSeeder extends Seeder
         'status'     => 'aktif',
     ],
     [
-        'nama'       => 'Rindiani Putri',
+        'nama'       => 'Muhammad Riski Supriyono',
         'email'      => 'ketuasipinjam@gmail.com',
         'nim'        => '444',
         'role'       => 'ketua',

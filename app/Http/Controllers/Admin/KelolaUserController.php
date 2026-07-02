@@ -89,8 +89,8 @@ class KelolaUserController extends Controller
 
         $request->validate([
             'nama'       => 'required|string|max:255',
-            'email'      => 'required|email|unique:users,email,' . $id,
-            'nim'        => 'required|string|unique:users,nim,' . $id,
+            'email' => 'required|email',
+            'nim'   => 'required|string',
             'role'       => 'required|in:anggota,ketua,pic,admin,pamdal',
             'organisasi' => 'required|string|max:255',
             'password'   => 'nullable|min:8',

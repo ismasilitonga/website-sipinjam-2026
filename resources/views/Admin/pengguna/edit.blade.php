@@ -26,7 +26,7 @@
                 <div class="form-group">
                     <label class="form-label">Nama Lengkap <span style="color:var(--danger)">*</span></label>
                     <input type="text" name="nama" class="form-control"
-                           value="{{ old('name', $user->nama) }}" required>
+                           value="{{ old('nama', $user->nama) }}" required>
                     @error('nama') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
 
