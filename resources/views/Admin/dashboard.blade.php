@@ -3,6 +3,12 @@
 @section('title', 'Dashboard')
 @section('subtitle', 'Ringkasan aktivitas sistem')
 
+@push('styles')
+<style>
+    .stat-card > div:nth-child(2) { flex: 1; }
+</style>
+@endpush
+
 @section('content')
 
 <div class="stat-grid">
@@ -20,7 +26,7 @@
         </div>
     </div>
 
-    <div class="stat-card">
+    <div class="stat-card" style="{{ $pendaftarBaru > 0 ? 'border-color:#fde68a;' : '' }}">
         <div class="stat-icon" style="background:#fef9c3;">
             <svg fill="none" stroke="#ca8a04" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -33,7 +39,7 @@
         </div>
         @if($pendaftarBaru > 0)
         <a href="{{ route('admin.pendaftar.index') }}"
-           style="font-size:12px;color:#2563eb;text-decoration:none;font-weight:500;">
+           style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:600;">
             Validasi sekarang →
         </a>
         @endif
@@ -63,13 +69,14 @@
             <div class="stat-value" style="color:#7c3aed;">{{ $totalRuangan }}</div>
             <div class="stat-label">TOTAL RUANGAN TERSEDIA</div>
         </div>
-      </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:3fr 340px;gap:20px;align-items:start;">
+</div>
 
-        <div class="card" style="height:auto;max-height:320px;">
-        <div class="card-header" style="padding-bottom:16px;">
+<div class="hscroll-row" style="align-items:flex-start;">
+
+    <div class="card" style="flex:1 1 0; min-width:340px;">
+        <div class="card-header" style="padding-bottom:10px;">
             <div>
                 <span class="card-title">Jadwal Penggunaan Ruangan Hari Ini</span>
                 <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">
@@ -77,77 +84,50 @@
                 </div>
             </div>
         </div>
-        <div class="table-wrap" style="max-height:220px;overflow-y:auto;">
-            <table style="table-layout:fixed;width:100%;">
+        <div class="table-wrap">
+            <table>
                 <thead>
-        <tr>
-            <th style="width:28%;">Ruangan</th>
-            <th style="width:28%;">Ormawa</th>
-            <th style="width:16%;">Waktu</th>
-            <th style="width:18%;">Status</th>
-        </tr>
-            </thead>
+                    <tr>
+                        <th>Ruangan</th>
+                        <th>Ormawa</th>
+                        <th>Waktu</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
                 <tbody>
                     @forelse($ruanganAktifHariIni as $p)
                     @php
-    $mulai   = \Carbon\Carbon::parse($p->tanggal_mulai);
-    $selesai = \Carbon\Carbon::parse($p->tanggal_selesai);
+                        $mulai   = \Carbon\Carbon::parse($p->tanggal_mulai);
+                        $selesai = \Carbon\Carbon::parse($p->tanggal_selesai);
 
-    $statusLive = match($p->status) {
-    'disetujui' => ['badge-yellow', '🟡 Akan Digunakan'],
-    'berjalan'  => ['badge-green', '🟢 Sedang Digunakan'],
-    'selesai'   => ['badge-gray', '⚪ Selesai'],
-    default     => ['badge-gray', $p->status],
-};
-@endphp
+                        $statusLive = match($p->status) {
+                            'disetujui' => ['badge-yellow', '🟡 Akan Digunakan'],
+                            'berjalan'  => ['badge-green', '🟢 Sedang Digunakan'],
+                            'selesai'   => ['badge-gray', '⚪ Selesai'],
+                            default     => ['badge-gray', $p->status],
+                        };
+                    @endphp
                     <tr>
                         <td>
-                        <div style="font-weight:500;font-size:13px;">
-                         {{ $p->ruangan->nama_ruangan ?? '-' }}
-                        </div>
-
-                    <div style="
-                        font-size:11px;
-                        color:var(--text-muted);
-                        white-space:nowrap;
-                        overflow:hidden;
-                        text-overflow:ellipsis;">
-                            {{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->lantai) ? ' · Lt.'.$p->ruangan->lantai : '' }}
-                    </div>
+                            <div style="font-weight:600;">{{ $p->ruangan->nama_ruangan ?? '-' }}</div>
+                            <div style="font-size:11.5px;color:var(--text-muted);">{{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->lantai) ? ' · Lt.'.$p->ruangan->lantai : '' }}</div>
                         </td>
-                        <td>
-                <div style="
-                    font-size:13px;
-                    font-weight:500;
-                    white-space:nowrap;
-                    overflow:hidden;
-                    text-overflow:ellipsis;">
-                    {{ $p->nama_ormawa }}
-                </div>
-
-                <div style="
-                    font-size:11px;
-                    color:var(--text-muted);
-                    white-space:nowrap;
-                    overflow:hidden;
-                    text-overflow:ellipsis;">
-                    {{ $p->keperluan }}
-                </div>
-                    </td>
+                        <td style="font-size:13px;">
+                            <div style="font-weight:500;">{{ $p->nama_ormawa }}</div>
+                            <div style="font-size:11.5px;color:var(--text-muted);">{{ $p->keperluan }}</div>
+                        </td>
                         <td style="font-size:13px;white-space:nowrap;">
                             {{ $mulai->format('H:i') }}–{{ $selesai->format('H:i') }}
                         </td>
                         <td>
-                            <span class="badge {{ $statusLive[0] }}" style="white-space:nowrap;">
-                                {{ $statusLive[1] }}
-                            </span>
+                            <span class="badge {{ $statusLive[0] }}" style="white-space:nowrap;">{{ $statusLive[1] }}</span>
                         </td>
                     </tr>
                     @empty
                     <tr>
                         <td colspan="4">
-                            <div class="empty-state" style="padding:30px 20px;">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="empty-state" style="padding:26px 20px;">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:26px;height:26px;margin-bottom:6px;">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
@@ -161,7 +141,8 @@
         </div>
     </div>
 
-    <div style="display:flex;flex-direction:column;gap:16px;">
+    <div class="hscroll-col" style="flex:0 0 300px; min-width:260px; display:flex; flex-direction:column; gap:16px;">
+
         <div class="card">
             <div class="card-header"><span class="card-title">Aksi Cepat</span></div>
             <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
@@ -177,7 +158,7 @@
                     </svg>
                     Validasi Pendaftar
                     @if($pendaftarBaru > 0)
-                    <span class="badge badge-orange" style="margin-left:auto;">{{ $pendaftarBaru }}</span>
+                        <span class="badge badge-orange" style="margin-left:auto;">{{ $pendaftarBaru }}</span>
                     @endif
                 </a>
                 <a href="{{ route('admin.status-peminjaman') }}" class="btn btn-outline">
@@ -199,27 +180,27 @@
 
         <div class="card">
             <div class="card-header"><span class="card-title">Informasi Sistem</span></div>
-            <div class="card-body">
+            <div class="card-body" style="padding:0;">
                 <div class="detail-row">
-                   <div class="detail-label" style="width:120px;">Versi</div>
-                   <div class="detail-value" style="white-space:nowrap;">SiPinjam v1.0</div>
+                    <div class="detail-label">Versi</div>
+                    <div class="detail-value" style="font-weight:600;">SiPinjam v1.0</div>
                 </div>
                 <div class="detail-row">
-                    <div class="detail-label" style="width:120px;">Framework</div>
+                    <div class="detail-label">Framework</div>
                     <div class="detail-value">Laravel {{ app()->version() }}</div>
                 </div>
                 <div class="detail-row">
-                    <div class="detail-label" style="width:120px;">Tanggal</div>
+                    <div class="detail-label">Tanggal</div>
                     <div class="detail-value">{{ now()->isoFormat('D MMM Y') }}</div>
                 </div>
                 <div class="detail-row">
-                    <div class="detail-label" style="width:120px;">Admin</div>
+                    <div class="detail-label">Admin</div>
                     <div class="detail-value">{{ auth()->user()->nama }}</div>
                 </div>
             </div>
         </div>
-    </div>
 
+    </div>
 </div>
 
 @endsection

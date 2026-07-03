@@ -31,7 +31,8 @@
             --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.05);
         }
 
-        html { -webkit-text-size-adjust: 100%; }
+        html { -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+        body { overflow-x: hidden; }
 
         body {
             font-family: 'DM Sans', sans-serif;
@@ -73,11 +74,7 @@
             margin-top: 2px; letter-spacing: .5px; text-transform: uppercase;
         }
 
-        .sidebar-nav {
-            flex: 1 1 auto;
-            min-height: 0;
-            overflow-y: auto;
-            padding: 10px 8px;
+        .sidebar-nav {flex: 1 1 auto;min-height: 0;overflow-y: auto;padding: 10px 8px;
         }
         .sidebar-nav::-webkit-scrollbar { width: 5px; }
         .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
@@ -153,11 +150,7 @@
         }
         .topbar-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
 
-        .page-content {
-            padding: 18px;
-            flex: 1;
-            min-width: 0;
-        }
+        .page-content {padding: 18px;flex: 1;min-width: 0;}
 
         .alert {
             padding: 10px 14px; border-radius: 8px;
@@ -213,11 +206,8 @@
         }
         .stat-label { font-size: 12px; color: var(--text-muted); }
 
-        .table-wrap {
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
+        .table-wrap {width: 100%;overflow-x: auto;-webkit-overflow-scrolling: touch;}
+        
         table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
         th {
             background: #f8fafc; text-align: left;
@@ -228,6 +218,8 @@
             border-bottom: 1px solid var(--border);
             white-space: nowrap;
         }
+        th:first-child, td:first-child { padding-left: 16px; }
+        th:last-child, td:last-child { padding-right: 16px; }
         td { padding: 9px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: #f8fafc; }
@@ -351,26 +343,84 @@
             background: #18181b; color: #a1a1aa;
             padding: 7px 20px; font-size: 12px;
             display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 6px;
         }
         .clock-strip strong { color: #fff; font-family: 'Outfit', sans-serif; font-size: 11px; }
 
+        .hamburger-btn {
+            display: none;
+            align-items: center; justify-content: center;
+            width: 34px; height: 34px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--white);
+            cursor: pointer;
+            flex-shrink: 0;
+            padding: 0; margin: 0;
+        }
+        .hamburger-btn svg { width: 18px; height: 18px; color: var(--text); }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(15, 23, 42, .5);
+            z-index: 99;
+            opacity: 0;
+            transition: opacity .22s ease;
+        }
+        .sidebar-overlay.open { display: block; opacity: 1; }
+
         @media (max-width: 880px) {
-            :root { --sidebar-w: 64px; }
-            .sidebar-logo-text,
-            .nav-item span.nav-label,
-            .nav-section-label,
-            .sidebar-user-name,
-            .sidebar-user-role { display: none; }
-            .nav-item { justify-content: center; padding: 9px; }
-            .sidebar-user { justify-content: center; }
+            .hamburger-btn { display: inline-flex; }
+
+            .sidebar {
+                width: 260px;
+                max-width: 78vw;
+                transform: translateX(-100%);
+                transition: transform .25s ease;
+                box-shadow: none;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 10px 0 30px rgba(0,0,0,.25);
+            }
+
+            .nav-item { justify-content: flex-start; padding: 9px 10px; font-size: 13px; }
+            .sidebar-user { justify-content: flex-start; }
+
+            .main-wrap { margin-left: 0; }
             .page-content { padding: 12px; }
+            .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+
+            .stat-grid {
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                scroll-snap-type: x proximity;
+                -webkit-overflow-scrolling: touch;
+                gap: 10px;
+                margin-bottom: 18px;
+                padding-bottom: 6px;
+            }
+            .stat-card {
+                flex: 0 0 auto;
+                width: 150px;
+                scroll-snap-align: start;
+                padding: 12px 10px;
+                gap: 8px;
+            }
+            .stat-value { font-size: 20px; }
+            .stat-label { font-size: 10.5px; line-height: 1.2; }
+
+            .clock-strip { padding: 8px 12px; }
+            .clock-strip span:last-child { display: none; }
         }
     </style>
     @stack('styles')
 </head>
 <body>
 
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
         <div class="sidebar-logo-mark"></div>
         <div class="sidebar-logo-text">
@@ -457,6 +507,8 @@
     </div>
 </aside>
 
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <div class="main-wrap">
 
     <div class="clock-strip">
@@ -468,14 +520,20 @@
             </svg>
             <strong id="jamSekarang"></strong>
         </span>
-        <span style="font-size:10
-        px;color:#ffffff;font-weight:600;">{{ auth()->user()->nama ?? 'Pamdal' }} · Shift aktif</span>
+        <span style="font-size:10px;color:#ffffff;font-weight:600;">{{ auth()->user()->nama ?? 'Pamdal' }} · Shift aktif</span>
     </div>
 
     <header class="topbar">
-        <div>
-            <div class="topbar-title">@yield('title', 'Dashboard')</div>
-            <div class="topbar-sub">@yield('subtitle', 'Portal Pamdal · SiPinjam')</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+            <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Buka menu">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <div>
+                <div class="topbar-title">@yield('title', 'Dashboard')</div>
+                <div class="topbar-sub">@yield('subtitle', 'Portal Pamdal · SiPinjam')</div>
+            </div>
         </div>
         <div>@yield('topbar-action')</div>
     </header>
@@ -505,7 +563,7 @@
 <script>
     function updateClock() {
         const now = new Date();
-        const opt = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+        const opt = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         document.getElementById('tanggalHariIni').textContent = now.toLocaleDateString('id-ID', opt);
         const h = String(now.getHours()).padStart(2, '0');
         const m = String(now.getMinutes()).padStart(2, '0');
@@ -514,6 +572,34 @@
     }
     updateClock();
     setInterval(updateClock, 1000);
+
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const sidebarEl = document.getElementById('sidebar');
+    const overlayEl = document.getElementById('sidebarOverlay');
+
+    function openSidebar() {
+        sidebarEl.classList.add('open');
+        overlayEl.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+        sidebarEl.classList.remove('open');
+        overlayEl.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    hamburgerBtn?.addEventListener('click', function () {
+        sidebarEl.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+    overlayEl?.addEventListener('click', closeSidebar);
+
+    document.querySelectorAll('.sidebar .nav-item').forEach(function (el) {
+        el.addEventListener('click', closeSidebar);
+    });
+
+    window.addEventListener('resize', function () {
+        if (window.innerWidth > 880) closeSidebar();
+    });
 </script>
 @stack('scripts')
 </body>

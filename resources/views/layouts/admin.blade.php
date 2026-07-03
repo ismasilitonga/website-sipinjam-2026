@@ -30,7 +30,8 @@
             --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.05);
         }
 
-        html { -webkit-text-size-adjust: 100%; }
+        html { -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+        body { overflow-x: hidden; }
 
         body {
             font-family: 'DM Sans', sans-serif;
@@ -46,7 +47,7 @@
             height: 100vh;
             background: var(--sidebar-bg);
             display: flex; flex-direction: column;
-            overflow: hidden;       
+            overflow: hidden;
             z-index: 100;
         }
 
@@ -72,12 +73,7 @@
             margin-top: 2px; letter-spacing: .5px; text-transform: uppercase;
         }
 
-        .sidebar-nav {
-            flex: 1 1 auto;
-            min-height: 0;          
-            overflow-y: auto;
-            padding: 10px 8px;
-        }
+        .sidebar-nav {flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 10px 8px;}
         .sidebar-nav::-webkit-scrollbar { width: 5px; }
         .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
 
@@ -138,6 +134,8 @@
             gap: 12px; flex-wrap: wrap;
             position: sticky; top: 0; z-index: 50;
         }
+        .topbar-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .topbar-right { display: flex; align-items: center; gap: 14px; }
         .topbar-title {
             font-family: 'Outfit', sans-serif;
             font-size: 16px; font-weight: 600;
@@ -147,11 +145,7 @@
             font-size: 12px; color: var(--text-muted); margin-top: 1px;
         }
 
-        .page-content {
-            padding: 18px;
-            flex: 1;
-            min-width: 0;
-        }
+        .page-content {padding: 18px; flex: 1; min-width: 0;}
 
         .alert {
             padding: 10px 14px; border-radius: 8px;
@@ -168,7 +162,7 @@
             border-radius: var(--radius);
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
-            overflow: hidden;        /* keep rounded corners clean when table scrolls inside */
+            overflow: hidden;        
         }
         .card-header {
             padding: 15px 16px 0;
@@ -193,6 +187,7 @@
             box-shadow: var(--shadow);
             padding: 16px;
             display: flex; flex-direction: column; gap: 10px;
+            min-width: 0;
         }
         .stat-icon {
             width: 38px; height: 38px; border-radius: 9px;
@@ -206,7 +201,6 @@
         }
         .stat-label { font-size: 12px; color: var(--text-muted); }
 
-        /* ===== TABLE ===== */
         .table-wrap {
             width: 100%;
             overflow-x: auto;
@@ -222,6 +216,8 @@
             border-bottom: 1px solid var(--border);
             white-space: nowrap;
         }
+        th:first-child, td:first-child { padding-left: 16px; }
+        th:last-child, td:last-child { padding-right: 16px; }
         td { padding: 9px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: #f8fafc; }
@@ -238,6 +234,8 @@
         .badge-orange { background: #ffedd5; color: #c2410c; }
         .badge-gray   { background: #f1f5f9; color: #475569; }
         .badge-purple { background: #ede9fe; color: #6d28d9; }
+        .badge-cyan   { background: #ecfeff; color: #0e7490; }
+        .badge-yellow { background: #fef9c3; color: #854d0e; }
 
         .btn {
             display: inline-flex; align-items: center; gap: 5px;
@@ -285,22 +283,11 @@
         .form-error { font-size: 11px; color: var(--danger); margin-top: 4px; }
         .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
-        .form-grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-        }
+        .form-grid-3 {display: grid;grid-template-columns: repeat(3, 1fr);gap: 14px;}
 
-        .form-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 18px;
-        }
+        .form-actions {display: flex;gap: 10px;margin-top: 18px;}
 
-        .preview-image {
-            max-width: 260px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
+        .preview-image {max-width: 260px;border-radius: 8px;border: 1px solid var(--border);
             margin-top: 10px;
         }
         .pagination-wrap { padding: 12px 16px; border-top: 1px solid var(--border); }
@@ -314,10 +301,7 @@
         .pagination-wrap .page-link:hover { background: var(--accent-light); border-color: var(--accent); }
         .pagination-wrap .active .page-link { background: var(--accent); color: #fff; border-color: var(--accent); }
         .pagination-wrap .disabled .page-link { opacity: .4; pointer-events: none; }
-        .pagination-wrap .page-link svg {
-            width: 14px;
-            height: 14px;
-            display: block;
+        .pagination-wrap .page-link svg {width: 14px;height: 14px;display: block;
         }
 
         .empty-state {
@@ -326,15 +310,20 @@
         .empty-state svg { width: 42px; height: 42px; margin-bottom: 10px; opacity: .4; }
         .empty-state p { font-size: 13.5px; }
 
-        .detail-row { display: flex; gap: 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+        .detail-row { display: flex; gap: 0; border-bottom: 1px solid var(--border); flex-wrap: nowrap; }
         .detail-row:last-child { border-bottom: none; }
         .detail-label {
-            width: 170px; flex-shrink: 0;
+            width: 110px; flex-shrink: 0;
             padding: 10px 14px;
             font-size: 12.5px; font-weight: 500; color: var(--text-muted);
             background: #f8fafc;
         }
-        .detail-value { padding: 10px 14px; font-size: 13px; }
+        .detail-value {
+            padding: 10px 14px; font-size: 13px;
+            flex: 1 1 0;
+            min-width: 0;
+            word-break: break-word;
+        }
 
         .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
         .item-card {
@@ -353,24 +342,124 @@
         .item-card-title { font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
         .item-card-sub   { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
 
+        .hscroll-row { display: flex; gap: 14px; }
+        .hscroll-row > .card,
+        .hscroll-row > .hscroll-col { flex: 1 1 320px; min-width: 280px; }
+
+        .hamburger-btn {
+            display: none;
+            align-items: center; justify-content: center;
+            width: 34px; height: 34px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--white);
+            cursor: pointer;
+            flex-shrink: 0;
+            padding: 0; margin: 0;
+        }
+        .hamburger-btn svg { width: 18px; height: 18px; color: var(--text); }
+
+        .sidebar-overlay {display: none;position: fixed; inset: 0;
+            background: rgba(15, 23, 42, .5);
+            z-index: 99;
+            opacity: 0;
+            transition: opacity .22s ease;
+        }
+        .sidebar-overlay.open { display: block; opacity: 1; }
+
         @media (max-width: 880px) {
-            :root { --sidebar-w: 64px; }
-            .sidebar-logo-text,
-            .nav-item span.nav-label,
-            .nav-section-label,
-            .sidebar-user-name,
-            .sidebar-user-role { display: none; }
-            .nav-item { justify-content: center; padding: 9px; }
-            .sidebar-user { justify-content: center; }
+            .hamburger-btn { display: inline-flex; }
+
+            .sidebar {width: 260px;max-width: 78vw;
+                transform: translateX(-100%);
+                transition: transform .25s ease;
+                box-shadow: none;
+            }
+            .sidebar.open {transform: translateX(0);
+                box-shadow: 10px 0 30px rgba(0,0,0,.25);
+            }
+
+            .nav-item { justify-content: flex-start; padding: 9px 10px; font-size: 13px; }
+            .nav-item svg { width: 17px; height: 17px; }
+            .sidebar-user { justify-content: flex-start; }
+
+            .main-wrap { margin-left: 0; }
+
+            .topbar {
+                flex-direction: row;
+                align-items: center;
+                flex-wrap: nowrap;
+                padding: 10px 12px;
+                gap: 8px;
+            }
+            .topbar-left {min-width: 0;flex: 1 1 auto;overflow: hidden;
+            }
+            .topbar-right {
+                width: auto;
+                flex-shrink: 0;
+                justify-content: flex-end;
+                padding-top: 0;
+                border-top: none;
+            }
+            .topbar-title {
+                font-size: 14px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .topbar-sub { font-size: 11px; }
+
             .page-content { padding: 12px; }
             .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+
+            .stat-grid {
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                scroll-snap-type: x proximity;
+                -webkit-overflow-scrolling: touch;
+                gap: 10px;
+                margin-bottom: 18px;
+                padding-bottom: 6px;
+                scrollbar-width: thin;
+            }
+            .stat-grid::-webkit-scrollbar { height: 4px; }
+            .stat-grid::-webkit-scrollbar-thumb { background: rgba(15,23,42,.15); border-radius: 10px; }
+            .stat-card {
+                flex: 0 0 auto;
+                width: 150px;
+                scroll-snap-align: start;
+                padding: 12px 10px;
+                gap: 8px;
+                border-radius: 10px;
+            }
+            .stat-icon { width: 30px; height: 30px; border-radius: 7px; }
+            .stat-icon svg { width: 15px; height: 15px; }
+            .stat-value { font-size: 20px; }
+            .stat-label { font-size: 10.5px; line-height: 1.2; word-break: break-word; }
+
+            .hscroll-row {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                scroll-snap-type: x proximity;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 6px;
+            }
+            .hscroll-row::-webkit-scrollbar { height: 4px; }
+            .hscroll-row::-webkit-scrollbar-thumb { background: rgba(15,23,42,.15); border-radius: 10px; }
+            .hscroll-row > .card,
+            .hscroll-row > .hscroll-col {flex: 0 0 88%;min-width: 260px; scroll-snap-align: start;}
+        }
+
+        @media (max-width: 480px) {
+            .topbar-sub { display: none; }
         }
     </style>
     @stack('styles')
 </head>
 <body>
 
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
         <div class="sidebar-logo-mark"></div>
         <div class="sidebar-logo-text">
@@ -500,14 +589,23 @@
     </div>
 </aside>
 
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <div class="main-wrap">
     <header class="topbar">
-        <div>
-            <div class="topbar-title">@yield('title', 'Dashboard')</div>
-            <div class="topbar-sub">@yield('subtitle', 'Panel Administrasi')</div>
+        <div class="topbar-left">
+            <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Buka menu">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <div>
+                <div class="topbar-title">@yield('title', 'Dashboard')</div>
+                <div class="topbar-sub">@yield('subtitle', 'Panel Administrasi')</div>
+            </div>
         </div>
 
-        <div style="display:flex;align-items:center;gap:14px;">
+        <div class="topbar-right">
             <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:#000000;">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;flex-shrink:0;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -548,6 +646,7 @@
         @yield('content')
     </main>
 </div>
+
 <script>
     function updateClock() {
         const now = new Date();
@@ -558,6 +657,34 @@
     }
     updateClock();
     setInterval(updateClock, 1000);
+
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const sidebarEl = document.getElementById('sidebar');
+    const overlayEl = document.getElementById('sidebarOverlay');
+
+    function openSidebar() {
+        sidebarEl.classList.add('open');
+        overlayEl.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+        sidebarEl.classList.remove('open');
+        overlayEl.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    hamburgerBtn?.addEventListener('click', function () {
+        sidebarEl.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+    overlayEl?.addEventListener('click', closeSidebar);
+
+    document.querySelectorAll('.sidebar .nav-item').forEach(function (el) {
+        el.addEventListener('click', closeSidebar);
+    });
+
+    window.addEventListener('resize', function () {
+        if (window.innerWidth > 880) closeSidebar();
+    });
 </script>
 @stack('scripts')
 </body>

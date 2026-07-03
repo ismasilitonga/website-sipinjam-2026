@@ -248,20 +248,11 @@
         }
         .sidebar-overlay.open { display: block; opacity: 1; }
 
-.hscroll-row {
-    display: flex;
-    gap: 20px;
-}
+    .hscroll-row {display: flex;gap: 20px;align-items: flex-start;}
 
-.hscroll-row > .card:first-child {
-    flex: 2;
-    min-width: 0;
-}
+    .hscroll-row > .card:first-child {flex: 2;min-width: 0;}
 
-.hscroll-row > .card:last-child {
-    flex: 1;
-    max-width: 350px;
-}
+    .hscroll-row > .card:last-child {flex: 1;max-width: 350px;}
 
         @media (max-width: 880px) {
             .hamburger-btn { display: inline-flex; }

@@ -95,9 +95,9 @@
     </div>
 </div>
 
-<div class="hscroll-row">
+<div class="hscroll-row" style="align-items:flex-start;">
 
-    <div class="card">
+    <div class="card" style="flex:1 1 0; min-width:340px;">
         <div class="card-header" style="padding-bottom:16px;">
             <div>
                 <span class="card-title">Jadwal Penggunaan Ruangan Hari Ini</span>
@@ -163,7 +163,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div class="card" style="flex:0 0 300px; min-width:260px;">
         <div class="card-header"><span class="card-title">Aksi Cepat</span></div>
         <div class="card-body" style="display:flex;flex-direction:column;gap:9px;">
             <a href="{{ route('pic.ruangan.create') }}" class="btn btn-primary">

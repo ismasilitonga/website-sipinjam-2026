@@ -68,6 +68,9 @@ Route::get('/pilih-login/ketua',   [LandingPageController::class, 'pilihKetua'])
 Route::get('/pilih-login/pamdal',  [LandingPageController::class, 'pilihPamdal'])->name('landingpage.pilih-login.pamdal');
 Route::get('/pilih-login/pic',     [LandingPageController::class, 'pilihPic'])->name('landingpage.pilih-login.pic');
 
+Route::get('/login/{role}', function ($role) {$routeName = 'landingpage.pilih-login.' . $role;return Route::has($routeName)? redirect()->route($routeName): redirect()->route('landingpage.pilih-login');
+});
+
 Route::post('/login/{role}', [AuthController::class, 'authenticate'])->name('authenticate');
 Route::post('/logout',       [AuthController::class, 'logout'])->name('logout');
 Route::post('/daftar',       [AuthController::class, 'store'])->name('daftar.store');
