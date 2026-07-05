@@ -1,7 +1,7 @@
 @extends('layouts.pamdal')
 
 @section('title', 'Manajemen Kunci')
-@section('subtitle', 'Peminjaman aktif & status kunci hari ini')
+@section('subtitle', 'Riwayat serah terima kunci ruangan')
 
 @section('content')
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; gap:16px; flex-wrap:wrap;">
@@ -85,7 +85,7 @@
             @empty
             <tr>
                 <td colspan="6" style="padding:60px; text-align:center; color:#94a3b8; font-style:italic;">
-                    Tidak ada peminjaman aktif hari ini.
+                    Belum ada data peminjaman.
                 </td>
             </tr>
             @endforelse
@@ -96,14 +96,12 @@
     </div>
 </div>
 
-{{-- Modal Konfirmasi --}}
 <div id="modalOverlay"
      style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45);
             z-index:999; align-items:center; justify-content:center;">
     <div style="background:white; border-radius:16px; padding:32px 28px; width:100%;
                 max-width:420px; box-shadow:0 20px 60px rgba(0,0,0,0.15); margin:16px;">
 
-        {{-- Icon --}}
         <div id="modalIcon" style="width:56px; height:56px; border-radius:14px;
              display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
         </div>
@@ -169,12 +167,10 @@ function tutupModal() {
     document.getElementById('modalOverlay').style.display = 'none';
 }
 
-// Tutup modal kalau klik di luar
 document.getElementById('modalOverlay').addEventListener('click', function(e) {
     if (e.target === this) tutupModal();
 });
 
-// Search
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput    = document.getElementById('searchInput');
     const tableBody      = document.getElementById('tableBody');

@@ -1,5 +1,8 @@
 @extends('layouts.ketua')
 
+@section('title', 'Edit Barang')
+@section('subtitle', 'Form edit barang ormawa')
+
 @section('content')
 <div class="card" style="max-width:680px;">
     <div class="card-header">

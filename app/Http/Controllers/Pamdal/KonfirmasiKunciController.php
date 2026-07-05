@@ -13,8 +13,7 @@ class KonfirmasiKunciController extends Controller
         $search = $request->input('search');
 
         $query = PeminjamanRuangan::with(['user', 'ruangan'])
-            ->whereIn('status', ['disetujui', 'berjalan'])
-            ->whereDate('tanggal_mulai', now()->toDateString()) 
+            ->whereIn('status', ['disetujui', 'berjalan' , 'selesai'])
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sub) use ($search) {
                     $sub->where('nama_ormawa', 'like', "%{$search}%")
