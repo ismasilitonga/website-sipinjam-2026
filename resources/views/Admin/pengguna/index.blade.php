@@ -95,7 +95,6 @@
                                class="btn btn-outline btn-sm">Detail</a>
                             <a href="{{ route('admin.pengguna.edit', $user->id) }}"
                                class="btn btn-outline btn-sm">Edit</a>
-                            {{-- Ganti form+confirm dengan tombol trigger modal --}}
                             <button type="button" class="btn btn-danger btn-sm"
                                 onclick="bukaModa('{{ $user->id }}', '{{ addslashes($user->nama) }}')">
                                 Hapus

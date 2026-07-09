@@ -19,7 +19,7 @@
 @section('content')
 
 <div style="max-width:700px;margin:0 auto;">
-    {{-- Avatar Card --}}
+
     <div class="card">
         <div class="card-body" style="text-align:center;padding:32px 20px;">
             <div style="width:80px;height:80px;border-radius:50%;background:#dbeafe;
@@ -50,7 +50,6 @@
         </div>
     </div>
 
-    {{-- Detail --}}
     <div class="card">
         <div class="card-header">
             <span class="card-title">Informasi Akun</span>
