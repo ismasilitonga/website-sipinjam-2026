@@ -178,7 +178,6 @@
 <script>
     window.addEventListener('DOMContentLoaded', () => {
 
-        // ===== Custom dropdown Pilih Ruangan =====
         const trigger = document.getElementById('ruangan-trigger');
         const panel   = document.getElementById('ruangan-panel');
         const label   = document.getElementById('ruangan-label');
@@ -234,13 +233,11 @@
             panel.style.display = 'none';
         });
 
-        // Tampilkan info ruangan kalau sudah ada nilai sebelumnya (validasi error / old input)
         if (input.value) {
             const selected = document.querySelector('.ruangan-option[data-value="' + input.value + '"]');
             showInfo(selected);
         }
 
-        // ===== Tanggal & jam (tidak berubah) =====
         function getNowWIB() {
             const now = new Date();
             const wibStr = now.toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' });
