@@ -11,6 +11,12 @@
         <span class="badge badge-orange">{{ $pendaftars->total() }} menunggu</span>
     </div>
 
+    @if(session('success'))
+        <div style="background:#dcfce7;color:#15803d;padding:12px 16px;border-radius:10px;margin-bottom:16px;font-size:13.5px;">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <div class="table-wrap">
         <table>
             <thead>
@@ -21,6 +27,7 @@
                     <th>Email</th>
                     <th>Organisasi</th>
                     <th>Role</th>
+                    <th>Bukti</th>
                     <th>Tanggal Daftar</th>
                     <th>Aksi</th>
                 </tr>
@@ -39,6 +46,35 @@
                         <span class="badge {{ $user->role === 'ketua' ? 'badge-blue' : 'badge-gray' }}">
                             {{ ucfirst($user->role) }}
                         </span>
+                    </td>
+                    <td>
+                        <div style="display:flex;flex-direction:column;gap:4px;">
+                            @if($user->bukti_ktm)
+                                <a href="{{ asset('storage/' . $user->bukti_ktm) }}" target="_blank"
+                                   style="font-size:12px;color:var(--primary,#2563eb);text-decoration:none;display:flex;align-items:center;gap:4px;">
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 2v6h6"/>
+                                    </svg>
+                                    Lihat KTM
+                                </a>
+                            @else
+                                <span style="font-size:12px;color:var(--text-muted);">KTM belum ada</span>
+                            @endif
+
+                            @if($user->bukti_sk)
+                                <a href="{{ asset('storage/' . $user->bukti_sk) }}" target="_blank"
+                                   style="font-size:12px;color:var(--primary,#2563eb);text-decoration:none;display:flex;align-items:center;gap:4px;">
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 2v6h6"/>
+                                    </svg>
+                                    Lihat SK
+                                </a>
+                            @else
+                                <span style="font-size:12px;color:var(--text-muted);">SK belum ada</span>
+                            @endif
+                        </div>
                     </td>
                     <td style="font-size:13px;">
                         {{ $user->created_at->format('d M Y') }}
@@ -65,7 +101,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8">
+                    <td colspan="9">
                         <div class="empty-state">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -164,6 +200,47 @@
     @csrf
 </form>
 
+<div id="modalGantiKetua" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);
+     z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:12px;padding:24px 22px;width:100%;max-width:340px;
+                box-shadow:0 10px 40px rgba(0,0,0,0.18);margin:16px;">
+
+        <div style="width:44px;height:44px;border-radius:50%;background:#fef3c7;
+                    display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+            <svg width="22" height="22" fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zM12 15.75h.008v.008H12v-.008z"/>
+            </svg>
+        </div>
+
+        <div style="text-align:center;margin-bottom:18px;">
+            <div style="font-size:15px;font-weight:700;margin-bottom:8px;">Sudah Ada Ketua Aktif</div>
+            <div style="font-size:13px;color:var(--text-muted);line-height:1.5;">
+                Organisasi <strong id="modalOrganisasiConflict"></strong> saat ini masih memiliki Ketua aktif:
+                <strong id="modalKetuaLamaNama"></strong>.<br><br>
+                Setujui <strong id="modalPendaftarNama"></strong> sebagai penggantinya?
+                Ketua lama akan otomatis dinonaktifkan.
+            </div>
+        </div>
+
+        <div style="display:flex;gap:8px;">
+            <button type="button" onclick="tutupModalGantiKetua()"
+                style="flex:1;padding:9px;border:1.5px solid #e5e7eb;border-radius:8px;
+                       background:#fff;font-size:13px;font-weight:500;cursor:pointer;">
+                Batal
+            </button>
+            <button type="button" onclick="document.getElementById('formGantiKetua').submit()"
+                style="flex:1;padding:9px;border:none;border-radius:8px;
+                       background:#d97706;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">
+                Ya, Ganti Kepengurusan
+            </button>
+        </div>
+    </div>
+</div>
+
+<form id="formGantiKetua" method="POST" style="display:none;">
+    @csrf
+</form>
+
 <script>
 const baseUrlPendaftar = "{{ url('admin/pendaftar') }}";
 
@@ -185,12 +262,31 @@ function tutupModalTolakPendaftar() {
     document.getElementById('modalTolakPendaftar').style.display = 'none';
 }
 
+function tutupModalGantiKetua() {
+    document.getElementById('modalGantiKetua').style.display = 'none';
+}
+
 document.getElementById('modalSetujuiPendaftar').addEventListener('click', function(e) {
     if (e.target === this) tutupModalSetujuiPendaftar();
 });
 document.getElementById('modalTolakPendaftar').addEventListener('click', function(e) {
     if (e.target === this) tutupModalTolakPendaftar();
 });
+document.getElementById('modalGantiKetua').addEventListener('click', function(e) {
+    if (e.target === this) tutupModalGantiKetua();
+});
+
+@if(session('ketua_conflict'))
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('modalOrganisasiConflict').textContent = @json(session('ketua_conflict')['organisasi']);
+        document.getElementById('modalKetuaLamaNama').textContent = @json(session('ketua_conflict')['ketua_lama_nama']);
+        document.getElementById('modalPendaftarNama').textContent = @json(session('ketua_conflict')['pendaftar_nama']);
+        document.getElementById('formGantiKetua').action =
+            `${baseUrlPendaftar}/{{ session('ketua_conflict')['pendaftar_id'] }}/ganti-kepengurusan`;
+        document.getElementById('modalGantiKetua').style.display = 'flex';
+    });
+@endif
 </script>
 
 @endsection

@@ -161,19 +161,22 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('authenticate', 'ketua') }}">
+        <form method="POST" action="{{ route('authenticate', 'ketua') }}" id="formLoginKetua">
             @csrf
 
             <div class="form-group">
                 <label>NIM <span>*</span></label>
                 <div class="input-wrap">
                     <i class="fas fa-id-card prefix-icon"></i>
-                    <input type="text" name="identifier"
+
+                    <input type="text" id="identifier_ketua" name="identifier_ketua"
                            placeholder="Masukkan NIM Ketua"
                            value="{{ old('identifier') }}"
                            required autocomplete="username">
                 </div>
             </div>
+
+            <input type="hidden" name="identifier" id="identifier_real">
 
             <div class="form-group">
                 <label>Kata Sandi <span>*</span></label>
@@ -225,6 +228,64 @@
             icon.classList.replace('fa-eye-slash', 'fa-eye');
         }
     }
+
+    document.getElementById('formLoginKetua').addEventListener('submit', function() {
+        document.getElementById('identifier_real').value =
+            document.getElementById('identifier_ketua').value;
+    });
+
+    const REMEMBER_KEY = 'sipinjam_remember_ketua';
+    const PENDING_KEY  = 'sipinjam_pending_ketua';
+    const hasErrors = {{ $errors->any() ? 'true' : 'false' }};
+
+    function loadRememberedLogin() {
+        try {
+            if (hasErrors) {
+
+                sessionStorage.removeItem(PENDING_KEY);
+            } else {
+
+                const pending = sessionStorage.getItem(PENDING_KEY);
+                if (pending) {
+                    localStorage.setItem(REMEMBER_KEY, pending);
+                    sessionStorage.removeItem(PENDING_KEY);
+                }
+            }
+
+            const saved = localStorage.getItem(REMEMBER_KEY);
+            if (saved) {
+                const data = JSON.parse(saved);
+                document.getElementById('identifier_ketua').value = data.identifier || '';
+                document.getElementById('pass-input').value = data.password || '';
+                document.getElementById('remember').checked = true;
+            }
+        } catch (e) {
+            console.warn('Gagal memuat data ingat saya:', e);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadRememberedLogin);
+    } else {
+        loadRememberedLogin();
+    }
+
+    document.getElementById('formLoginKetua').addEventListener('submit', function() {
+        try {
+            const isChecked = document.getElementById('remember').checked;
+            if (isChecked) {
+                sessionStorage.setItem(PENDING_KEY, JSON.stringify({
+                    identifier: document.getElementById('identifier_ketua').value,
+                    password: document.getElementById('pass-input').value
+                }));
+            } else {
+                localStorage.removeItem(REMEMBER_KEY);
+                sessionStorage.removeItem(PENDING_KEY);
+            }
+        } catch (e) {
+            console.warn('Gagal menyimpan data ingat saya:', e);
+        }
+    });
 </script>
 </body>
 </html>

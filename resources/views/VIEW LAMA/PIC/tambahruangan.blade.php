@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <title>Tambah Ruangan</title>
     <style>
-        /* --- KODE CSS NAVBAR & SIDEBAR ASLI --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background: white; }
         
@@ -118,7 +117,6 @@
         }
         .field:focus { outline: none; border-color: #2f7ea1; background: white; box-shadow: 0 0 0 4px rgba(47, 126, 161, 0.1); }
 
-        /* UPLOAD BOX */
         .upload-box {
             border: 2px dashed #cbd5e0; border-radius: 15px; height: 220px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -266,7 +264,6 @@
     </div>
 
     <script>
-        // SCRIPT ASLI ISMA
         const profile = document.querySelector(".profile");
         const dropdown = document.getElementById("dropdownMenu");
         profile.onclick = (e) => { e.stopPropagation(); dropdown.classList.toggle("active"); };
@@ -279,23 +276,20 @@
             arrow.classList.toggle("rotate");
         }
 
-        // --- VALIDASI DAN PREVIEW FOTO ---
         const fileInput = document.getElementById('fileInput');
         const previewImg = document.getElementById('previewImg');
         const placeholder = document.getElementById('placeholder');
 
         fileInput.addEventListener('change', function() {
             const file = this.files[0];
-            const maxSize = 2 * 1024 * 1024; // 2MB
+            const maxSize = 2 * 1024 * 1024;
 
             if (file) {
-                // 1. Validasi Ukuran
                 if (file.size > maxSize) {
                     alert("Waduh, fotonya kegedean! Maksimal cuma 2MB ya.");
                     this.value = ""; 
                     return;
                 }
-                // 2. Preview
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     previewImg.src = e.target.result;

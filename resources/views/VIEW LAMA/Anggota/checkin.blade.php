@@ -7,11 +7,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <title>Form Check In - Student Center</title>
     <style>
-        /* --- CSS DASAR --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background: white; overflow-x: hidden; }
         
-        /* --- NAVBAR --- */
         .navbar {
             height: 70px; background: #2f7ea1;
             display: flex; justify-content: space-between;
@@ -28,7 +26,6 @@
         .nav-right { display: flex; align-items: center; gap: 20px; }
         #clock-display { color: white; font-weight: 500; font-size: 15px; padding: 5px 12px; font-family: monospace; }
         
-        /* --- NOTIFIKASI STYLES (image_c3755c.png) --- */
         .notif-container { position: relative; }
         .fa-bell { color: #000000; font-size: 22px; cursor: pointer; transition: 0.2s; padding: 8px; }
         .notif-badge {
@@ -50,7 +47,6 @@
         .notif-body { max-height: 300px; overflow-y: auto; }
         .notif-empty { padding: 30px; text-align: center; color: #94a3b8; font-style: italic; font-size: 13px; }
 
-        /* --- PROFILE DROPDOWN --- */
         .profile { position: relative; cursor: pointer; }
         .profile-circle {
             width: 40px; height: 40px; background: #ffffff; border-radius: 50%;
@@ -67,7 +63,6 @@
         .dropdown div { padding: 12px 20px; cursor: pointer; display: flex; align-items: center; gap: 12px; color: #333; font-size: 15px; font-weight: 500; transition: 0.2s; }
         .dropdown div:hover { background: #f0f8ff; color: #2f7ea1; }
 
-        /* --- SIDEBAR --- */
         .main { display: flex; }
         .sidebar {
             width: 235px; background: #E4F0FF;
@@ -99,7 +94,6 @@
         .sidebar-footer .profile-details h4 { font-size: 14px; font-weight: 600; color: #1e293b; margin: 0 0 2px 0; }
         .sidebar-footer .profile-details p { font-size: 12px; color: #6b7280; margin: 0; }
 
-        /* --- CONTENT AREA --- */
         .content-wrapper {
             margin-left: 235px; margin-top: 70px;
             width: calc(100% - 235px); min-height: 100vh;
@@ -121,7 +115,6 @@
         }
         .input-style:focus { border-color: #2f7ea1; background: white; }
 
-        /* --- CSS CUSTOM DROPDOWN (image_c3e9db.png) --- */
         .select-container { position: relative; width: 100%; }
         .dropdown-box {
             position: absolute; top: 100%; left: 0; right: 0;
@@ -149,7 +142,6 @@
         .btn-checkin { background: linear-gradient(135deg, #2f7ea1, #1e5a7a); color: white; }
         .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
 
-        /* --- MODAL --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(8, 24, 40, 0.55); display: none; justify-content: center; align-items: center; 
@@ -312,7 +304,6 @@
     setInterval(updateAllClocks, 1000);
     updateAllClocks();
 
-    /* --- FUNGSI DROPDOWN KUSTOM --- */
     function toggleDropdownBox(e) {
         e.stopPropagation();
         document.getElementById('hadirBox').classList.toggle('show');
@@ -325,7 +316,6 @@
         document.getElementById('hadirBox').classList.remove('show');
     }
 
-    /* --- FUNGSI UI & NAVIGASI --- */
     function toggleNotifDropdown(e) {
         e.stopPropagation();
         document.getElementById("dropdownMenu").classList.remove("active");

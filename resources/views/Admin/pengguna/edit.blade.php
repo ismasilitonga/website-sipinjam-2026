@@ -66,6 +66,41 @@
                 </div>
             </div>
 
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label">Periode Mulai</label>
+                    <input type="number" name="periode_mulai" class="form-control"
+                           value="{{ old('periode_mulai', $user->periode_mulai) }}"
+                           min="2000" max="2100" placeholder="2024">
+                    @error('periode_mulai') <div class="form-error">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Periode Selesai</label>
+                    <input type="number" name="periode_selesai" class="form-control"
+                           value="{{ old('periode_selesai', $user->periode_selesai) }}"
+                           min="2000" max="2100" placeholder="2026">
+                    @error('periode_selesai') <div class="form-error">{{ $message }}</div> @enderror
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Status Akun <span style="color:var(--danger)">*</span></label>
+                <select name="status" class="form-select" required>
+                    <option value="aktif"    {{ old('status', $user->status) === 'aktif'    ? 'selected' : '' }}>Aktif</option>
+                    <option value="nonaktif" {{ old('status', $user->status) === 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+                    <option value="pending"  {{ old('status', $user->status) === 'pending'  ? 'selected' : '' }}>Pending</option>
+                    <option value="ditolak"  {{ old('status', $user->status) === 'ditolak'  ? 'selected' : '' }}>Ditolak</option>
+                </select>
+                @error('status') <div class="form-error">{{ $message }}</div> @enderror
+
+                @if ($user->periode_selesai && $user->periode_selesai < (int) date('Y'))
+                    <div class="form-hint" style="color:var(--danger);margin-top:6px;">
+                        ⚠ Masa jabatan berakhir tahun {{ $user->periode_selesai }}. Pertimbangkan ubah status menjadi Nonaktif.
+                    </div>
+                @endif
+            </div>
+
             <div class="form-group">
                 <label class="form-label">Password Baru</label>
                 <input type="password" name="password" class="form-control"

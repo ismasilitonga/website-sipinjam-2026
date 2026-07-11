@@ -9,26 +9,108 @@ use App\Models\PeminjamanBarang;
 
 class ValidasiPendaftarController extends Controller
 {
-  public function index()
+    public function index()
     {
-    $pendaftars = User::where('status', 'pending')
-        ->whereIn('role', ['anggota', 'ketua'])
-        ->latest()
-        ->paginate(15);
+        $pendaftars = User::where('status', 'pending')
+            ->whereIn('role', ['anggota', 'ketua'])
+            ->latest()
+            ->paginate(15);
 
         return view('admin.pendaftar', compact('pendaftars'));
     }
-        public function setujui($id)
+
+    public function setujui($id)
     {
-        User::findOrFail($id)->update(['status' => 'aktif']);
+        $user = User::findOrFail($id);
+
+        if ($user->role === 'ketua') {
+            $ketuaLama = User::where('organisasi', $user->organisasi)
+                ->where('role', 'ketua')
+                ->where('status', 'aktif')
+                ->where('id', '!=', $user->id)
+                ->first();
+
+            if ($ketuaLama) {
+                return back()->with('ketua_conflict', [
+                    'pendaftar_id'    => $user->id,
+                    'pendaftar_nama'  => $user->nama,
+                    'ketua_lama_id'   => $ketuaLama->id,
+                    'ketua_lama_nama' => $ketuaLama->nama,
+                    'organisasi'      => $user->organisasi,
+                ]);
+            }
+        }
+
+        $user->update(['status' => 'aktif']);
+        $this->tolakPendaftarKetuaLainYangBentrok($user);
+
         return back()->with('success', 'Akun berhasil diaktifkan.');
     }
-        public function tolak($id)
+
+    public function gantiKepengurusan($id)
     {
-        User::findOrFail($id)->update(['status' => 'ditolak']);
-        return back()->with('success', 'Pendaftar ditolak.');
+        $userBaru = User::findOrFail($id);
+
+        $ketuaLama = User::where('organisasi', $userBaru->organisasi)
+            ->where('role', 'ketua')
+            ->where('status', 'aktif')
+            ->where('id', '!=', $userBaru->id)
+            ->first();
+
+        if ($ketuaLama) {
+            $ketuaLama->update(['status' => 'nonaktif']);
+        }
+
+        $userBaru->update(['status' => 'aktif']);
+        $this->tolakPendaftarKetuaLainYangBentrok($userBaru);
+
+        return back()->with('success',
+            'Kepengurusan berhasil diganti. ' .
+            ($ketuaLama ? $ketuaLama->nama . ' dinonaktifkan, ' : '') .
+            $userBaru->nama . ' kini menjadi Ketua aktif.'
+        );
     }
-        public function unduhLaporan()
+
+    private function tolakPendaftarKetuaLainYangBentrok(User $user): void
+    {
+        if ($user->role !== 'ketua') {
+            return;
+        }
+        if (is_null($user->periode_mulai) || is_null($user->periode_selesai)) {
+            return;
+        }
+
+        User::where('organisasi', $user->organisasi)
+            ->where('role', 'ketua')
+            ->where('status', 'pending')
+            ->where('id', '!=', $user->id)
+            ->where(function ($q) use ($user) {
+                $q->whereNull('periode_mulai')
+                  ->orWhereNull('periode_selesai')
+                  ->orWhere(function ($q2) use ($user) {
+                      $q2->where('periode_mulai', '<=', $user->periode_selesai)
+                         ->where('periode_selesai', '>=', $user->periode_mulai);
+                  });
+            })
+            ->update(['status' => 'ditolak']);
+    }
+
+    public function tolak($id)
+    {
+        $user = User::findOrFail($id);
+
+        if ($user->bukti_ktm) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($user->bukti_ktm);
+        }
+        if ($user->bukti_sk) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($user->bukti_sk);
+        }
+        $user->delete();
+
+        return back()->with('success', 'Pendaftar ditolak dan datanya telah dihapus.');
+    }
+
+    public function unduhLaporan()
     {
         $peminjamanRuangans = PeminjamanRuangan::with(['user', 'ruangan'])->latest()->get();
         return view('admin.unduh-laporan', compact('peminjamanRuangans'));

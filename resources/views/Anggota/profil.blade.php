@@ -21,6 +21,21 @@
                 <span class="badge badge-blue">{{ ucfirst($user->role) }}</span>
                 <span class="badge badge-green" style="margin-left:4px;">Aktif</span>
             </div>
+
+            @if($user->organisasi)
+            <div style="margin-top:14px;padding:12px;background:#f0fdf4;border-radius:10px;">
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">Organisasi</div>
+                <div style="font-size:15px;font-weight:700;color:#15803d;">{{ $user->organisasi }}</div>
+            </div>
+            @endif
+
+            @if($user->periode_mulai && $user->periode_selesai)
+            <div style="margin-top:14px;padding:12px;background:#eff6ff;border-radius:10px;">
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">Periode Kepengurusan</div>
+                <div style="font-size:13.5px;font-weight:700;color:#1d4ed8;">{{ $user->periode_mulai }} - {{ $user->periode_selesai }}</div>
+            </div>
+            @endif
+
             <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);
                         font-size:12px;color:var(--text-muted);">
                 Bergabung {{ $user->created_at->format('M Y') }}
@@ -30,6 +45,7 @@
 
     <div class="card">
         <div class="card-header">
+            <span class="card-title">Edit Profil</span>
         </div>
         <div class="card-body">
             <form method="POST" action="{{ route('anggota.profil.update') }}">

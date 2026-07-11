@@ -161,19 +161,22 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('authenticate', 'admin') }}">
+        <form method="POST" action="{{ route('authenticate', 'admin') }}" id="formLoginAdmin">
             @csrf
 
             <div class="form-group">
                 <label>Email <span>*</span></label>
                 <div class="input-wrap">
                     <i class="fas fa-user prefix-icon"></i>
-                    <input type="text" name="identifier"
+
+                    <input type="text" id="identifier_admin" name="identifier_admin"
                            placeholder="Masukkan username admin"
                            value="{{ old('identifier') }}"
                            required autocomplete="username">
                 </div>
             </div>
+
+            <input type="hidden" name="identifier" id="identifier_real">
 
             <div class="form-group">
                 <label>Kata Sandi <span>*</span></label>
@@ -225,6 +228,62 @@
             icon.classList.replace('fa-eye-slash', 'fa-eye');
         }
     }
+
+    document.getElementById('formLoginAdmin').addEventListener('submit', function() {
+        document.getElementById('identifier_real').value =
+            document.getElementById('identifier_admin').value;
+    });
+
+    const REMEMBER_KEY = 'sipinjam_remember_admin';
+    const PENDING_KEY  = 'sipinjam_pending_admin';
+    const hasErrors = {{ $errors->any() ? 'true' : 'false' }};
+
+    function loadRememberedLogin() {
+        try {
+            if (hasErrors) {
+                sessionStorage.removeItem(PENDING_KEY);
+            } else {
+                const pending = sessionStorage.getItem(PENDING_KEY);
+                if (pending) {
+                    localStorage.setItem(REMEMBER_KEY, pending);
+                    sessionStorage.removeItem(PENDING_KEY);
+                }
+            }
+
+            const saved = localStorage.getItem(REMEMBER_KEY);
+            if (saved) {
+                const data = JSON.parse(saved);
+                document.getElementById('identifier_admin').value = data.identifier || '';
+                document.getElementById('pass-input').value = data.password || '';
+                document.getElementById('remember').checked = true;
+            }
+        } catch (e) {
+            console.warn('Gagal memuat data ingat saya:', e);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadRememberedLogin);
+    } else {
+        loadRememberedLogin();
+    }
+
+    document.getElementById('formLoginAdmin').addEventListener('submit', function() {
+        try {
+            const isChecked = document.getElementById('remember').checked;
+            if (isChecked) {
+                sessionStorage.setItem(PENDING_KEY, JSON.stringify({
+                    identifier: document.getElementById('identifier_admin').value,
+                    password: document.getElementById('pass-input').value
+                }));
+            } else {
+                localStorage.removeItem(REMEMBER_KEY);
+                sessionStorage.removeItem(PENDING_KEY);
+            }
+        } catch (e) {
+            console.warn('Gagal menyimpan data ingat saya:', e);
+        }
+    });
 </script>
 </body>
 </html>

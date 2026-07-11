@@ -45,7 +45,6 @@
             box-shadow: 0 24px 60px rgba(0,0,0,0.18);
             border: 1px solid rgba(255,255,255,0.6);
         }
-
         .card-header { text-align: center; margin-bottom: 32px; }
         .card-logo {
             width: 56px; height: 56px;
@@ -64,7 +63,6 @@
             color: var(--dark); margin-bottom: 6px;
         }
         .card-header p { font-size: 0.85rem; color: #64748b; }
-
         .form-group { margin-bottom: 20px; }
         .form-group label {
             display: block; font-size: 0.85rem; font-weight: 600;
@@ -97,7 +95,6 @@
             transition: color 0.2s;
         }
         .toggle-pass:hover { color: var(--primary); }
-
         .form-row {
             display: flex; justify-content: space-between;
             align-items: center; margin: -4px 0 24px;
@@ -107,7 +104,6 @@
         .remember-wrap label { font-size: 0.83rem; color: #64748b; cursor: pointer; }
         .forgot-link { font-size: 0.83rem; color: var(--primary); text-decoration: none; font-weight: 500; }
         .forgot-link:hover { text-decoration: underline; }
-
         .btn-login {
             width: 100%; padding: 14px;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -119,24 +115,19 @@
         }
         .btn-login:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(47,126,161,0.4); }
         .btn-login:active { transform: scale(0.98); }
-
-        .back-link-wrap {
-            text-align: center; margin-top: 22px;
-        }
+        .back-link-wrap { text-align: center; margin-top: 22px; }
         .back-link {
             display: inline-flex; align-items: center; gap: 7px;
             color: #64748b; font-size: 0.80rem; font-weight: 500;
             text-decoration: none; transition: color 0.2s;
         }
         .back-link:hover { color: var(--primary); }
-
         .to-home {
             display: block; text-align: center; margin-top: 16px;
             color: rgba(255,255,255,0.75); font-size: 0.85rem;
             text-decoration: none; transition: color 0.2s;
         }
         .to-home:hover { color: white; }
-
         @media (max-width: 480px) {
             .card { padding: 36px 22px; }
         }
@@ -161,14 +152,14 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('authenticate', 'pamdal') }}">
+        <form method="POST" action="{{ route('authenticate', 'pamdal') }}" id="formLoginPamdal">
             @csrf
 
             <div class="form-group">
                 <label>ID Pamdal <span>*</span></label>
                 <div class="input-wrap">
                     <i class="fas fa-id-badge prefix-icon"></i>
-                    <input type="text" name="identifier"
+                    <input type="text" name="identifier" id="identifier_pamdal"
                            placeholder="Masukkan ID Pamdal"
                            value="{{ old('identifier') }}"
                            required autocomplete="username">
@@ -225,6 +216,59 @@
             icon.classList.replace('fa-eye-slash', 'fa-eye');
         }
     }
+
+    const REMEMBER_KEY = 'sipinjam_remember_pamdal';
+    const PENDING_KEY  = 'sipinjam_pending_pamdal';
+    const hasErrors = {{ $errors->any() ? 'true' : 'false' }};
+
+    function loadRememberedLogin() {
+        try {
+            if (hasErrors) {
+
+                sessionStorage.removeItem(PENDING_KEY);
+            } else {
+
+                const pending = sessionStorage.getItem(PENDING_KEY);
+                if (pending) {
+                    localStorage.setItem(REMEMBER_KEY, pending);
+                    sessionStorage.removeItem(PENDING_KEY);
+                }
+            }
+
+            const saved = localStorage.getItem(REMEMBER_KEY);
+            if (saved) {
+                const data = JSON.parse(saved);
+                document.getElementById('identifier_pamdal').value = data.identifier || '';
+                document.getElementById('pass-input').value = data.password || '';
+                document.getElementById('remember').checked = true;
+            }
+        } catch (e) {
+            console.warn('Gagal memuat data ingat saya:', e);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadRememberedLogin);
+    } else {
+        loadRememberedLogin();
+    }
+
+    document.getElementById('formLoginPamdal').addEventListener('submit', function() {
+        try {
+            const isChecked = document.getElementById('remember').checked;
+            if (isChecked) {
+                sessionStorage.setItem(PENDING_KEY, JSON.stringify({
+                    identifier: document.getElementById('identifier_pamdal').value,
+                    password: document.getElementById('pass-input').value
+                }));
+            } else {
+                localStorage.removeItem(REMEMBER_KEY);
+                sessionStorage.removeItem(PENDING_KEY);
+            }
+        } catch (e) {
+            console.warn('Gagal menyimpan data ingat saya:', e);
+        }
+    });
 </script>
 </body>
 </html>

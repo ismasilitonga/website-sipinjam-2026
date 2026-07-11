@@ -11,11 +11,18 @@ class KelolaOrmawaController extends Controller
 {
     public function index()
     {
+        $tahunSekarang = (int) date('Y');
+
         $ormawas = Ormawa::withCount([
-    'users as jumlah_anggota' => function ($q) {
-        $q->whereIn('role', ['anggota', 'ketua']);
-    }
-])->latest()->get();
+            'users as jumlah_anggota' => function ($q) use ($tahunSekarang) {
+                $q->whereIn('role', ['anggota', 'ketua'])
+                  ->where('status', 'aktif')
+                  ->where(function ($q2) use ($tahunSekarang) {
+                      $q2->whereNull('periode_selesai')
+                         ->orWhere('periode_selesai', '>=', $tahunSekarang);
+                  });
+            }
+        ])->latest()->get();
 
         return view('admin.ormawa.index', compact('ormawas'));
     }
@@ -42,15 +49,21 @@ class KelolaOrmawaController extends Controller
     }
 
     public function show($id)
-{
-    $ormawa = Ormawa::findOrFail($id);
+    {
+        $ormawa = Ormawa::findOrFail($id);
+        $tahunSekarang = (int) date('Y');
 
-    $anggota = User::where('organisasi', $ormawa->singkatan)
-        ->whereIn('role', ['anggota', 'ketua'])
-        ->get();
+        $anggota = User::where('organisasi', $ormawa->singkatan)
+            ->whereIn('role', ['anggota', 'ketua'])
+            ->where('status', 'aktif')
+            ->where(function ($q) use ($tahunSekarang) {
+                $q->whereNull('periode_selesai')
+                  ->orWhere('periode_selesai', '>=', $tahunSekarang);
+            })
+            ->get();
 
-    return view('admin.ormawa.show', compact('ormawa', 'anggota'));
-}
+        return view('admin.ormawa.show', compact('ormawa', 'anggota'));
+    }
 
     public function edit($id)
     {
@@ -80,7 +93,7 @@ class KelolaOrmawaController extends Controller
     {
         $ormawa = Ormawa::findOrFail($id);
 
-        User::where('ormawa_id', $id)->update(['ormawa_id' => null]);
+        User::where('organisasi', $ormawa->singkatan)->update(['organisasi' => null]);
 
         $ormawa->delete();
 

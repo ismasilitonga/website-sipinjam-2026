@@ -239,7 +239,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pendaftar',                [ValidasiPendaftarController::class, 'index'])->name('pendaftar.index');
         Route::post('/pendaftar/{id}/setujui',  [ValidasiPendaftarController::class, 'setujui'])->name('pendaftar.setujui');
         Route::post('/pendaftar/{id}/tolak',    [ValidasiPendaftarController::class, 'tolak'])->name('pendaftar.tolak');
-    });
+        Route::post('/pendaftar/{id}/ganti-kepengurusan', [ValidasiPendaftarController::class, 'gantiKepengurusan'])->name('pendaftar.ganti-kepengurusan');
+        });
 
     Route::middleware(['role:pamdal'])->prefix('pamdal')->name('pamdal.')->group(function () {
 

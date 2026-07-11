@@ -10,9 +10,21 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-       protected $fillable = [
-        'nama', 'email','nim','role','organisasi','ormawa_id','password','status',
-    ];
+    protected $fillable = [
+    'nama',
+    'email',
+    'nim',
+    'role',
+    'organisasi',
+    'ormawa_id',
+    'periode_mulai',
+    'periode_selesai',
+    'password',
+    'status',
+    'bukti_ktm',
+    'bukti_sk',
+];
+
     protected $hidden = ['password', 'remember_token'];
 
     protected $casts = [
@@ -20,23 +32,23 @@ class User extends Authenticatable
         'password'          => 'hashed',
     ];
 
-public function peminjamans()
-{
-    return $this->hasMany(PeminjamanRuangan::class);
-}
+    public function peminjamans()
+    {
+        return $this->hasMany(PeminjamanRuangan::class);
+    }
 
-public function peminjamanBarangs()
-{
-    return $this->hasMany(PeminjamanBarang::class);
-}
+    public function peminjamanBarangs()
+    {
+        return $this->hasMany(PeminjamanBarang::class);
+    }
 
-public function insidens()
-{
-    return $this->hasMany(Insiden::class);
-}
+    public function insidens()
+    {
+        return $this->hasMany(Insiden::class);
+    }
 
-public function ormawa()
-{
-    return $this->belongsTo(Ormawa::class);
-}
+    public function ormawa()
+    {
+        return $this->belongsTo(Ormawa::class);
+    }
 }

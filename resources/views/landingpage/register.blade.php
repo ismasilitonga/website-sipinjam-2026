@@ -131,6 +131,43 @@
             color: var(--primary);
         }
 
+        .field-hint{
+            display:block;
+            margin-top:6px;
+            font-size:0.75rem;
+            color:#64748b;
+        }
+
+        .field-label{
+            display:block;
+            margin-bottom:6px;
+            font-size:0.8rem;
+            font-weight:500;
+            color:var(--dark);
+        }
+
+        .section-title{
+            font-size:0.85rem;
+            font-weight:600;
+            color:var(--dark);
+            margin:18px 0 10px;
+            padding-top:12px;
+            border-top:1px dashed #d1d5db;
+        }
+
+        .upload-note{
+            font-size:0.72rem;
+            color:#64748b;
+            margin-bottom:13px;
+            line-height:1.4;
+        }
+
+        input[type="file"]{
+            padding:10px 12px;
+            background:#f9fafb;
+            cursor:pointer;
+        }
+
         .btn{
             width:100%;
             border:none;
@@ -146,6 +183,11 @@
 
         .btn:hover{
             opacity:.95;
+        }
+
+        .btn:disabled{
+            opacity:.5;
+            cursor:not-allowed;
         }
 
         .footer-link{
@@ -199,26 +241,26 @@
         </div>
         @endif
 
-        <form action="{{ route('register.store') }}" method="POST">
+        <form action="{{ route('register.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
             <div class="form-group">
-                <input type="text" name="nama" placeholder="Nama Lengkap" required>
+                <input type="text" name="nama" placeholder="Nama Lengkap" value="{{ old('nama') }}" required>
             </div>
 
             <div class="form-group">
-                <input type="text" name="nim" placeholder="NIM" required>
+                <input type="text" name="nim" placeholder="NIM" value="{{ old('nim') }}" required>
             </div>
 
             <div class="form-group">
-                <input type="email" name="email" placeholder="Email" required>
+                <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required>
             </div>
 
             <div class="form-group">
                 <select name="role" required>
                     <option value="">Pilih Peran</option>
-                    <option value="anggota">Anggota Ormawa</option>
-                    <option value="ketua">Ketua Ormawa</option>
+                    <option value="anggota" {{ old('role') == 'anggota' ? 'selected' : '' }}>Anggota Ormawa</option>
+                    <option value="ketua" {{ old('role') == 'ketua' ? 'selected' : '' }}>Ketua Ormawa</option>
                 </select>
             </div>
 
@@ -226,27 +268,54 @@
                 <select name="organisasi" required>
                     <option value="">Pilih Organisasi</option>
                     @foreach($ormawas as $ormawa)
-                        <option value="{{ $ormawa->singkatan }}">{{ $ormawa->nama_organisasi }}</option>
+                        <option value="{{ $ormawa->singkatan }}" {{ old('organisasi') == $ormawa->singkatan ? 'selected' : '' }}>{{ $ormawa->nama_organisasi }}</option>
                     @endforeach
                 </select>
             </div>
 
             <div class="form-group">
+                <label class="field-label">Periode Kepengurusan</label>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <input type="number" name="periode_mulai" id="periode_mulai" placeholder="2024" min="2000" max="2100"
+                           value="{{ old('periode_mulai') }}" required style="flex:1;">
+                    <span style="color:#64748b;">—</span>
+                    <input type="number" name="periode_selesai" id="periode_selesai" placeholder="2026" min="2000" max="2100"
+                           value="{{ old('periode_selesai') }}" required style="flex:1;">
+                </div>
+                <small class="field-hint">Masa kepengurusan Anda (contoh: 2024 sampai 2026)</small>
+                <small class="field-hint" id="periode-error" style="color:#dc2626; display:none;"></small>
+            </div>
+
+            <div class="section-title">Bukti Pendukung</div>
+
+            <div class="form-group">
+                <label class="field-label" for="bukti_ktm">Upload Bukti KTM (Kartu Tanda Mahasiswa)</label>
+                <input type="file" id="bukti_ktm" name="bukti_ktm" accept=".jpg,.jpeg,.png,.pdf" required>
+            </div>
+
+            <div class="form-group">
+                <label class="field-label" for="bukti_sk">Upload Bukti SK Organisasi</label>
+                <input type="file" id="bukti_sk" name="bukti_sk" accept=".jpg,.jpeg,.png,.pdf" required>
+            </div>
+            <p class="upload-note">*Wajib mengunggah bukti KTM dan bukti SK organisasi. Format file: JPG, PNG, atau PDF (maks. 2MB).</p>
+
+            <div class="form-group">
                 <div class="password-wrapper">
                     <input type="password" name="password" id="password"
-                           placeholder="Kata Sandi" required>
+                           placeholder="Kata Sandi" minlength="8" required>
                     <button type="button" class="toggle-password"
                             onclick="togglePassword('password', 'eye-icon-1')"
                             aria-label="Tampilkan kata sandi">
                         <i class="fas fa-eye" id="eye-icon-1"></i>
                     </button>
                 </div>
+                <small class="field-hint">Kata sandi minimal 8 karakter</small>
             </div>
 
             <div class="form-group">
                 <div class="password-wrapper">
                     <input type="password" name="password_confirmation" id="password_confirmation"
-                           placeholder="Konfirmasi Kata Sandi" required>
+                           placeholder="Konfirmasi Kata Sandi" minlength="8" required>
                     <button type="button" class="toggle-password"
                             onclick="togglePassword('password_confirmation', 'eye-icon-2')"
                             aria-label="Tampilkan konfirmasi kata sandi">
@@ -255,7 +324,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn">
+            <button type="submit" class="btn" id="submitBtn">
                 Daftar
             </button>
 
@@ -286,6 +355,40 @@
             icon.classList.replace('fa-eye-slash', 'fa-eye');
         }
     }
+
+    const inputMulai   = document.getElementById('periode_mulai');
+    const inputSelesai = document.getElementById('periode_selesai');
+    const errorBox     = document.getElementById('periode-error');
+    const submitBtn    = document.getElementById('submitBtn');
+    const tahunSekarang = {{ (int) date('Y') }};
+
+    function cekPeriode() {
+        const mulai   = parseInt(inputMulai.value);
+        const selesai = parseInt(inputSelesai.value);
+
+        errorBox.style.display = 'none';
+        errorBox.textContent = '';
+        submitBtn.disabled = false;
+
+        if (isNaN(mulai) || isNaN(selesai)) return;
+
+        if (selesai < mulai) {
+            errorBox.textContent = 'Tahun selesai tidak boleh lebih kecil dari tahun mulai.';
+            errorBox.style.display = 'block';
+            submitBtn.disabled = true;
+        } else if ((selesai - mulai) > 3) {
+            errorBox.textContent = 'Rentang periode kepengurusan maksimal 3 tahun.';
+            errorBox.style.display = 'block';
+            submitBtn.disabled = true;
+        } else if (selesai < tahunSekarang) {
+            errorBox.textContent = 'Periode kepengurusan sudah berakhir. Tahun selesai minimal ' + tahunSekarang + ' (tahun ini).';
+            errorBox.style.display = 'block';
+            submitBtn.disabled = true;
+        }
+    }
+
+    inputMulai.addEventListener('input', cekPeriode);
+    inputSelesai.addEventListener('input', cekPeriode);
 </script>
 
 </body>

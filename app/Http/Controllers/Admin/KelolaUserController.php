@@ -84,31 +84,39 @@ class KelolaUserController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
+{
+    $user = User::findOrFail($id);
 
-        $request->validate([
-            'nama'       => 'required|string|max:255',
-            'email' => 'required|email',
-            'nim'   => 'required|string',
-            'role'       => 'required|in:anggota,ketua,pic,admin,pamdal',
-            'organisasi' => 'required|string|max:255',
-            'password'   => 'nullable|min:8',
-        ]);
+    $request->validate([
+        'nama'            => 'required|string|max:255',
+        'email'           => 'required|email|unique:users,email,' . $user->id,
+        'nim'             => 'required|string|unique:users,nim,' . $user->id,
+        'role'            => 'required|in:anggota,ketua,pic,admin,pamdal',
+        'organisasi'      => 'required|string|max:255',
+        'status'          => 'required|in:aktif,nonaktif,pending,ditolak',
+        'periode_mulai'   => 'nullable|integer|digits:4|min:2000',
+        'periode_selesai' => 'nullable|integer|digits:4|min:2000|gte:periode_mulai',
+        'password'        => 'nullable|min:8',
+    ], [
+        'periode_selesai.gte' => 'Tahun selesai tidak boleh lebih kecil dari tahun mulai.',
+    ]);
 
-        $user->nama       = $request->nama;
-        $user->email      = $request->email;
-        $user->nim        = $request->nim;
-        $user->role       = $request->role;
-        $user->organisasi = $request->organisasi;
+    $user->nama             = $request->nama;
+    $user->email            = $request->email;
+    $user->nim               = $request->nim;
+    $user->role              = $request->role;
+    $user->organisasi        = $request->organisasi;
+    $user->status            = $request->status;
+    $user->periode_mulai     = $request->periode_mulai;
+    $user->periode_selesai   = $request->periode_selesai;
 
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
-        }
-
-        $user->save();
-        return redirect()->route('admin.pengguna.index')->with('success', 'Data pengguna berhasil diperbarui.');
+    if ($request->filled('password')) {
+        $user->password = Hash::make($request->password);
     }
+
+    $user->save();
+    return redirect()->route('admin.pengguna.index')->with('success', 'Data pengguna berhasil diperbarui.');
+}
 
     public function destroy($id)
     {

@@ -58,7 +58,9 @@
                     <th>Nama</th>
                     <th style="width:160px;">NIM</th>
                     <th style="width:120px;">Role</th>
+                    <th style="width:110px;">Periode</th>
                     <th style="width:100px;">Status</th>
+                    <th style="width:140px;">Bukti</th>
                 </tr>
             </thead>
             <tbody>
@@ -77,6 +79,13 @@
                             <span class="badge badge-gray">Anggota</span>
                         @endif
                     </td>
+                    <td style="font-size:13px;">
+                        @if($user->periode_mulai && $user->periode_selesai)
+                            {{ $user->periode_mulai }} – {{ $user->periode_selesai }}
+                        @else
+                            <span style="color:var(--text-muted);">-</span>
+                        @endif
+                    </td>
                     <td>
                         @if($user->status === 'aktif')
                             <span class="badge badge-green">Aktif</span>
@@ -84,10 +93,39 @@
                             <span class="badge badge-gray">{{ ucfirst($user->status) }}</span>
                         @endif
                     </td>
+                    <td>
+                        <div style="display:flex;flex-direction:column;gap:4px;">
+                            @if($user->bukti_ktm)
+                                <a href="{{ asset('storage/' . $user->bukti_ktm) }}" target="_blank"
+                                   style="font-size:12px;color:var(--primary,#2563eb);text-decoration:none;display:flex;align-items:center;gap:4px;">
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 2v6h6"/>
+                                    </svg>
+                                    Lihat KTM
+                                </a>
+                            @else
+                                <span style="font-size:12px;color:var(--text-muted);">KTM belum ada</span>
+                            @endif
+
+                            @if($user->bukti_sk)
+                                <a href="{{ asset('storage/' . $user->bukti_sk) }}" target="_blank"
+                                   style="font-size:12px;color:var(--primary,#2563eb);text-decoration:none;display:flex;align-items:center;gap:4px;">
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 2v6h6"/>
+                                    </svg>
+                                    Lihat SK
+                                </a>
+                            @else
+                                <span style="font-size:12px;color:var(--text-muted);">SK belum ada</span>
+                            @endif
+                        </div>
+                    </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5">
+                    <td colspan="7">
                         <div class="empty-state">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
