@@ -93,7 +93,14 @@ class KelolaOrmawaController extends Controller
     {
         $ormawa = Ormawa::findOrFail($id);
 
-        User::where('organisasi', $ormawa->singkatan)->update(['organisasi' => null]);
+        $jumlahAnggota = User::where('organisasi', $ormawa->singkatan)->count();
+
+        if ($jumlahAnggota > 0) {
+            return back()->with(
+                'error',
+                "Ormawa \"{$ormawa->nama_organisasi}\" tidak dapat dihapus karena masih memiliki {$jumlahAnggota} anggota terdaftar. Pindahkan atau hapus anggotanya terlebih dahulu melalui menu Kelola Pengguna."
+            );
+        }
 
         $ormawa->delete();
 

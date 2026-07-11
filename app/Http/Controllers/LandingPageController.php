@@ -37,14 +37,16 @@ class LandingPageController extends Controller
     public function store(Request $request)
     {
         $tahunSekarang = (int) date('Y');
-
         $akunLama = User::where(function ($q) use ($request) {
                 $q->where('nim', $request->nim)
                   ->orWhere('email', $request->email);
             })
             ->where(function ($q) use ($tahunSekarang) {
                 $q->whereIn('status', ['ditolak', 'nonaktif'])
-                  ->orWhere('periode_selesai', '<', $tahunSekarang);
+                  ->orWhere(function ($q2) use ($tahunSekarang) {
+                      $q2->whereNotNull('periode_selesai')
+                         ->where('periode_selesai', '<', $tahunSekarang);
+                  });
             })
             ->first();
 
@@ -56,7 +58,10 @@ class LandingPageController extends Controller
                 $q->where('status', 'pending')
                   ->orWhere(function ($q2) use ($tahunSekarang) {
                       $q2->where('status', 'aktif')
-                         ->where('periode_selesai', '>=', $tahunSekarang);
+                         ->where(function ($q3) use ($tahunSekarang) {
+                             $q3->whereNull('periode_selesai')
+                                ->orWhere('periode_selesai', '>=', $tahunSekarang);
+                         });
                   });
             })
             ->first();
@@ -67,7 +72,7 @@ class LandingPageController extends Controller
                 'required',
                 function ($attribute, $value, $fail) use ($akunBentrok) {
                     if ($akunBentrok && $akunBentrok->nim === $value) {
-                        $fail('NIM ini masih aktif menjabat atau sedang menunggu validasi.');
+                        $fail('NIM ini sudah aktif atau sedang menunggu validasi.');
                     }
                 },
             ],
@@ -75,7 +80,7 @@ class LandingPageController extends Controller
                 'required', 'email',
                 function ($attribute, $value, $fail) use ($akunBentrok) {
                     if ($akunBentrok && $akunBentrok->email === $value) {
-                        $fail('Email ini masih aktif menjabat atau sedang menunggu validasi.');
+                        $fail('Email ini sudah aktif atau sedang menunggu validasi.');
                     }
                 },
             ],
