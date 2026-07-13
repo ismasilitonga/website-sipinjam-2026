@@ -60,6 +60,24 @@
         </div>
         <hr style="border:none;border-top:1px solid var(--border);">
         <div>
+            <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">Dokumen Pendukung</div>
+            <div style="font-size:14px;">
+                @if($peminjaman->dokumen_pendukung)
+                    <a href="{{ Storage::url($peminjaman->dokumen_pendukung) }}" target="_blank"
+                       style="color: var(--accent); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 15px; height: 15px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Lihat Dokumen
+                    </a>
+                @else
+                    <span style="color: var(--text-muted);">Tidak ada dokumen</span>
+                @endif
+            </div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--border);">
+        <div>
             <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">Status Kunci</div>
             @php
     if ($peminjaman->waktu_kunci_dikembalikan) {

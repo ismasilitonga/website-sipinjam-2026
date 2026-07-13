@@ -161,8 +161,13 @@
                         @else —
                         @endif
                     </td>
-                    <td>
+                    <td style="white-space:nowrap;">
                         @if($p->status === 'menunggu_ketua')
+                            <a href="{{ route('anggota.riwayat-ruangan.edit', $p->id) }}"
+                                class="btn btn-outline"
+                                style="font-size:12px;padding:4px 10px;margin-right:6px;display:inline-block;">
+                                Edit
+                            </a>
                             <button onclick="bukaMModal('{{ route('anggota.pengajuan-ruangan.cancel', $p->id) }}')"
                                 class="btn btn-outline"
                                 style="font-size:12px;padding:4px 10px;color:var(--danger);border-color:var(--danger);">

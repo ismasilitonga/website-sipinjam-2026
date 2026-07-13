@@ -106,6 +106,8 @@
                         @error('tanggal_kembali_rencana') <div class="form-error">{{ $message }}</div> @enderror
                     </div>
                 </div>
+                <div id="durasiInfo" style="display:none;margin:-8px 0 16px;font-size:12.5px;color:var(--text-muted);"></div>
+                <div id="durasiError" class="form-error" style="display:none;margin:-8px 0 16px;"></div>
 
                 <div id="stokWarning" style="display:none;margin-top:-10px;margin-bottom:16px;
                      padding:12px 14px;border-radius:8px;font-size:13px;">
@@ -175,6 +177,8 @@
 const CEK_STOK_URL = "{{ route('anggota.pengajuan-barang.cek-stok') }}";
 let cekStokTimeout = null;
 
+const MAKS_DURASI_HARI_BARANG = 7;
+
 function updateBarangInfo(sel) {
     const opt  = sel.options[sel.selectedIndex];
     const info = document.getElementById('barangInfo');
@@ -214,8 +218,10 @@ function selectBarang(id) {
 function sembunyikanWarning() {
     const w = document.getElementById('stokWarning');
     w.style.display = 'none';
-    document.getElementById('submitBtn').disabled = false;
-    document.getElementById('submitBtn').style.opacity = '1';
+    if (document.getElementById('durasiError').style.display !== 'block') {
+        document.getElementById('submitBtn').disabled = false;
+        document.getElementById('submitBtn').style.opacity = '1';
+    }
 }
 
 function tampilkanWarning(tersedia, stokTersedia, stokTotal, satuan) {
@@ -235,8 +241,10 @@ function tampilkanWarning(tersedia, stokTersedia, stokTotal, satuan) {
                 </svg>
                 <span>Stok tersedia pada tanggal ini: <strong>${stokTersedia} ${satuan}</strong> dari total ${stokTotal} ${satuan}.</span>
             </div>`;
-        btn.disabled = false;
-        btn.style.opacity = '1';
+        if (document.getElementById('durasiError').style.display !== 'block') {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        }
     } else {
         w.style.display = 'block';
         w.style.background = '#fef2f2';
@@ -263,6 +271,10 @@ function cekStokRealtime() {
 
     if (!barangId || !tglPinjam || !tglKembali) {
         sembunyikanWarning();
+        return;
+    }
+
+    if (document.getElementById('durasiError').style.display === 'block') {
         return;
     }
 
@@ -294,6 +306,56 @@ function cekStokRealtime() {
     }, 400);
 }
 
+function validasiDurasiBarang() {
+    const tglPinjam  = document.getElementById('tanggal_pinjam');
+    const tglKembali = document.getElementById('tanggal_kembali_rencana');
+    const durasiInfo  = document.getElementById('durasiInfo');
+    const durasiError = document.getElementById('durasiError');
+    const submitBtn   = document.getElementById('submitBtn');
+
+    durasiInfo.style.display = 'none';
+    durasiError.style.display = 'none';
+
+    // update batas maksimal tanggal kembali berdasarkan tanggal pinjam
+    if (tglPinjam.value) {
+        const d = new Date(tglPinjam.value);
+        d.setDate(d.getDate() + (MAKS_DURASI_HARI_BARANG - 1));
+        const yyyy = d.getFullYear();
+        const mm   = String(d.getMonth() + 1).padStart(2, '0');
+        const dd   = String(d.getDate()).padStart(2, '0');
+        tglKembali.setAttribute('max', `${yyyy}-${mm}-${dd}`);
+    } else {
+        tglKembali.removeAttribute('max');
+    }
+
+    if (!tglPinjam.value || !tglKembali.value) return;
+
+    const d1 = new Date(tglPinjam.value);
+    const d2 = new Date(tglKembali.value);
+    const selisihHari = Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
+
+    if (d2 < d1) {
+        durasiError.textContent = 'Rencana tanggal kembali tidak boleh sebelum tanggal pinjam.';
+        durasiError.style.display = 'block';
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        return;
+    }
+
+    if (selisihHari > MAKS_DURASI_HARI_BARANG) {
+        durasiError.textContent = `Peminjaman barang maksimal ${MAKS_DURASI_HARI_BARANG} hari. Rentang yang dipilih: ${selisihHari} hari.`;
+        durasiError.style.display = 'block';
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        return;
+    }
+
+    durasiInfo.textContent = `Durasi peminjaman: ${selisihHari} hari.`;
+    durasiInfo.style.display = 'block';
+    submitBtn.disabled = false;
+    submitBtn.style.opacity = '1';
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     const sel = document.getElementById('barangSelect');
     if (sel.value) updateBarangInfo(sel);
@@ -316,17 +378,25 @@ window.addEventListener('DOMContentLoaded', () => {
                 tglKembali.value = tglPinjam.value;
             }
         }
+        validasiDurasiBarang();
         cekStokRealtime();
     }
 
     tglPinjam.addEventListener('change', syncMinTglKembali);
-    tglKembali.addEventListener('change', cekStokRealtime);
+    tglKembali.addEventListener('change', function () {
+        validasiDurasiBarang();
+        cekStokRealtime();
+    });
     syncMinTglKembali();
 });
 </script>
 
 <style>
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+#submitBtn:disabled {
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
 </style>
 @endpush
 @endsection

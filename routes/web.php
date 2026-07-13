@@ -121,6 +121,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
         Route::get('/riwayat-ruangan', [RiwayatRuanganAnggotaController::class, 'index'])->name('riwayat-ruangan');
+        Route::get('/riwayat-ruangan/{id}/edit', [RiwayatRuanganAnggotaController::class, 'edit'])->name('riwayat-ruangan.edit');
+        Route::put('/riwayat-ruangan/{id}', [RiwayatRuanganAnggotaController::class, 'update'])->name('riwayat-ruangan.update');
         Route::get('/riwayat-barang',  [RiwayatBarangController::class, 'index'])->name('riwayat-barang');
     });
 

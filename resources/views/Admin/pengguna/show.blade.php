@@ -127,6 +127,38 @@
         </div>
         </div>
             <div class="detail-row">
+                <div class="detail-label">Dokumen Pendaftaran</div>
+                <div class="detail-value">
+                    <div style="display:flex;flex-direction:column;gap:4px;">
+                        @if($user->bukti_ktm)
+                            <a href="{{ asset('storage/' . $user->bukti_ktm) }}" target="_blank"
+                               style="font-size:13px;color:var(--primary,#2563eb);text-decoration:none;display:flex;align-items:center;gap:4px;">
+                                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 2v6h6"/>
+                                </svg>
+                                Lihat KTM
+                            </a>
+                        @else
+                            <span style="font-size:13px;color:var(--text-muted);">KTM belum ada</span>
+                        @endif
+
+                        @if($user->bukti_sk)
+                            <a href="{{ asset('storage/' . $user->bukti_sk) }}" target="_blank"
+                               style="font-size:13px;color:var(--primary,#2563eb);text-decoration:none;display:flex;align-items:center;gap:4px;">
+                                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 2v6h6"/>
+                                </svg>
+                                Lihat SK
+                            </a>
+                        @else
+                            <span style="font-size:13px;color:var(--text-muted);">SK belum ada</span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            <div class="detail-row">
                 <div class="detail-label">Status Akun</div>
                 <div class="detail-value">
                     <span class="badge {{ $user->status === 'aktif' ? 'badge-green' : ($user->status === 'ditolak' ? 'badge-red' : 'badge-orange') }}">

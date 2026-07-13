@@ -13,7 +13,6 @@
         <span class="badge badge-gray">{{ $riwayat->total() }} data</span>
     </div>
 
-    {{-- Filter Tab Status --}}
     <div style="padding: 0 20px 16px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
         <span style="font-size: 12.5px; color: var(--color-text-secondary); font-weight: 500; margin-right: 4px;">Filter:</span>
         @foreach($filters as $value => $label)
@@ -39,6 +38,7 @@
                     <th>Tanggal</th>
                     <th>Keperluan</th>
                     <th>Status</th>
+                    <th>Alasan Ditolak</th>
                 </tr>
             </thead>
             <tbody>
@@ -75,10 +75,19 @@
                             @endphp
                             <span class="badge {{ $cls }}">{{ $lbl }}</span>
                         </td>
+                        <td style="font-size: 12px; color: var(--text-muted); max-width: 160px;">
+                            @if($p->status === 'ditolak' && $p->alasan_tolak)
+                                <span title="{{ $p->alasan_tolak }}" style="cursor: help; border-bottom: 1px dashed #cbd5e1;">
+                                    {{ Str::limit($p->alasan_tolak, 40) }}
+                                </span>
+                            @else
+                                —
+                            @endif
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7">
+                        <td colspan="8">
                             <div class="empty-state">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
