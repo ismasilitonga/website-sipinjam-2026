@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use App\Models\User;
 use App\Models\Ormawa;
+use Carbon\Carbon;
 
 class LandingPageController extends Controller
 {
@@ -36,40 +37,37 @@ class LandingPageController extends Controller
 
     public function store(Request $request)
     {
-        $tahunSekarang = (int) date('Y');
-        $akunLama = User::where(function ($q) use ($request) {
-                $q->where('nim', $request->nim)
-                  ->orWhere('email', $request->email);
-            })
-            ->where(function ($q) use ($tahunSekarang) {
-                $q->whereIn('status', ['ditolak', 'nonaktif'])
-                  ->orWhere(function ($q2) use ($tahunSekarang) {
-                      $q2->whereNotNull('periode_selesai')
-                         ->where('periode_selesai', '<', $tahunSekarang);
-                  });
-            })
-            ->first();
+        $sekarang = Carbon::now();
+        $bulanSekarang = $sekarang->format('Y-m');
 
-        $akunBentrok = User::where(function ($q) use ($request) {
-                $q->where('nim', $request->nim)
-                  ->orWhere('email', $request->email);
-            })
-            ->where(function ($q) use ($tahunSekarang) {
-                $q->where('status', 'pending')
-                  ->orWhere(function ($q2) use ($tahunSekarang) {
-                      $q2->where('status', 'aktif')
-                         ->where(function ($q3) use ($tahunSekarang) {
-                             $q3->whereNull('periode_selesai')
-                                ->orWhere('periode_selesai', '>=', $tahunSekarang);
-                         });
-                  });
-            })
-            ->first();
+        $kandidat = User::where('nim', $request->nim)
+            ->orWhere('email', $request->email)
+            ->get();
+
+        $akunBentrok = $kandidat->first(function ($u) {
+            if ($u->status === 'pending') {
+                return true;
+            }
+            if ($u->status === 'aktif') {
+                $batas = $u->batasAkhirJabatan();
+                return $batas === null || $batas->isFuture() || $batas->isToday();
+            }
+            return false;
+        });
+
+        $akunLama = $kandidat->first(function ($u) {
+            if (in_array($u->status, ['ditolak', 'nonaktif'])) {
+                return true;
+            }
+            $batas = $u->batasAkhirJabatan();
+            return $batas !== null && $batas->isPast();
+        });
 
         $request->validate([
             'nama'            => 'required|string|max:255',
             'nim'             => [
                 'required',
+                'digits:10',
                 function ($attribute, $value, $fail) use ($akunBentrok) {
                     if ($akunBentrok && $akunBentrok->nim === $value) {
                         $fail('NIM ini sudah aktif atau sedang menunggu validasi.');
@@ -86,64 +84,78 @@ class LandingPageController extends Controller
             ],
             'role'            => 'required|in:anggota,ketua',
             'organisasi'      => 'required|string|max:255',
-            'periode_mulai'   => 'required|integer|digits:4|min:2000|max:' . ($tahunSekarang + 1),
-            'periode_selesai' => 'required|integer|digits:4|gte:periode_mulai|min:' . $tahunSekarang,
+            'periode_mulai'   => 'required|date_format:Y-m',
+            'periode_selesai' => [
+                'required',
+                'date_format:Y-m',
+                'after_or_equal:periode_mulai',
+                function ($attribute, $value, $fail) use ($bulanSekarang) {
+                    if ($value < $bulanSekarang) {
+                        $fail('Periode kepengurusan sudah berakhir. Bulan/tahun selesai tidak boleh sebelum bulan ini.');
+                    }
+                },
+            ],
             'password'        => 'required|confirmed|min:8',
             'bukti_ktm'       => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'bukti_sk'        => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ], [
-            'nama.required'            => 'Nama lengkap wajib diisi.',
-            'nama.max'                 => 'Nama lengkap maksimal 255 karakter.',
-            'nim.required'             => 'NIM wajib diisi.',
-            'email.required'           => 'Email wajib diisi.',
-            'email.email'              => 'Format email tidak valid.',
-            'role.required'            => 'Peran wajib dipilih.',
-            'role.in'                  => 'Peran yang dipilih tidak valid.',
-            'organisasi.required'      => 'Organisasi wajib dipilih.',
-            'periode_mulai.required'   => 'Tahun mulai periode kepengurusan wajib diisi.',
-            'periode_mulai.digits'     => 'Tahun mulai harus 4 digit, contoh: 2024.',
-            'periode_mulai.max'        => 'Tahun mulai tidak boleh lebih dari ' . ($tahunSekarang + 1) . '.',
-            'periode_selesai.required' => 'Tahun selesai periode kepengurusan wajib diisi.',
-            'periode_selesai.digits'   => 'Tahun selesai harus 4 digit, contoh: 2026.',
-            'periode_selesai.gte'      => 'Tahun selesai tidak boleh lebih kecil dari tahun mulai.',
-            'periode_selesai.min'      => 'Periode kepengurusan sudah berakhir. Tahun selesai minimal ' . $tahunSekarang . ' (tahun ini).',
-            'password.required'       => 'Kata sandi wajib diisi.',
-            'password.confirmed'      => 'Konfirmasi kata sandi tidak sama.',
-            'password.min'            => 'Kata sandi minimal 8 karakter.',
-            'bukti_ktm.required'      => 'Bukti KTM wajib diunggah.',
-            'bukti_ktm.file'          => 'Bukti KTM harus berupa file.',
-            'bukti_ktm.mimes'         => 'Bukti KTM harus berformat JPG, PNG, atau PDF.',
-            'bukti_ktm.max'           => 'Ukuran bukti KTM maksimal 5MB.',
-            'bukti_sk.required'       => 'Bukti SK organisasi wajib diunggah.',
-            'bukti_sk.file'           => 'Bukti SK harus berupa file.',
-            'bukti_sk.mimes'          => 'Bukti SK harus berformat JPG, PNG, atau PDF.',
-            'bukti_sk.max'            => 'Ukuran bukti SK maksimal 5MB.',
+            'nama.required'                 => 'Nama lengkap wajib diisi.',
+            'nama.max'                      => 'Nama lengkap maksimal 255 karakter.',
+            'nim.required'                  => 'NIM wajib diisi.',
+            'nim.digits'                    => 'NIM harus terdiri dari 10 digit angka.',
+            'email.required'                => 'Email wajib diisi.',
+            'email.email'                   => 'Format email tidak valid.',
+            'role.required'                 => 'Peran wajib dipilih.',
+            'role.in'                       => 'Peran yang dipilih tidak valid.',
+            'organisasi.required'           => 'Organisasi wajib dipilih.',
+            'periode_mulai.required'        => 'Bulan & tahun mulai periode kepengurusan wajib diisi.',
+            'periode_mulai.date_format'     => 'Format bulan mulai tidak valid.',
+            'periode_selesai.required'      => 'Bulan & tahun selesai periode kepengurusan wajib diisi.',
+            'periode_selesai.date_format'   => 'Format bulan selesai tidak valid.',
+            'periode_selesai.after_or_equal'=> 'Bulan/tahun selesai tidak boleh lebih awal dari bulan/tahun mulai.',
+            'password.required'             => 'Kata sandi wajib diisi.',
+            'password.confirmed'            => 'Konfirmasi kata sandi tidak sama.',
+            'password.min'                  => 'Kata sandi minimal 8 karakter.',
+            'bukti_ktm.required'            => 'Bukti KTM wajib diunggah.',
+            'bukti_ktm.file'                => 'Bukti KTM harus berupa file.',
+            'bukti_ktm.mimes'               => 'Bukti KTM harus berformat JPG, PNG, atau PDF.',
+            'bukti_ktm.max'                 => 'Ukuran bukti KTM maksimal 5MB.',
+            'bukti_sk.required'             => 'Bukti SK organisasi wajib diunggah.',
+            'bukti_sk.file'                 => 'Bukti SK harus berupa file.',
+            'bukti_sk.mimes'                => 'Bukti SK harus berformat JPG, PNG, atau PDF.',
+            'bukti_sk.max'                  => 'Ukuran bukti SK maksimal 5MB.',
         ]);
-        $organisasi = strtoupper($request->organisasi);
 
-        if (($request->periode_selesai - $request->periode_mulai) > 3) {
+        $mulai   = Carbon::createFromFormat('Y-m', $request->periode_mulai);
+        $selesai = Carbon::createFromFormat('Y-m', $request->periode_selesai);
+
+        if ($mulai->diffInMonths($selesai) > 36) {
             return back()
                 ->withInput()
                 ->withErrors([
-                    'periode_selesai' => 'Rentang periode kepengurusan maksimal 3 tahun.'
+                    'periode_selesai' => 'Rentang periode kepengurusan maksimal 3 tahun (36 bulan).'
                 ]);
         }
+
+        $organisasi = strtoupper($request->organisasi);
 
         $pathKtm = $request->file('bukti_ktm')->store('bukti-pendaftaran/ktm', 'public');
         $pathSk  = $request->file('bukti_sk')->store('bukti-pendaftaran/sk', 'public');
 
         $dataBaru = [
-            'nama'            => $request->nama,
-            'nim'             => $request->nim,
-            'email'           => $request->email,
-            'role'            => $request->role,
-            'organisasi'      => $organisasi,
-            'periode_mulai'   => $request->periode_mulai,
-            'periode_selesai' => $request->periode_selesai,
-            'password'        => Hash::make($request->password),
-            'bukti_ktm'       => $pathKtm,
-            'bukti_sk'        => $pathSk,
-            'status'          => 'pending',
+            'nama'                  => $request->nama,
+            'nim'                   => $request->nim,
+            'email'                 => $request->email,
+            'role'                  => $request->role,
+            'organisasi'            => $organisasi,
+            'periode_mulai'         => $mulai->year,
+            'periode_mulai_bulan'   => $mulai->month,
+            'periode_selesai'       => $selesai->year,
+            'periode_selesai_bulan' => $selesai->month,
+            'password'              => Hash::make($request->password),
+            'bukti_ktm'             => $pathKtm,
+            'bukti_sk'              => $pathSk,
+            'status'                => 'pending',
         ];
 
         if ($akunLama) {

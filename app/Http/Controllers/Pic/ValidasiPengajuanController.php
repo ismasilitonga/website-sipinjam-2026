@@ -7,12 +7,15 @@ use App\Models\PeminjamanBarang;
 use App\Models\PeminjamanRuangan;
 use App\Notifications\PengajuanDisetujuiPicNotification;
 use App\Notifications\PengajuanDitolakPicNotification;
+use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Http\Request;
 
 class ValidasiPengajuanController extends Controller
 {
+    const JEDA_MENIT = 30;
+
     public function index()
     {
         $lantai = (string) auth()->user()->lantai_pic;
@@ -32,6 +35,26 @@ class ValidasiPengajuanController extends Controller
 
         $peminjaman = PeminjamanRuangan::whereHas('ruangan', fn($q) => $q->where('lantai', $lantai))
         ->findOrFail($id);
+
+        $mulaiDenganJeda   = Carbon::parse($peminjaman->tanggal_mulai)->subMinutes(self::JEDA_MENIT);
+        $selesaiDenganJeda = Carbon::parse($peminjaman->tanggal_selesai)->addMinutes(self::JEDA_MENIT);
+
+        $bentrok = PeminjamanRuangan::where('ruangan_id', $peminjaman->ruangan_id)
+            ->where('id', '!=', $peminjaman->id)
+            ->where('status', 'disetujui')
+            ->where('tanggal_mulai', '<', $selesaiDenganJeda)
+            ->where('tanggal_selesai', '>', $mulaiDenganJeda)
+            ->exists();
+
+        if ($bentrok) {
+            $peminjaman->update([
+                'status'       => 'ditolak',
+                'alasan_tolak' => 'Ruangan sudah terisi oleh pengajuan lain yang lebih dulu disetujui pada rentang waktu yang bentrok (termasuk jeda ' . self::JEDA_MENIT . ' menit).',
+            ]);
+            $peminjaman->user->notify(new PengajuanDitolakPicNotification($peminjaman));
+
+            return back()->with('error', 'Gagal menyetujui: jadwal bentrok dengan pengajuan lain yang sudah disetujui. Pengajuan ini otomatis ditolak.');
+        }
 
         $peminjaman->update(['status' => 'disetujui']);
         $peminjaman->user->notify(new PengajuanDisetujuiPicNotification($peminjaman));

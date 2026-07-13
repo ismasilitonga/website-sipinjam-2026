@@ -20,6 +20,7 @@
                     <th>Ruangan</th>
                     <th>Tanggal & Waktu</th>
                     <th>Keperluan</th>
+                    <th>Dokumen</th>
                     <th>Diajukan</th>
                     <th>Aksi</th>
                 </tr>
@@ -62,6 +63,25 @@
                             {{ $p->keperluan }}
                         </div>
                     </td>
+                    {{-- === BARU: kolom dokumen pendukung, biar Ketua bisa nilai prioritas/urgensi pengajuan === --}}
+                    <td style="font-size:12px;">
+                        @if($p->dokumen_pendukung)
+                            <a href="{{ asset('storage/' . $p->dokumen_pendukung) }}" target="_blank"
+                               style="display:inline-flex;align-items:center;gap:4px;color:var(--accent);
+                                      text-decoration:none;font-weight:600;">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;flex-shrink:0;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Lihat Dokumen
+                            </a>
+                        @else
+                            <span style="display:inline-flex;align-items:center;gap:4px;color:var(--text-muted);
+                                         background:#f3f4f6;padding:3px 8px;border-radius:6px;font-size:11px;">
+                                Tanpa dokumen
+                            </span>
+                        @endif
+                    </td>
                     <td style="font-size:12px;color:var(--text-muted);">
                         {{ $p->created_at->diffForHumans() }}
                     </td>
@@ -90,7 +110,7 @@
                 @empty
                 <tr>
                     
-                    <td colspan="7">
+                    <td colspan="8">
                         <div class="empty-state">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"

@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\PeminjamanRuangan;
 use App\Models\PeminjamanBarang;
+use App\Notifications\AkunDisetujui;
+use App\Notifications\AkunDitolak;
+use Illuminate\Support\Facades\Notification;
 
 class ValidasiPendaftarController extends Controller
 {
@@ -44,6 +47,8 @@ class ValidasiPendaftarController extends Controller
         $user->update(['status' => 'aktif']);
         $this->tolakPendaftarKetuaLainYangBentrok($user);
 
+        $user->notify(new AkunDisetujui($user));
+
         return back()->with('success', 'Akun berhasil diaktifkan.');
     }
 
@@ -63,6 +68,8 @@ class ValidasiPendaftarController extends Controller
 
         $userBaru->update(['status' => 'aktif']);
         $this->tolakPendaftarKetuaLainYangBentrok($userBaru);
+
+        $userBaru->notify(new AkunDisetujui($userBaru));
 
         return back()->with('success',
             'Kepengurusan berhasil diganti. ' .
@@ -98,6 +105,10 @@ class ValidasiPendaftarController extends Controller
     public function tolak($id)
     {
         $user = User::findOrFail($id);
+
+        // Kirim notifikasi dulu sebelum data user dihapus
+        Notification::route('mail', $user->email)
+            ->notify(new AkunDitolak($user->nama, $user->organisasi));
 
         if ($user->bukti_ktm) {
             \Illuminate\Support\Facades\Storage::disk('public')->delete($user->bukti_ktm);

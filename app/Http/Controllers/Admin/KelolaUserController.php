@@ -12,8 +12,12 @@ class KelolaUserController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
+        $status = $request->input('status', 'aktif');
 
-        $query = User::where('status', 'aktif')
+        $query = User::query()
+            ->when($status !== 'semua', function ($q) use ($status) {
+                $q->where('status', $status);
+            })
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($q2) use ($search) {
                     $q2->where('nama', 'like', "%$search%")
@@ -34,12 +38,13 @@ class KelolaUserController extends Controller
                     'email'      => $u->email,
                     'organisasi' => $u->organisasi ?? '-',
                     'role'       => $u->role,
+                    'status'     => $u->status,
                 ])
             );
         }
 
         $users = $query->paginate(15)->withQueryString();
-        return view('admin.pengguna.index', compact('users', 'search'));
+        return view('admin.pengguna.index', compact('users', 'search', 'status'));
     }
 
     public function create()
@@ -83,32 +88,48 @@ class KelolaUserController extends Controller
         return view('admin.pengguna.edit', compact('user'));
     }
 
-    public function update(Request $request, $id)
+public function update(Request $request, $id)
 {
     $user = User::findOrFail($id);
 
     $request->validate([
-        'nama'            => 'required|string|max:255',
-        'email'           => 'required|email|unique:users,email,' . $user->id,
-        'nim'             => 'required|string|unique:users,nim,' . $user->id,
-        'role'            => 'required|in:anggota,ketua,pic,admin,pamdal',
-        'organisasi'      => 'required|string|max:255',
-        'status'          => 'required|in:aktif,nonaktif,pending,ditolak',
-        'periode_mulai'   => 'nullable|integer|digits:4|min:2000',
-        'periode_selesai' => 'nullable|integer|digits:4|min:2000|gte:periode_mulai',
-        'password'        => 'nullable|min:8',
+        'nama'                  => 'required|string|max:255',
+        'email'                 => 'required|email|unique:users,email,' . $user->id,
+        'nim'                   => 'required|string|unique:users,nim,' . $user->id,
+        'role'                  => 'required|in:anggota,ketua,pic,admin,pamdal',
+        'organisasi'            => 'required|string|max:255',
+        'status'                => 'required|in:aktif,nonaktif,pending,ditolak',
+        'periode_mulai'         => 'nullable|date_format:Y-m',
+        'periode_selesai'       => 'nullable|date_format:Y-m|after_or_equal:periode_mulai',
+        'password'              => 'nullable|min:8',
     ], [
-        'periode_selesai.gte' => 'Tahun selesai tidak boleh lebih kecil dari tahun mulai.',
+        'periode_selesai.after_or_equal' => 'Bulan/tahun selesai tidak boleh lebih awal dari bulan/tahun mulai.',
     ]);
 
-    $user->nama             = $request->nama;
-    $user->email            = $request->email;
-    $user->nim               = $request->nim;
-    $user->role              = $request->role;
-    $user->organisasi        = $request->organisasi;
-    $user->status            = $request->status;
-    $user->periode_mulai     = $request->periode_mulai;
-    $user->periode_selesai   = $request->periode_selesai;
+    $user->nama       = $request->nama;
+    $user->email      = $request->email;
+    $user->nim        = $request->nim;
+    $user->role       = $request->role;
+    $user->organisasi = $request->organisasi;
+    $user->status     = $request->status;
+
+    if ($request->filled('periode_mulai')) {
+        $mulai = \Carbon\Carbon::createFromFormat('Y-m', $request->periode_mulai);
+        $user->periode_mulai       = $mulai->year;
+        $user->periode_mulai_bulan = $mulai->month;
+    } else {
+        $user->periode_mulai       = null;
+        $user->periode_mulai_bulan = null;
+    }
+
+    if ($request->filled('periode_selesai')) {
+        $selesai = \Carbon\Carbon::createFromFormat('Y-m', $request->periode_selesai);
+        $user->periode_selesai       = $selesai->year;
+        $user->periode_selesai_bulan = $selesai->month;
+    } else {
+        $user->periode_selesai       = null;
+        $user->periode_selesai_bulan = null;
+    }
 
     if ($request->filled('password')) {
         $user->password = Hash::make($request->password);

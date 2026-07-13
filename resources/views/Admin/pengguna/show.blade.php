@@ -108,18 +108,24 @@
                 <div class="detail-value">{{ $user->organisasi ?? '-' }}</div>
             </div>
             <div class="detail-row">
-                <div class="detail-label">Periode Kepengurusan</div>
-                <div class="detail-value">
-                    @if ($user->periode_mulai && $user->periode_selesai)
-                        {{ $user->periode_mulai }} &ndash; {{ $user->periode_selesai }}
-                        @if ($periodeHabis)
-                            <span class="badge badge-red" style="margin-left:6px;">Berakhir</span>
-                        @endif
-                    @else
-                        <span style="color:var(--text-muted);">Belum diatur</span>
-                    @endif
-                </div>
-            </div>
+            <div class="detail-label">Periode Kepengurusan</div>
+            <div class="detail-value">
+        @if ($user->periode_mulai && $user->periode_selesai)
+            @php
+                $mulaiLabel = \Carbon\Carbon::createFromDate($user->periode_mulai, $user->periode_mulai_bulan ?? 1, 1)
+                    ->translatedFormat('F Y');
+                $selesaiLabel = \Carbon\Carbon::createFromDate($user->periode_selesai, $user->periode_selesai_bulan ?? 12, 1)
+                    ->translatedFormat('F Y');
+            @endphp
+            {{ $mulaiLabel }} &ndash; {{ $selesaiLabel }}
+            @if ($periodeHabis)
+                <span class="badge badge-red" style="margin-left:6px;">Berakhir</span>
+            @endif
+            @else
+            <span style="color:var(--text-muted);">Belum diatur</span>
+            @endif
+        </div>
+        </div>
             <div class="detail-row">
                 <div class="detail-label">Status Akun</div>
                 <div class="detail-value">

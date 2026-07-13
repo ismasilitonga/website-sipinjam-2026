@@ -14,7 +14,7 @@
     <div class="card">
         <div class="card-header"><span class="card-title">Form Pengajuan Ruangan</span></div>
         <div class="card-body">
-            <form method="POST" action="{{ route('anggota.pengajuan-ruangan.store') }}">
+            <form method="POST" action="{{ route('anggota.pengajuan-ruangan.store') }}" enctype="multipart/form-data">
                 @csrf
 
                 <div class="form-group">
@@ -88,28 +88,50 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Tanggal Penggunaan <span style="color:var(--danger)">*</span></label>
-                    <input type="date" name="tanggal_penggunaan" id="tanggal_penggunaan" class="form-control"
-                           value="{{ old('tanggal_penggunaan') }}"
-                           min="{{ date('Y-m-d', strtotime('+2 days')) }}" required>
-                    @error('tanggal_penggunaan') <div class="form-error">{{ $message }}</div> @enderror
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Tanggal Mulai <span style="color:var(--danger)">*</span></label>
+                        <input type="date" name="tanggal_mulai" id="tanggal_mulai" class="form-control"
+                               value="{{ old('tanggal_mulai') }}"
+                               min="{{ date('Y-m-d', strtotime('+2 days')) }}" required>
+                        @error('tanggal_mulai') <div class="form-error">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tanggal Selesai <span style="color:var(--danger)">*</span></label>
+                        <input type="date" name="tanggal_selesai" id="tanggal_selesai" class="form-control"
+                               value="{{ old('tanggal_selesai') }}"
+                               min="{{ date('Y-m-d', strtotime('+2 days')) }}" required>
+                        @error('tanggal_selesai') <div class="form-error">{{ $message }}</div> @enderror
+                    </div>
                 </div>
+                <div id="durasiInfo" style="display:none;margin:-8px 0 16px;font-size:12.5px;color:var(--text-muted);"></div>
+                <div id="durasiError" class="form-error" style="display:none;margin:-8px 0 16px;"></div>
 
                 <div class="form-grid-2">
                     <div class="form-group">
                         <label class="form-label">Jam Mulai <span style="color:var(--danger)">*</span></label>
-                        <input type="time" name="jam_mulai" id="jam_mulai" class="form-control"
+                        <input type="text" name="jam_mulai" id="jam_mulai" class="form-control"
+                               placeholder="Pilih jam mulai" autocomplete="off" readonly
                                value="{{ old('jam_mulai') }}" required>
                         @error('jam_mulai') <div class="form-error">{{ $message }}</div> @enderror
                     </div>
                     <div class="form-group">
                         <label class="form-label">Jam Selesai <span style="color:var(--danger)">*</span></label>
-                        <input type="time" name="jam_selesai" id="jam_selesai" class="form-control"
+                        <input type="text" name="jam_selesai" id="jam_selesai" class="form-control"
+                               placeholder="Pilih jam selesai" autocomplete="off" readonly
                                value="{{ old('jam_selesai') }}" required>
+                        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">
+                            Durasi peminjaman minimal 1 jam.
+                        </div>
                         @error('jam_selesai') <div class="form-error">{{ $message }}</div> @enderror
                     </div>
                 </div>
+                <div id="jamInfo" style="display:none;margin:-8px 0 16px;font-size:12.5px;color:var(--text-muted);"></div>
+                <div id="jamError" class="form-error" style="display:none;margin:-8px 0 16px;">
+                    Jam selesai harus lebih besar dari jam mulai.
+                </div>
+                <div id="bentrokWarning" class="form-error" style="display:none;margin:-8px 0 16px;
+                     background:#fef2f2;border:1px solid #fecaca;padding:10px 12px;border-radius:8px;"></div>
 
                 <div class="form-group">
                     <label class="form-label">Keperluan / Kegiatan <span style="color:var(--danger)">*</span></label>
@@ -119,17 +141,33 @@
                     @error('keperluan') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
 
+                <div class="form-group">
+                    <label class="form-label">
+                        Upload Dokumen Pendukung <span style="color:var(--danger)">*</span>
+                    </label>
+                    <input type="file" name="dokumen_pendukung" id="dokumen_pendukung" class="form-control"
+                           accept=".pdf,.jpg,.jpeg,.png" required>
+                    <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">
+                        Wajib diisi. Contoh: surat undangan rapat, notulen rapat pengurus
+                        Format PDF/JPG/PNG, maks. 5MB.
+                    </div>
+                    @error('dokumen_pendukung') <div class="form-error">{{ $message }}</div> @enderror
+                </div>
+
                 <div class="alert alert-info" style="margin-bottom:18px;">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:17px;height:17px;flex-shrink:0;pointer-events:none;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    Pengajuan akan diteruskan ke <strong>Ketua Ormawa</strong> untuk disetujui terlebih dahulu,
-                    kemudian ke <strong>PIC</strong> untuk validasi akhir.
+                    <span>
+                        Pengajuan akan diteruskan ke <strong>Ketua Ormawa</strong> untuk disetujui terlebih dahulu,
+                        kemudian ke <strong>PIC</strong> untuk validasi akhir. Ruangan baru terkunci untuk pengaju lain
+                        setelah pengajuan ini <strong>disetujui PIC</strong>.
+                    </span>
                 </div>
 
                 <div style="display:flex;gap:10px;">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" id="submitBtn" class="btn btn-primary">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="pointer-events:none;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
@@ -148,7 +186,7 @@
             @foreach([
                 ['step'=>'1','label'=>'Kamu','sub'=>'Mengajukan peminjaman ruangan','active'=>true],
                 ['step'=>'2','label'=>'Ketua Ormawa','sub'=>'Menyetujui pengajuan anggota','active'=>false],
-                ['step'=>'3','label'=>'PIC','sub'=>'Validasi akhir & konfirmasi','active'=>false],
+                ['step'=>'3','label'=>'PIC','sub'=>'Validasi akhir & konfirmasi (ruangan terkunci di sini)','active'=>false],
                 ['step'=>'4','label'=>'Disetujui','sub'=>'Kamu bisa check-in di hari H','active'=>false],
             ] as $s)
             <div style="display:flex;gap:12px;padding:12px 0;
@@ -171,12 +209,26 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    #submitBtn:disabled {
+        background: #cbd5e1 !important;
+        border-color: #cbd5e1 !important;
+        color: #64748b !important;
+        cursor: not-allowed !important;
+        opacity: 1 !important;
+        pointer-events: none;
+    }
+</style>
 @endpush
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     window.addEventListener('DOMContentLoaded', () => {
+
+        const MAKS_DURASI_HARI = 3;
+
+        const MIN_DURASI_MENIT = 60;
 
         const trigger = document.getElementById('ruangan-trigger');
         const panel   = document.getElementById('ruangan-panel');
@@ -226,6 +278,7 @@
                 }
 
                 showInfo(this);
+                cekBentrokSekarang();
             });
         });
 
@@ -253,8 +306,64 @@
             return `${yyyy}-${mm}-${dd}`;
         })();
 
-        const inputTanggal = document.getElementById('tanggal_penggunaan');
-        if (inputTanggal) inputTanggal.setAttribute('min', minDate);
+        const tglMulai   = document.getElementById('tanggal_mulai');
+        const tglSelesai = document.getElementById('tanggal_selesai');
+        const durasiInfo = document.getElementById('durasiInfo');
+        const durasiError = document.getElementById('durasiError');
+        const submitBtn  = document.getElementById('submitBtn');
+
+        if (tglMulai) tglMulai.setAttribute('min', minDate);
+        if (tglSelesai) tglSelesai.setAttribute('min', minDate);
+
+        function updateMaxTanggalSelesai() {
+            if (!tglMulai.value) {
+                tglSelesai.removeAttribute('max');
+                return;
+            }
+            const d = new Date(tglMulai.value);
+            d.setDate(d.getDate() + (MAKS_DURASI_HARI - 1));
+            const yyyy = d.getFullYear();
+            const mm   = String(d.getMonth() + 1).padStart(2, '0');
+            const dd   = String(d.getDate()).padStart(2, '0');
+            tglSelesai.setAttribute('max', `${yyyy}-${mm}-${dd}`);
+        }
+
+        function validasiDurasi() {
+            durasiInfo.style.display = 'none';
+            durasiError.style.display = 'none';
+            submitBtn.disabled = false;
+
+            updateMaxTanggalSelesai();
+
+            if (!tglMulai.value || !tglSelesai.value) return;
+
+            tglSelesai.setAttribute('min', tglMulai.value);
+
+            const d1 = new Date(tglMulai.value);
+            const d2 = new Date(tglSelesai.value);
+            const selisihHari = Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1; 
+
+            if (d2 < d1) {
+                durasiError.textContent = 'Tanggal selesai tidak boleh sebelum tanggal mulai.';
+                durasiError.style.display = 'block';
+                submitBtn.disabled = true;
+                return;
+            }
+
+            if (selisihHari > MAKS_DURASI_HARI) {
+                durasiError.textContent = `Peminjaman ruangan maksimal ${MAKS_DURASI_HARI} hari. Rentang yang dipilih: ${selisihHari} hari.`;
+                durasiError.style.display = 'block';
+                submitBtn.disabled = true;
+                return;
+            }
+
+            durasiInfo.textContent = `Durasi peminjaman: ${selisihHari} hari.`;
+            durasiInfo.style.display = 'block';
+        }
+
+        tglMulai.addEventListener('change', validasiDurasi);
+        tglSelesai.addEventListener('change', validasiDurasi);
+        validasiDurasi();
 
         const wibNow = getNowWIB();
 
@@ -271,6 +380,103 @@
             disableMobile: true,
         };
 
+        const jamError = document.getElementById('jamError');
+        const jamInfo  = document.getElementById('jamInfo');
+
+        function isSatuHari() {
+            return tglMulai.value && tglSelesai.value && tglMulai.value === tglSelesai.value;
+        }
+
+        function validasiJam() {
+            const mulaiTime   = fpMulai?.selectedDates?.[0];
+            const selesaiTime = fpSelesai?.selectedDates?.[0];
+
+            jamError.style.display = 'none';
+            jamInfo.style.display  = 'none';
+
+            if (!mulaiTime || !selesaiTime || !tglMulai.value || !tglSelesai.value) return;
+
+            const mulaiFull   = new Date(tglMulai.value + 'T' + toHHMM(mulaiTime) + ':00');
+            const selesaiFull = new Date(tglSelesai.value + 'T' + toHHMM(selesaiTime) + ':00');
+
+            if (selesaiFull <= mulaiFull) {
+                jamError.textContent = isSatuHari()
+                    ? 'Jam selesai harus lebih besar dari jam mulai.'
+                    : 'Tanggal & jam selesai harus setelah tanggal & jam mulai.';
+                jamError.style.display = 'block';
+                submitBtn.disabled = true;
+                return;
+            }
+
+            const menitDurasiCek = Math.round((selesaiFull - mulaiFull) / 60000);
+            if (menitDurasiCek < MIN_DURASI_MENIT) {
+                jamError.textContent = `Minimal durasi peminjaman ${MIN_DURASI_MENIT} menit.`;
+                jamError.style.display = 'block';
+                submitBtn.disabled = true;
+                return;
+            }
+
+            const menitDurasi = Math.round((selesaiFull - mulaiFull) / 60000);
+            const hariDurasi  = Math.floor(menitDurasi / (60 * 24));
+            const jam         = Math.floor((menitDurasi % (60 * 24)) / 60);
+            const menit       = menitDurasi % 60;
+
+            let teks = 'Durasi penggunaan: ';
+            if (hariDurasi > 0) teks += `${hariDurasi} hari `;
+            teks += `${jam} jam${menit ? ' ' + menit + ' menit' : ''}.`;
+
+            jamInfo.textContent = teks;
+            jamInfo.style.display = 'block';
+
+            // jangan enable kalau durasi tanggal sedang invalid
+            if (durasiError.style.display === 'none') submitBtn.disabled = false;
+        }
+
+        // ── Cek bentrok jadwal secara real-time ──
+        const bentrokWarning = document.getElementById('bentrokWarning');
+        let bentrokTimeout = null;
+
+        function cekBentrokSekarang() {
+            bentrokWarning.style.display = 'none';
+
+            const ruanganId = input.value;
+            const mulaiTime   = fpMulai?.selectedDates?.[0];
+            const selesaiTime = fpSelesai?.selectedDates?.[0];
+
+            if (!ruanganId || !tglMulai.value || !tglSelesai.value || !mulaiTime || !selesaiTime) return;
+            if (jamError.style.display === 'block' || durasiError.style.display === 'block') return;
+
+            clearTimeout(bentrokTimeout);
+            bentrokTimeout = setTimeout(() => {
+                fetch('{{ route('anggota.pengajuan-ruangan.cek-bentrok') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                            || document.querySelector('input[name="_token"]').value,
+                    },
+                    body: JSON.stringify({
+                        ruangan_id: ruanganId,
+                        tanggal_mulai: tglMulai.value,
+                        tanggal_selesai: tglSelesai.value,
+                        jam_mulai: toHHMM(mulaiTime),
+                        jam_selesai: toHHMM(selesaiTime),
+                    }),
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.bentrok) {
+                        bentrokWarning.textContent = data.pesan;
+                        bentrokWarning.style.display = 'block';
+                        submitBtn.disabled = true;
+                    } else {
+                        submitBtn.disabled = false;
+                    }
+                })
+                .catch(() => { /* diamkan kalau request gagal, jangan blok user */ });
+            }, 400);
+        }
+
         const fpMulai = flatpickr('#jam_mulai', {
             ...timeConfig,
             onOpen(_, __, fp) {
@@ -279,17 +485,21 @@
                     fp.minuteElement.value = String(wibNow.getMinutes()).padStart(2, '0');
                 }
             },
+            onChange() { validasiJam(); cekBentrokSekarang(); },
             onClose(selectedDates, dateStr, fp) {
                 if (!selectedDates.length) fp.clear();
+                validasiJam();
+                cekBentrokSekarang();
             },
         });
 
-        flatpickr('#jam_selesai', {
+        const fpSelesai = flatpickr('#jam_selesai', {
             ...timeConfig,
+
             onOpen(_, __, fp) {
                 const mulaiDate = fpMulai?.selectedDates?.[0];
-                if (mulaiDate) {
-                    const minSelesai = new Date(mulaiDate.getTime() + 30 * 60 * 1000);
+                if (mulaiDate && isSatuHari()) {
+                    const minSelesai = new Date(mulaiDate.getTime() + MIN_DURASI_MENIT * 60 * 1000);
                     fp.set('minTime', toHHMM(minSelesai));
                     if (!fp.selectedDates.length) {
                         fp.hourElement.value   = String(minSelesai.getHours()).padStart(2, '0');
@@ -299,10 +509,18 @@
                     fp.set('minTime', null);
                 }
             },
+            onChange() { validasiJam(); cekBentrokSekarang(); },
             onClose(selectedDates, _, fp) {
                 if (!selectedDates.length) fp.clear();
+                validasiJam();
+                cekBentrokSekarang();
             },
         });
+
+        tglMulai.addEventListener('change', validasiJam);
+        tglSelesai.addEventListener('change', validasiJam);
+        tglMulai.addEventListener('change', cekBentrokSekarang);
+        tglSelesai.addEventListener('change', cekBentrokSekarang);
     });
 </script>
 @endpush

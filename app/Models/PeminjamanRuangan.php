@@ -12,17 +12,19 @@ class PeminjamanRuangan extends Model
     protected $table = 'peminjaman_ruangan';
 
     protected $fillable = [
-    'user_id',
-    'ruangan_id',
-    'nama_ormawa',
-    'tanggal_mulai',
-    'tanggal_selesai',
-    'keperluan',
-    'status',
-    'alasan_tolak',
-    'waktu_kunci_diambil',
-    'waktu_kunci_dikembalikan',
-];
+        'user_id',
+        'ruangan_id',
+        'nama_ormawa',
+        'tanggal_mulai',
+        'tanggal_selesai',
+        'keperluan',
+        'dokumen_pendukung',
+        'status',
+        'status_pemakaian',
+        'alasan_tolak',
+        'waktu_kunci_diambil',
+        'waktu_kunci_dikembalikan',
+    ];
 
     protected $casts = [
         'tanggal_mulai' => 'datetime',

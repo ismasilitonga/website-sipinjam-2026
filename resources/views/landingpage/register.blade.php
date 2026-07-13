@@ -249,7 +249,7 @@
             </div>
 
             <div class="form-group">
-                <input type="text" name="nim" placeholder="NIM" value="{{ old('nim') }}" required>
+                <input type="text" name="nim" placeholder="NIM (10 digit)" value="{{ old('nim') }}" required>
             </div>
 
             <div class="form-group">
@@ -276,13 +276,13 @@
             <div class="form-group">
                 <label class="field-label">Periode Kepengurusan</label>
                 <div style="display:flex;gap:10px;align-items:center;">
-                    <input type="number" name="periode_mulai" id="periode_mulai" placeholder="2024" min="2000" max="2100"
+                    <input type="month" name="periode_mulai" id="periode_mulai"
                            value="{{ old('periode_mulai') }}" required style="flex:1;">
                     <span style="color:#64748b;">—</span>
-                    <input type="number" name="periode_selesai" id="periode_selesai" placeholder="2026" min="2000" max="2100"
+                    <input type="month" name="periode_selesai" id="periode_selesai"
                            value="{{ old('periode_selesai') }}" required style="flex:1;">
                 </div>
-                <small class="field-hint">Masa kepengurusan Anda (contoh: 2024 sampai 2026)</small>
+                <small class="field-hint">Bulan &amp; tahun mulai sampai selesai kepengurusan (contoh: Jan 2026 sampai Des 2026)</small>
                 <small class="field-hint" id="periode-error" style="color:#dc2626; display:none;"></small>
             </div>
 
@@ -360,28 +360,37 @@
     const inputSelesai = document.getElementById('periode_selesai');
     const errorBox     = document.getElementById('periode-error');
     const submitBtn    = document.getElementById('submitBtn');
-    const tahunSekarang = {{ (int) date('Y') }};
+
+    const now = new Date();
+    const bulanSekarang = now.getFullYear() * 12 + (now.getMonth() + 1);
+
+    function parseBulanTahun(val) {
+        if (!val) return null;
+        const [y, m] = val.split('-').map(Number);
+        if (!y || !m) return null;
+        return y * 12 + m;
+    }
 
     function cekPeriode() {
-        const mulai   = parseInt(inputMulai.value);
-        const selesai = parseInt(inputSelesai.value);
+        const mulai   = parseBulanTahun(inputMulai.value);
+        const selesai = parseBulanTahun(inputSelesai.value);
 
         errorBox.style.display = 'none';
         errorBox.textContent = '';
         submitBtn.disabled = false;
 
-        if (isNaN(mulai) || isNaN(selesai)) return;
+        if (mulai === null || selesai === null) return;
 
         if (selesai < mulai) {
-            errorBox.textContent = 'Tahun selesai tidak boleh lebih kecil dari tahun mulai.';
+            errorBox.textContent = 'Bulan/tahun selesai tidak boleh lebih awal dari bulan/tahun mulai.';
             errorBox.style.display = 'block';
             submitBtn.disabled = true;
-        } else if ((selesai - mulai) > 3) {
-            errorBox.textContent = 'Rentang periode kepengurusan maksimal 3 tahun.';
+        } else if ((selesai - mulai) > 36) {
+            errorBox.textContent = 'Rentang periode kepengurusan maksimal 3 tahun (36 bulan).';
             errorBox.style.display = 'block';
             submitBtn.disabled = true;
-        } else if (selesai < tahunSekarang) {
-            errorBox.textContent = 'Periode kepengurusan sudah berakhir. Tahun selesai minimal ' + tahunSekarang + ' (tahun ini).';
+        } else if (selesai < bulanSekarang) {
+            errorBox.textContent = 'Periode kepengurusan sudah berakhir. Bulan/tahun selesai tidak boleh sebelum bulan ini.';
             errorBox.style.display = 'block';
             submitBtn.disabled = true;
         }

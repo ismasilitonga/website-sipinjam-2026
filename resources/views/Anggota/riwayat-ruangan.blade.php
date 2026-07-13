@@ -67,6 +67,7 @@
                     <th>Tanggal</th>
                     <th>Waktu</th>
                     <th>Keperluan</th>
+                    <th>Dokumen</th>
                     <th>Status</th>
                     <th>Alasan Tolak</th>
                     <th>Aksi</th>
@@ -74,6 +75,11 @@
             </thead>
             <tbody>
                 @forelse($riwayat as $p)
+                @php
+                    $tglMulai   = \Carbon\Carbon::parse($p->tanggal_mulai);
+                    $tglSelesai = \Carbon\Carbon::parse($p->tanggal_selesai);
+                    $satuHari   = $tglMulai->isSameDay($tglSelesai);
+                @endphp
                 <tr>
                     <td style="color:var(--text-muted);font-size:12px;">
                         {{ ($riwayat->currentPage() - 1) * $riwayat->perPage() + $loop->iteration }}
@@ -84,15 +90,48 @@
                             {{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->lantai) ? ' · Lt.'.$p->ruangan->lantai : '' }}
                         </div>
                     </td>
-                    <td style="font-size:12.5px;">{{ \Carbon\Carbon::parse($p->tanggal_mulai)->format('d M Y') }}</td>
                     <td style="font-size:12.5px;white-space:nowrap;">
-                        {{ \Carbon\Carbon::parse($p->tanggal_mulai)->format('H:i') }} –
-                        {{ \Carbon\Carbon::parse($p->tanggal_selesai)->format('H:i') }}
+                        @if($satuHari)
+                            {{ $tglMulai->format('d M Y') }}
+                        @else
+                            <div>{{ $tglMulai->format('d M Y') }}</div>
+                            <div style="font-size:11px;color:var(--text-muted);">s/d {{ $tglSelesai->format('d M Y') }}</div>
+                        @endif
+                    </td>
+                    <td style="font-size:12.5px;white-space:nowrap;">
+                        {{ $tglMulai->format('H:i') }} –
+                        {{ $tglSelesai->format('H:i') }}
+                        @unless($satuHari)
+                            @php
+                                $totalMenit  = $tglMulai->diffInMinutes($tglSelesai, false);
+                                $hariDurasi  = intdiv($totalMenit, 60 * 24);
+                                $jamDurasi   = intdiv($totalMenit % (60 * 24), 60);
+                                $menitDurasi = $totalMenit % 60;
+
+                                $labelDurasi = trim(
+                                    ($hariDurasi > 0 ? $hariDurasi.' hari ' : '') .
+                                    $jamDurasi.' jam' .
+                                    ($menitDurasi > 0 ? ' '.$menitDurasi.' menit' : '')
+                                );
+                            @endphp
+                            <div style="font-size:11px;color:var(--text-muted);">
+                                ({{ $labelDurasi }})
+                            </div>
+                        @endunless
                     </td>
                     <td style="font-size:12.5px;max-width:180px;">
                         <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ $p->keperluan }}">
                             {{ $p->keperluan }}
                         </div>
+                    </td>
+                    <td style="font-size:12px;">
+                        @if($p->dokumen_pendukung)
+                            <a href="{{ Storage::url($p->dokumen_pendukung) }}" target="_blank"
+                               style="color:var(--accent);text-decoration:none;font-weight:600;white-space:nowrap;">
+                                📄 Lihat Dokumen
+                            </a>
+                        @else —
+                        @endif
                     </td>
                     <td>
                         @php
@@ -107,7 +146,7 @@
                             };
                         @endphp
                         <span class="badge {{ $cls }}">{{ $lbl }}</span>
-                        @if($p->status === 'disetujui' && ($p->status_pemakaian ?? '') === 'booked' && \Carbon\Carbon::parse($p->tanggal_mulai)->isToday())
+                        @if($p->status === 'disetujui' && ($p->status_pemakaian ?? '') === 'booked' && $tglMulai->isToday())
                             <a href="{{ route('anggota.checkin') }}"
                                style="display:block;margin-top:4px;font-size:11.5px;color:var(--accent);font-weight:600;text-decoration:none;">
                                 → Check-in hari ini
@@ -135,7 +174,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8">
+                    <td colspan="9">
                         <div class="empty-state">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"

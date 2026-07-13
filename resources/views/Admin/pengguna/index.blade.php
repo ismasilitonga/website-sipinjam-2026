@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Kelola Pengguna')
-@section('subtitle', 'Manajemen akun pengguna aktif')
+@section('subtitle', 'Manajemen akun pengguna')
 
 @section('topbar-action')
     <a href="{{ route('admin.pengguna.create') }}" class="btn btn-primary">
@@ -15,33 +15,52 @@
 @section('content')
 
 <div class="card">
-    <div class="card-header" style="padding-bottom:16px;">
-        <span class="card-title">Daftar Pengguna Aktif</span>
+    <div class="card-header" style="padding-bottom:16px;flex-wrap:wrap;">
+        <span class="card-title">Daftar Pengguna</span>
         <span class="badge badge-gray">{{ $users->total() }} pengguna</span>
-        <div style="position:relative; margin-left:auto;">
-            <input
-                type="text"
-                id="searchInput"
-                placeholder="Cari nama / NIM / email / role..."
-                style="
-                    padding:8px 14px 8px 36px;
+
+        <div style="display:flex;gap:10px;margin-left:auto;flex-wrap:wrap;">
+            <select id="statusFilter" style="
+                    padding:8px 12px;
                     border:1px solid #ababae;
                     border-radius:8px;
                     font-size:13px;
-                    width:260px;
                     outline:none;
                     background:white;
-                ">
-            <i class="fa-solid fa-magnifying-glass"
-               style="
-                    position:absolute;
-                    left:11px;
-                    top:50%;
-                    transform:translateY(-50%);
-                    color:#94a3b8;
-                    font-size:13px;
-               ">
-            </i>
+                    cursor:pointer;">
+                <option value="aktif"    {{ $status === 'aktif'    ? 'selected' : '' }}>Aktif</option>
+                <option value="nonaktif" {{ $status === 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+                <option value="pending"  {{ $status === 'pending'  ? 'selected' : '' }}>Menunggu Validasi</option>
+                <option value="ditolak"  {{ $status === 'ditolak'  ? 'selected' : '' }}>Ditolak</option>
+                <option value="semua"    {{ $status === 'semua'    ? 'selected' : '' }}>Semua Status</option>
+            </select>
+
+            <div style="position:relative;">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Cari nama / NIM / email / role..."
+                    value="{{ $search }}"
+                    style="
+                        padding:8px 14px 8px 36px;
+                        border:1px solid #ababae;
+                        border-radius:8px;
+                        font-size:13px;
+                        width:260px;
+                        outline:none;
+                        background:white;
+                    ">
+                <i class="fa-solid fa-magnifying-glass"
+                   style="
+                        position:absolute;
+                        left:11px;
+                        top:50%;
+                        transform:translateY(-50%);
+                        color:#94a3b8;
+                        font-size:13px;
+                   ">
+                </i>
+            </div>
         </div>
     </div>
 
@@ -55,6 +74,7 @@
                     <th>Email</th>
                     <th>Organisasi</th>
                     <th>Role</th>
+                    <th>Status</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -90,6 +110,23 @@
                         <span class="badge {{ $roleClass }}">{{ ucfirst($user->role) }}</span>
                     </td>
                     <td>
+                        @php
+                            $statusClass = match($user->status) {
+                                'aktif'    => 'badge-green',
+                                'nonaktif' => 'badge-gray',
+                                'ditolak'  => 'badge-red',
+                                default    => 'badge-orange',
+                            };
+                            $statusLabel = match($user->status) {
+                                'aktif'    => 'Aktif',
+                                'nonaktif' => 'Nonaktif',
+                                'ditolak'  => 'Ditolak',
+                                default    => 'Menunggu',
+                            };
+                        @endphp
+                        <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
+                    </td>
+                    <td>
                         <div style="display:flex;gap:6px;">
                             <a href="{{ route('admin.pengguna.show', $user->id) }}"
                                class="btn btn-outline btn-sm">Detail</a>
@@ -104,7 +141,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7">
+                    <td colspan="8">
                         <div class="empty-state">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -189,8 +226,16 @@ document.getElementById('modalHapus').addEventListener('click', function(e) {
     if (e.target === this) tutupModal();
 });
 
+document.getElementById('statusFilter').addEventListener('change', function () {
+    const url = new URL(window.location.href);
+    url.searchParams.set('status', this.value);
+    url.searchParams.delete('page');
+    window.location.href = url.toString();
+});
+
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput    = document.getElementById('searchInput');
+    const statusFilter   = document.getElementById('statusFilter');
     const tableBody      = document.getElementById('tableBody');
     const paginationWrap = document.getElementById('paginationWrap');
     const url            = "{{ route('admin.pengguna.index') }}";
@@ -203,9 +248,24 @@ document.addEventListener('DOMContentLoaded', function () {
         'pamdal' : 'badge-orange',
     };
 
+    const statusClass = {
+        'aktif'    : 'badge-green',
+        'nonaktif' : 'badge-gray',
+        'ditolak'  : 'badge-red',
+        'pending'  : 'badge-orange',
+    };
+
+    const statusLabel = {
+        'aktif'    : 'Aktif',
+        'nonaktif' : 'Nonaktif',
+        'ditolak'  : 'Ditolak',
+        'pending'  : 'Menunggu',
+    };
+
     searchInput.addEventListener('keyup', function () {
         clearTimeout(timeout);
         const keyword = this.value;
+        const status  = statusFilter.value;
 
         if (keyword === '') {
             paginationWrap.style.display = '';
@@ -216,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function () {
         paginationWrap.style.display = 'none';
 
         timeout = setTimeout(() => {
-            fetch(`${url}?search=${encodeURIComponent(keyword)}`, {
+            fetch(`${url}?search=${encodeURIComponent(keyword)}&status=${encodeURIComponent(status)}`, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json'
@@ -234,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.length === 0) {
                     tableBody.innerHTML = `
                         <tr>
-                            <td colspan="7">
+                            <td colspan="8">
                                 <div class="empty-state">
                                     <p>Tidak ada pengguna ditemukan.</p>
                                 </div>
@@ -244,9 +304,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 data.forEach((u, i) => {
-                    const badge   = roleClass[u.role] ?? 'badge-gray';
-                    const initial = u.nama.charAt(0).toUpperCase();
-                    const namaEsc = u.nama.replace(/'/g, "\\'");
+                    const badge     = roleClass[u.role] ?? 'badge-gray';
+                    const sBadge    = statusClass[u.status] ?? 'badge-orange';
+                    const sLabel    = statusLabel[u.status] ?? 'Menunggu';
+                    const initial   = u.nama.charAt(0).toUpperCase();
+                    const namaEsc   = u.nama.replace(/'/g, "\\'");
                     tableBody.innerHTML += `
                         <tr>
                             <td style="color:var(--text-muted);font-size:13px;">${i + 1}</td>
@@ -264,6 +326,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             <td style="font-size:13px;">${u.email}</td>
                             <td style="font-size:13px;">${u.organisasi}</td>
                             <td><span class="badge ${badge}">${u.role.charAt(0).toUpperCase() + u.role.slice(1)}</span></td>
+                            <td><span class="badge ${sBadge}">${sLabel}</span></td>
                             <td>
                                 <div style="display:flex;gap:6px;">
                                     <a href="${baseUrl}/${u.id}" class="btn btn-outline btn-sm">Detail</a>
@@ -281,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.error('Search gagal:', err);
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="7">
+                        <td colspan="8">
                             <div class="empty-state">
                                 <p>Terjadi kesalahan saat mencari data. Coba lagi.</p>
                             </div>

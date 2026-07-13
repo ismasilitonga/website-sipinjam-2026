@@ -66,20 +66,33 @@
                 </div>
             </div>
 
+            @php
+                $periodeMulaiValue = old('periode_mulai',
+                    $user->periode_mulai
+                        ? sprintf('%04d-%02d', $user->periode_mulai, $user->periode_mulai_bulan ?? 1)
+                        : null
+                );
+                $periodeSelesaiValue = old('periode_selesai',
+                    $user->periode_selesai
+                        ? sprintf('%04d-%02d', $user->periode_selesai, $user->periode_selesai_bulan ?? 12)
+                        : null
+                );
+            @endphp
+
             <div class="form-grid-2">
                 <div class="form-group">
                     <label class="form-label">Periode Mulai</label>
-                    <input type="number" name="periode_mulai" class="form-control"
-                           value="{{ old('periode_mulai', $user->periode_mulai) }}"
-                           min="2000" max="2100" placeholder="2024">
+                    <input type="month" name="periode_mulai" class="form-control"
+                           value="{{ $periodeMulaiValue }}"
+                           min="2020-01" max="2035-12">
                     @error('periode_mulai') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Periode Selesai</label>
-                    <input type="number" name="periode_selesai" class="form-control"
-                           value="{{ old('periode_selesai', $user->periode_selesai) }}"
-                           min="2000" max="2100" placeholder="2026">
+                    <input type="month" name="periode_selesai" class="form-control"
+                           value="{{ $periodeSelesaiValue }}"
+                           min="2020-01" max="2035-12">
                     @error('periode_selesai') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
             </div>
@@ -94,9 +107,9 @@
                 </select>
                 @error('status') <div class="form-error">{{ $message }}</div> @enderror
 
-                @if ($user->periode_selesai && $user->periode_selesai < (int) date('Y'))
+                @if ($user->masaJabatanBerakhir())
                     <div class="form-hint" style="color:var(--danger);margin-top:6px;">
-                        ⚠ Masa jabatan berakhir tahun {{ $user->periode_selesai }}. Pertimbangkan ubah status menjadi Nonaktif.
+                        ⚠ Masa jabatan berakhir pada {{ $user->batasAkhirJabatan()->translatedFormat('F Y') }}. Pertimbangkan ubah status menjadi Nonaktif.
                     </div>
                 @endif
             </div>
