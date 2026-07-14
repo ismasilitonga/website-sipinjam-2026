@@ -86,10 +86,35 @@
             </div>
         </div>
 
+        @if($p->checkIn)
+            <div style="display: grid; grid-template-columns: 160px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border);">
+                <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding-top: 3px;">Foto Data Diri Check-in</div>
+                <div>
+                    <img src="{{ Storage::url($p->checkIn->foto_ktp) }}" alt="Foto KTP"
+                         style="max-width: 260px; max-height: 160px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); display: block; margin-bottom: 6px;">
+                    <div style="font-size: 12px; color: var(--text-muted);">
+                        Check-in pada {{ \Carbon\Carbon::parse($p->checkIn->waktu_checkin)->format('d M Y, H:i') }}
+                    </div>
+                </div>
+            </div>
+        @endif
+
         @if($p->alasan_tolak)
             <div style="display: grid; grid-template-columns: 160px 1fr; gap: 16px; padding: 16px 0;">
                 <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding-top: 3px;">Alasan Ditolak</div>
-                <div style="font-size: 14px; color: #ef4444;">{{ $p->alasan_tolak }}</div>
+                <div>
+                    <div style="font-size: 14px; color: #ef4444;">{{ $p->alasan_tolak }}</div>
+                    @if($p->ditolak_oleh)
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+                            Ditolak oleh: <strong>{{ match($p->ditolak_oleh) {
+                                'ketua'  => 'Ketua Ormawa',
+                                'pic'    => 'PIC',
+                                'sistem' => 'Sistem (otomatis)',
+                                default  => ucfirst($p->ditolak_oleh),
+                            } }}</strong>
+                        </div>
+                    @endif
+                </div>
             </div>
         @endif
     </div>

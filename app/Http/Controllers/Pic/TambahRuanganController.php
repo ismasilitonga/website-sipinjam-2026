@@ -22,7 +22,7 @@ class TambahRuanganController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama'      => 'required|string|max:255',
+            'nama_ruangan'      => 'required|string|max:255',
             'kode'      => 'required|string|unique:ruangan,kode',
             'gedung'    => 'nullable|string|max:100',
             'lantai'    => 'nullable|string|max:10',
@@ -52,7 +52,7 @@ class TambahRuanganController extends Controller
         $ruangan = Ruangan::findOrFail($id);
 
         $request->validate([
-            'nama'      => 'required|string|max:255',
+            'nama_ruangan'      => 'required|string|max:255',
             'kode'      => 'required|string|unique:ruangan,kode,' . $id,
             'gedung'    => 'nullable|string|max:100',
             'lantai'    => 'nullable|string|max:10',

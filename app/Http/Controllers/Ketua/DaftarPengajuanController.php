@@ -53,6 +53,7 @@ class DaftarPengajuanController extends Controller
         $peminjaman->update([
             'status'       => 'ditolak',
             'alasan_tolak' => $request->alasan_tolak,
+            'ditolak_oleh' => 'ketua',
         ]);
 
         $peminjaman->user->notify(new PengajuanDitolakKetuaNotification($peminjaman));

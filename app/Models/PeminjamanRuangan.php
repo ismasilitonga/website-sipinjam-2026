@@ -22,6 +22,7 @@ class PeminjamanRuangan extends Model
         'status',
         'status_pemakaian',
         'alasan_tolak',
+        'ditolak_oleh',
         'waktu_kunci_diambil',
         'waktu_kunci_dikembalikan',
     ];

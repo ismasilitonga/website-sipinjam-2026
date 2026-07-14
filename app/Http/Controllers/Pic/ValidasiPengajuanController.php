@@ -50,6 +50,7 @@ class ValidasiPengajuanController extends Controller
             $peminjaman->update([
                 'status'       => 'ditolak',
                 'alasan_tolak' => 'Ruangan sudah terisi oleh pengajuan lain yang lebih dulu disetujui pada rentang waktu yang bentrok (termasuk jeda ' . self::JEDA_MENIT . ' menit).',
+                'ditolak_oleh' => 'sistem',
             ]);
             $peminjaman->user->notify(new PengajuanDitolakPicNotification($peminjaman));
 
@@ -72,6 +73,7 @@ class ValidasiPengajuanController extends Controller
         $peminjaman->update([
             'status'       => 'ditolak',
             'alasan_tolak' => $request->alasan_tolak,
+            'ditolak_oleh' => 'pic',
         ]);
         $peminjaman->user->notify(new PengajuanDitolakPicNotification($peminjaman));
 

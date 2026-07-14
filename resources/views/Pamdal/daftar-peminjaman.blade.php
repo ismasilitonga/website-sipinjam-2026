@@ -25,6 +25,7 @@
                 <th style="padding:15px; text-align:left;">Peminjam</th>
                 <th style="padding:15px; text-align:left;">Ruangan</th>
                 <th style="padding:15px; text-align:center;">Waktu</th>
+                <th style="padding:15px; text-align:center;">Verifikasi Data Diri</th>
                 <th style="padding:15px; text-align:center;">Ambil Kunci</th>
                 <th style="padding:15px; text-align:center;">Kembalikan</th>
                 <th style="padding:15px; text-align:center;">Aksi</th>
@@ -43,6 +44,16 @@
                     <span style="color:#64748b;">
                         {{ \Carbon\Carbon::parse($p->tanggal_mulai)->format('H:i') }}–{{ \Carbon\Carbon::parse($p->tanggal_selesai)->format('H:i') }}
                     </span>
+                </td>
+                <td style="padding:14px 15px; text-align:center;">
+                    @if($p->checkIn)
+                        <a href="{{ Storage::url($p->checkIn->foto_ktp) }}" target="_blank"
+                           style="color:#2563eb; font-weight:600; font-size:13px; text-decoration:none; display:inline-flex; align-items:center; gap:5px;">
+                            <i class="fa-solid fa-id-card"></i> Lihat File
+                        </a>
+                    @else
+                        <span style="color:#dc2626; font-size:12.5px; font-style:italic;">Belum check-in</span>
+                    @endif
                 </td>
                 <td style="padding:14px 15px; text-align:center;">
                     @if($p->waktu_kunci_diambil)
@@ -84,7 +95,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="6" style="padding:60px; text-align:center; color:#94a3b8; font-style:italic;">
+                <td colspan="7" style="padding:60px; text-align:center; color:#94a3b8; font-style:italic;">
                     Belum ada data peminjaman.
                 </td>
             </tr>
@@ -199,11 +210,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 tableBody.innerHTML = '';
 
                 if (data.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="6" style="padding:60px; text-align:center; color:#94a3b8; font-style:italic;">Tidak ada hasil ditemukan.</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="7" style="padding:60px; text-align:center; color:#94a3b8; font-style:italic;">Tidak ada hasil ditemukan.</td></tr>`;
                     return;
                 }
 
                 data.forEach(p => {
+                    const verifikasiDataDiri = p.foto_ktp_url
+                        ? `<a href="${p.foto_ktp_url}" target="_blank" style="color:#2563eb; font-weight:600; font-size:13px; text-decoration:none; display:inline-flex; align-items:center; gap:5px;"><i class="fa-solid fa-id-card"></i> Lihat KTP</a>`
+                        : `<span style="color:#dc2626; font-size:12.5px; font-style:italic;">Belum check-in</span>`;
+
                     const ambilKunci = p.waktu_kunci_diambil
                         ? `<span style="color:#16a34a; font-weight:600; font-size:13px;"><i class="fa-solid fa-check-circle"></i> Diambil ${p.waktu_kunci_diambil}</span>`
                         : `<span style="color:#94a3b8; font-size:13px; font-style:italic;">Belum</span>`;
@@ -240,6 +255,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 ${p.tanggal_mulai}<br>
                                 <span style="color:#64748b;">${p.jam_mulai}–${p.jam_selesai}</span>
                             </td>
+                            <td style="padding:14px 15px; text-align:center;">${verifikasiDataDiri}</td>
                             <td style="padding:14px 15px; text-align:center;">${ambilKunci}</td>
                             <td style="padding:14px 15px; text-align:center;">${kembalikan}</td>
                             <td style="padding:14px 15px; text-align:center; white-space:nowrap;">${aksi}</td>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pamdal;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Models\PeminjamanRuangan;
 
 class KonfirmasiKunciController extends Controller
@@ -12,7 +13,7 @@ class KonfirmasiKunciController extends Controller
     {
         $search = $request->input('search');
 
-        $query = PeminjamanRuangan::with(['user', 'ruangan'])
+        $query = PeminjamanRuangan::with(['user', 'ruangan', 'checkIn'])
             ->whereIn('status', ['disetujui', 'berjalan' , 'selesai'])
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sub) use ($search) {
@@ -39,6 +40,7 @@ class KonfirmasiKunciController extends Controller
                     'jam_selesai' => \Carbon\Carbon::parse($p->tanggal_selesai)->format('H:i'),
                     'waktu_kunci_diambil' => $p->waktu_kunci_diambil ? \Carbon\Carbon::parse($p->waktu_kunci_diambil)->format('H:i') : null,
                     'waktu_kunci_dikembalikan' => $p->waktu_kunci_dikembalikan ? \Carbon\Carbon::parse($p->waktu_kunci_dikembalikan)->format('H:i') : null,
+                    'foto_ktp_url' => $p->checkIn ? Storage::url($p->checkIn->foto_ktp) : null,
                 ])
             );
         }

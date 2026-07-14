@@ -102,11 +102,32 @@
                 Kunci dikembalikan: {{ $peminjaman->waktu_kunci_dikembalikan ? \Carbon\Carbon::parse($peminjaman->waktu_kunci_dikembalikan)->format('d M Y, H:i') : '-' }}
             </div>
         </div>
+        @if($peminjaman->checkIn)
+        <hr style="border:none;border-top:1px solid var(--border);">
+        <div>
+            <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">Foto Data Diri Check-in</div>
+            <img src="{{ Storage::url($peminjaman->checkIn->foto_ktp) }}" alt="Foto KTP"
+                 style="max-width:260px;max-height:160px;object-fit:cover;border-radius:8px;border:1px solid var(--border);display:block;margin-bottom:6px;">
+            <div style="font-size:13px;color:var(--text-muted);">
+                Check-in pada {{ \Carbon\Carbon::parse($peminjaman->checkIn->waktu_checkin)->format('d M Y, H:i') }}
+            </div>
+        </div>
+        @endif
         @if($peminjaman->status === 'ditolak' && $peminjaman->alasan_tolak)
         <hr style="border:none;border-top:1px solid var(--border);">
         <div>
             <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">Alasan Penolakan</div>
             <div style="font-size:14px;color:var(--danger);">{{ $peminjaman->alasan_tolak }}</div>
+            @if($peminjaman->ditolak_oleh)
+                <div style="font-size:13px;color:var(--text-muted);margin-top:6px;">
+                    Ditolak oleh: <strong>{{ match($peminjaman->ditolak_oleh) {
+                        'ketua'  => 'Ketua Ormawa',
+                        'pic'    => 'PIC',
+                        'sistem' => 'Sistem (otomatis)',
+                        default  => ucfirst($peminjaman->ditolak_oleh),
+                    } }}</strong>
+                </div>
+            @endif
         </div>
         @endif
     </div>

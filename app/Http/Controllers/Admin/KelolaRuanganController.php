@@ -22,8 +22,8 @@ class KelolaRuanganController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama'      => 'required|string|max:255',
-            'kode'      => 'required|string|unique:ruangans,kode',
+            'nama_ruangan'      => 'required|string|max:255',
+            'kode'      => 'required|string|unique:ruangan,kode',
             'gedung'    => 'nullable|string|max:100',
             'lantai'    => 'nullable|string|max:10',
             'kapasitas' => 'required|integer|min:0',
@@ -53,8 +53,8 @@ class KelolaRuanganController extends Controller
         $ruangan = Ruangan::findOrFail($id);
 
         $request->validate([
-            'nama'      => 'required|string|max:255',
-            'kode'      => 'required|string|unique:ruangans,kode,' . $id,
+            'nama_ruangan'      => 'required|string|max:255',
+            'kode'      => 'required|string|unique:ruangan,kode,' . $id,
             'gedung'    => 'nullable|string|max:100',
             'lantai'    => 'nullable|string|max:10',
             'kapasitas' => 'required|integer|min:0',

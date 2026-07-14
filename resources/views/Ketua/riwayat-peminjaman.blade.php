@@ -13,6 +13,7 @@
         <span class="badge badge-gray">{{ $riwayat->total() }} data</span>
     </div>
 
+    {{-- Filter Tab Status --}}
     <div style="padding: 0 20px 16px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
         <span style="font-size: 12.5px; color: var(--color-text-secondary); font-weight: 500; margin-right: 4px;">Filter:</span>
         @foreach($filters as $value => $label)
@@ -80,6 +81,16 @@
                                 <span title="{{ $p->alasan_tolak }}" style="cursor: help; border-bottom: 1px dashed #cbd5e1;">
                                     {{ Str::limit($p->alasan_tolak, 40) }}
                                 </span>
+                                @if($p->ditolak_oleh)
+                                    <div style="font-size:10.5px;color:#94a3b8;margin-top:2px;">
+                                        oleh {{ match($p->ditolak_oleh) {
+                                            'ketua'  => 'Ketua Ormawa',
+                                            'pic'    => 'PIC',
+                                            'sistem' => 'Sistem (otomatis)',
+                                            default  => ucfirst($p->ditolak_oleh),
+                                        } }}
+                                    </div>
+                                @endif
                             @else
                                 —
                             @endif

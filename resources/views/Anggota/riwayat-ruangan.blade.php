@@ -134,17 +134,24 @@
                         @endif
                     </td>
                     <td>
-                        @php
-                            [$cls, $lbl] = match($p->status) {
-                                'menunggu_ketua' => ['badge-orange', 'Menunggu Ketua'],
-                                'menunggu_pic'   => ['badge-blue',   'Menunggu PIC'],
-                                'disetujui'      => ['badge-green',  'Disetujui'],
-                                'ditolak'        => ['badge-red',    'Ditolak'],
-                                'selesai'        => ['badge-gray',   'Selesai'],
-                                'berjalan'       => ['badge-cyan',   'Berjalan'],
-                                default          => ['badge-gray',   ucfirst($p->status)],
-                            };
-                        @endphp
+    @php
+    $labelDitolak = match($p->ditolak_oleh) {
+        'ketua'  => 'Ditolak Ketua',
+        'pic'    => 'Ditolak PIC',
+        'sistem' => 'Ditolak Sistem',
+        default  => 'Ditolak',
+    };
+
+    [$cls, $lbl] = match($p->status) {
+        'menunggu_ketua' => ['badge-orange', 'Menunggu Ketua'],
+        'menunggu_pic'   => ['badge-blue',   'Menunggu PIC'],
+        'disetujui'      => ['badge-green',  'Disetujui'],
+        'ditolak'        => ['badge-red',    $labelDitolak],
+        'selesai'        => ['badge-gray',   'Selesai'],
+        'berjalan'       => ['badge-cyan',   'Berjalan'],
+        default          => ['badge-gray',   ucfirst($p->status)],
+    };
+@endphp
                         <span class="badge {{ $cls }}">{{ $lbl }}</span>
                         @if($p->status === 'disetujui' && ($p->status_pemakaian ?? '') === 'booked' && $tglMulai->isToday())
                             <a href="{{ route('anggota.checkin') }}"
@@ -158,6 +165,16 @@
                             <span title="{{ $p->alasan_tolak }}" style="cursor:help;border-bottom:1px dashed #cbd5e1;">
                                 {{ Str::limit($p->alasan_tolak, 40) }}
                             </span>
+                            @if($p->ditolak_oleh)
+                                <div style="font-size:10.5px;color:#94a3b8;margin-top:2px;">
+                                    oleh {{ match($p->ditolak_oleh) {
+                                        'ketua'  => 'Ketua Ormawa',
+                                        'pic'    => 'PIC',
+                                        'sistem' => 'Sistem (otomatis)',
+                                        default  => ucfirst($p->ditolak_oleh),
+                                    } }}
+                                </div>
+                            @endif
                         @else —
                         @endif
                     </td>

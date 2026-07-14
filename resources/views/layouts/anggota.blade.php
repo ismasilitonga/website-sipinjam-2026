@@ -167,6 +167,7 @@
             display: inline-flex; align-items: center;
             padding: 2px 9px; border-radius: 999px;
             font-size: 11px; font-weight: 600;
+            white-space: nowrap;
         }
         .badge-blue   { background: #eef2ff; color: #4338ca; }
         .badge-green  { background: #dcfce7; color: #15803d; }
