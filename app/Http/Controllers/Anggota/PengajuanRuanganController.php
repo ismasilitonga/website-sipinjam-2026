@@ -47,7 +47,7 @@ class PengajuanRuanganController extends Controller
 
         if ($selesai->lte($mulai)) {
             $pesan = $request->tanggal_mulai === $request->tanggal_selesai
-                ? 'Jam selesai harus lebih besar dari jam mulai.'
+                ? 'Jam selesai harus setelah jam mulai.'
                 : 'Tanggal & jam selesai harus setelah tanggal & jam mulai.';
             return back()->withInput()->with('error', $pesan);
         }

@@ -72,7 +72,7 @@
     <div style="margin-bottom:16px;">
 
     <label style="font-weight:600;font-size:14px;">
-        Upload Foto KTP
+        Upload Foto KTP/KTM
     </label>
 
     <input type="file"
@@ -97,7 +97,7 @@
             border:1px solid #e2e8f0;">
 
     <small style="color:#64748b;font-size:12px;">
-        Pastikan foto KTP yang diupload jelas dan sesuai dengan identitas peminjam.
+        Pastikan foto yang diupload jelas dan sesuai dengan identitas Anda.
     </small>
 
     <div id="ktp-confirmation-{{ $p->id }}"
@@ -116,8 +116,8 @@
                 style="margin-top:3px;accent-color:#4f46e5;">
 
             <span>
-                Saya menyatakan bahwa foto yang diupload adalah KTP asli milik saya.
-                Upload selain KTP dapat menyebabkan check-in ditolak oleh petugas Pamdal.
+                Saya menyatakan bahwa foto yang diupload adalah KTP/KTM asli milik saya.
+                Upload selain KTP/KTM dapat menyebabkan check-in ditolak oleh petugas Pamdal.
             </span>
         </label>
     </div>
@@ -171,7 +171,7 @@
         <div style="text-align:center;margin-bottom:24px;">
             <div style="font-size:17px;font-weight:700;margin-bottom:6px;">Persetujuan Diperlukan</div>
             <div style="font-size:14px;color:var(--text-muted);line-height:1.5;">
-                Silakan centang pernyataan KTP terlebih dahulu sebelum melakukan check-in.
+                Silakan centang pernyataan KTP/KTM terlebih dahulu sebelum melakukan check-in.
             </div>
         </div>
 
@@ -202,7 +202,7 @@
         <div style="text-align:center;margin-bottom:24px;">
             <div style="font-size:17px;font-weight:700;margin-bottom:6px;">Konfirmasi Check-in?</div>
             <div style="font-size:14px;color:var(--text-muted);line-height:1.5;">
-                Pastikan data dan foto KTP yang kamu upload sudah benar sebelum melanjutkan.
+                Pastikan data dan foto KTP/KTM yang kamu upload sudah benar sebelum melanjutkan.
             </div>
         </div>
 

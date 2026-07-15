@@ -57,13 +57,12 @@
                             {{ \Carbon\Carbon::parse($p->tanggal_selesai)->format('H:i') }}
                         </div>
                     </td>
-                    <td style="font-size:13px;max-width:200px;">
-                        <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;"
-                             title="{{ $p->keperluan }}">
+                    <td style="font-size:13px;max-width:220px;">
+                        <div style="white-space:normal;word-wrap:break-word;">
                             {{ $p->keperluan }}
                         </div>
                     </td>
-                    {{-- === BARU: kolom dokumen pendukung, biar Ketua bisa nilai prioritas/urgensi pengajuan === --}}
+
                     <td style="font-size:12px;">
                         @if($p->dokumen_pendukung)
                             <a href="{{ asset('storage/' . $p->dokumen_pendukung) }}" target="_blank"
@@ -88,22 +87,21 @@
                     <td>
                     <div style="display:flex;gap:6px;">
 
-                            <button type="button" class="btn btn-success btn-sm"
-    onclick="openSetujuiModal({{ $p->id }}, '{{ addslashes($p->user->nama ?? '') }}')">
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:13px;height:13px;">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-    </svg>
-    Setujui
-</button>
-                            </form>
-
-                            <button type="button" class="btn btn-danger btn-sm"
-                                onclick="openTolakModal({{ $p->id }}, '{{ addslashes($p->user->nama ?? '') }}')">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:13px;height:13px;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                                Tolak
-                            </button>
+                <button type="button" class="btn btn-success btn-sm"
+                onclick="openSetujuiModal({{ $p->id }}, '{{ addslashes($p->user->nama ?? '') }}')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:13px;height:13px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Setujui
+            </button>
+                </form>
+                    <button type="button" class="btn btn-danger btn-sm"
+                    onclick="openTolakModal({{ $p->id }}, '{{ addslashes($p->user->nama ?? '') }}')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:13px;height:13px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                     Tolak
+                        </button>
                         </div>
                     </td>
                 </tr>

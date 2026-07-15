@@ -77,6 +77,7 @@
         <th style="width:130px;">Peminjam</th>
         <th style="width:120px;">Ormawa</th>
         <th style="width:100px;">Barang</th>
+        <th style="width:100px;">Dokumen</th>
         <th style="width:80px;">Jumlah</th>
         <th style="width:110px;">Tgl Pinjam</th>
         <th style="width:130px;">Status</th>
@@ -95,6 +96,16 @@
         </td>
         <td style="font-size:12.5px;">{{ $p->nama_ormawa ?? '-' }}</td>
         <td style="font-size:13px;font-weight:500;white-space:nowrap;">{{ $p->barang->nama ?? '-' }}</td>
+        <td style="font-size:12px;">
+            @if($p->dokumen_pendukung)
+                <a href="{{ Storage::url($p->dokumen_pendukung) }}" target="_blank"
+                   style="color:var(--accent);text-decoration:none;font-weight:600;white-space:nowrap;">
+                    📄 Lihat Dokumen
+                </a>
+            @else
+                <span style="color:var(--text-muted);">—</span>
+            @endif
+        </td>
         <td style="font-size:12.5px;">{{ $p->jumlah ?? '-' }} {{ $p->barang->satuan ?? 'unit' }}</td>
         <td style="font-size:12.5px;white-space:nowrap;">
             {{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y') }}
@@ -143,7 +154,7 @@
     </tr>
     @empty
     <tr>
-        <td colspan="8">
+        <td colspan="9">
             <div class="empty-state">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"

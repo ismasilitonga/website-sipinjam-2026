@@ -91,16 +91,14 @@
                 <div class="form-grid-2">
                     <div class="form-group">
                         <label class="form-label">Tanggal Mulai <span style="color:var(--danger)">*</span></label>
-                        <input type="date" name="tanggal_mulai" id="tanggal_mulai" class="form-control"
-                               value="{{ old('tanggal_mulai') }}"
-                               min="{{ date('Y-m-d', strtotime('+2 days')) }}" required>
+                        <input type="text" name="tanggal_mulai" id="tanggal_mulai" class="form-control"
+                               value="{{ old('tanggal_mulai') }}" autocomplete="off" required>
                         @error('tanggal_mulai') <div class="form-error">{{ $message }}</div> @enderror
                     </div>
                     <div class="form-group">
                         <label class="form-label">Tanggal Selesai <span style="color:var(--danger)">*</span></label>
-                        <input type="date" name="tanggal_selesai" id="tanggal_selesai" class="form-control"
-                               value="{{ old('tanggal_selesai') }}"
-                               min="{{ date('Y-m-d', strtotime('+2 days')) }}" required>
+                        <input type="text" name="tanggal_selesai" id="tanggal_selesai" class="form-control"
+                               value="{{ old('tanggal_selesai') }}" autocomplete="off" required>
                         @error('tanggal_selesai') <div class="form-error">{{ $message }}</div> @enderror
                     </div>
                 </div>
@@ -128,7 +126,7 @@
                 </div>
                 <div id="jamInfo" style="display:none;margin:-8px 0 16px;font-size:12.5px;color:var(--text-muted);"></div>
                 <div id="jamError" class="form-error" style="display:none;margin:-8px 0 16px;">
-                    Jam selesai harus lebih besar dari jam mulai.
+                    Jam selesai harus setelah jam mulai.
                 </div>
                 <div id="bentrokWarning" class="form-error" style="display:none;margin:-8px 0 16px;
                      background:#fef2f2;border:1px solid #fecaca;padding:10px 12px;border-radius:8px;"></div>
@@ -223,8 +221,11 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
 <script>
     window.addEventListener('DOMContentLoaded', () => {
+
+        flatpickr.localize(flatpickr.l10ns.id);
 
         const MAKS_DURASI_HARI = 3;
 
@@ -312,20 +313,30 @@
         const durasiError = document.getElementById('durasiError');
         const submitBtn  = document.getElementById('submitBtn');
 
-        if (tglMulai) tglMulai.setAttribute('min', minDate);
-        if (tglSelesai) tglSelesai.setAttribute('min', minDate);
+        const fpTglMulai = flatpickr(tglMulai, {
+            dateFormat: 'Y-m-d',
+            altInput: true,
+            altFormat: 'd F Y',
+            minDate: minDate,
+            onChange() { validasiDurasi(); validasiJam(); cekBentrokSekarang(); },
+        });
+
+        const fpTglSelesai = flatpickr(tglSelesai, {
+            dateFormat: 'Y-m-d',
+            altInput: true,
+            altFormat: 'd F Y',
+            minDate: minDate,
+            onChange() { validasiDurasi(); validasiJam(); cekBentrokSekarang(); },
+        });
 
         function updateMaxTanggalSelesai() {
             if (!tglMulai.value) {
-                tglSelesai.removeAttribute('max');
+                fpTglSelesai.set('maxDate', null);
                 return;
             }
             const d = new Date(tglMulai.value);
             d.setDate(d.getDate() + (MAKS_DURASI_HARI - 1));
-            const yyyy = d.getFullYear();
-            const mm   = String(d.getMonth() + 1).padStart(2, '0');
-            const dd   = String(d.getDate()).padStart(2, '0');
-            tglSelesai.setAttribute('max', `${yyyy}-${mm}-${dd}`);
+            fpTglSelesai.set('maxDate', d);
         }
 
         function validasiDurasi() {
@@ -335,9 +346,11 @@
 
             updateMaxTanggalSelesai();
 
-            if (!tglMulai.value || !tglSelesai.value) return;
+            if (tglMulai.value) {
+                fpTglSelesai.set('minDate', tglMulai.value);
+            }
 
-            tglSelesai.setAttribute('min', tglMulai.value);
+            if (!tglMulai.value || !tglSelesai.value) return;
 
             const d1 = new Date(tglMulai.value);
             const d2 = new Date(tglSelesai.value);
@@ -361,8 +374,6 @@
             durasiInfo.style.display = 'block';
         }
 
-        tglMulai.addEventListener('change', validasiDurasi);
-        tglSelesai.addEventListener('change', validasiDurasi);
         validasiDurasi();
 
         const wibNow = getNowWIB();
@@ -401,7 +412,7 @@
 
             if (selesaiFull <= mulaiFull) {
                 jamError.textContent = isSatuHari()
-                    ? 'Jam selesai harus lebih besar dari jam mulai.'
+                    ? 'Jam selesai harus setelah jam mulai.'
                     : 'Tanggal & jam selesai harus setelah tanggal & jam mulai.';
                 jamError.style.display = 'block';
                 submitBtn.disabled = true;
@@ -428,11 +439,9 @@
             jamInfo.textContent = teks;
             jamInfo.style.display = 'block';
 
-            // jangan enable kalau durasi tanggal sedang invalid
             if (durasiError.style.display === 'none') submitBtn.disabled = false;
         }
 
-        // ── Cek bentrok jadwal secara real-time ──
         const bentrokWarning = document.getElementById('bentrokWarning');
         let bentrokTimeout = null;
 

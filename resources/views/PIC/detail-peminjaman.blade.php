@@ -51,7 +51,12 @@
 
         <div style="display: grid; grid-template-columns: 160px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border);">
             <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding-top: 3px;">Tanggal</div>
-            <div style="font-size: 14px;">{{ \Carbon\Carbon::parse($p->tanggal_mulai)->translatedFormat('l, d F Y') }}</div>
+            <div style="font-size: 14px;">
+                {{ \Carbon\Carbon::parse($p->tanggal_mulai)->translatedFormat('l, d F Y') }}
+                @if(!\Carbon\Carbon::parse($p->tanggal_mulai)->isSameDay($p->tanggal_selesai))
+                    s/d {{ \Carbon\Carbon::parse($p->tanggal_selesai)->translatedFormat('l, d F Y') }}
+                @endif
+            </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 160px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border);">

@@ -8,6 +8,10 @@
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
 @endsection
 
+@push('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+@endpush
+
 @section('content')
 
 @if(session('error'))
@@ -48,7 +52,7 @@
     <div class="card">
         <div class="card-header"><span class="card-title">Form Pengajuan Barang</span></div>
         <div class="card-body">
-            <form method="POST" action="{{ route('anggota.pengajuan-barang.store') }}">
+            <form method="POST" action="{{ route('anggota.pengajuan-barang.store') }}" enctype="multipart/form-data">
                 @csrf
 
                 <div class="form-group">
@@ -92,17 +96,15 @@
                 <div class="form-grid-2">
                     <div class="form-group">
                         <label class="form-label">Tanggal Pinjam <span style="color:var(--danger)">*</span></label>
-                        <input type="date" name="tanggal_pinjam" id="tanggal_pinjam" class="form-control"
-                               value="{{ old('tanggal_pinjam') }}"
-                               min="{{ date('Y-m-d', strtotime('+2 days')) }}" required>
+                        <input type="text" name="tanggal_pinjam" id="tanggal_pinjam" class="form-control"
+                               value="{{ old('tanggal_pinjam') }}" autocomplete="off" required>
                         @error('tanggal_pinjam') <div class="form-error">{{ $message }}</div> @enderror
                     </div>
                     <div class="form-group">
                         <label class="form-label">Rencana Tanggal Kembali <span style="color:var(--danger)">*</span></label>
-                        <input type="date" name="tanggal_kembali_rencana" id="tanggal_kembali_rencana"
+                        <input type="text" name="tanggal_kembali_rencana" id="tanggal_kembali_rencana"
                                class="form-control"
-                               value="{{ old('tanggal_kembali_rencana') }}"
-                               min="{{ date('Y-m-d', strtotime('+2 days')) }}" required>
+                               value="{{ old('tanggal_kembali_rencana') }}" autocomplete="off" required>
                         @error('tanggal_kembali_rencana') <div class="form-error">{{ $message }}</div> @enderror
                     </div>
                 </div>
@@ -118,6 +120,18 @@
                     <textarea name="keperluan" class="form-control" rows="3"
                               placeholder="Jelaskan untuk apa barang ini akan digunakan" required>{{ old('keperluan') }}</textarea>
                     @error('keperluan') <div class="form-error">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Upload Dokumen Pendukung <span style="color:var(--danger)">*</span>
+                    </label>
+                    <input type="file" name="dokumen_pendukung" id="dokumen_pendukung" class="form-control"
+                           accept=".pdf,.jpg,.jpeg,.png" required>
+                    <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">
+                        Wajib diisi. Contoh: surat kegiatan/acara. Format PDF/JPG/PNG, maks. 5MB.
+                    </div>
+                    @error('dokumen_pendukung') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="alert alert-info" style="margin-bottom:18px;">
@@ -173,6 +187,8 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
 <script>
 const CEK_STOK_URL = "{{ route('anggota.pengajuan-barang.cek-stok') }}";
 let cekStokTimeout = null;
@@ -316,18 +332,6 @@ function validasiDurasiBarang() {
     durasiInfo.style.display = 'none';
     durasiError.style.display = 'none';
 
-    // update batas maksimal tanggal kembali berdasarkan tanggal pinjam
-    if (tglPinjam.value) {
-        const d = new Date(tglPinjam.value);
-        d.setDate(d.getDate() + (MAKS_DURASI_HARI_BARANG - 1));
-        const yyyy = d.getFullYear();
-        const mm   = String(d.getMonth() + 1).padStart(2, '0');
-        const dd   = String(d.getDate()).padStart(2, '0');
-        tglKembali.setAttribute('max', `${yyyy}-${mm}-${dd}`);
-    } else {
-        tglKembali.removeAttribute('max');
-    }
-
     if (!tglPinjam.value || !tglKembali.value) return;
 
     const d1 = new Date(tglPinjam.value);
@@ -357,6 +361,8 @@ function validasiDurasiBarang() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+    flatpickr.localize(flatpickr.l10ns.id);
+
     const sel = document.getElementById('barangSelect');
     if (sel.value) updateBarangInfo(sel);
 
@@ -368,25 +374,62 @@ window.addEventListener('DOMContentLoaded', () => {
         onChange()     { updateBarangInfo(sel); }
     });
 
+    function getNowWIB() {
+        const now = new Date();
+        const wibStr = now.toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' });
+        return new Date(wibStr);
+    }
+
+    const minDate = (() => {
+        const d = getNowWIB();
+        d.setDate(d.getDate() + 2);
+        const yyyy = d.getFullYear();
+        const mm   = String(d.getMonth() + 1).padStart(2, '0');
+        const dd   = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    })();
+
     const tglPinjam  = document.getElementById('tanggal_pinjam');
     const tglKembali = document.getElementById('tanggal_kembali_rencana');
 
+    const fpTglPinjam = flatpickr(tglPinjam, {
+        dateFormat: 'Y-m-d',
+        altInput: true,
+        altFormat: 'd F Y',
+        minDate: minDate,
+        onChange() { syncMinTglKembali(); },
+    });
+
+    const fpTglKembali = flatpickr(tglKembali, {
+        dateFormat: 'Y-m-d',
+        altInput: true,
+        altFormat: 'd F Y',
+        minDate: minDate,
+        onChange() { validasiDurasiBarang(); cekStokRealtime(); },
+    });
+
+    function updateMaxTglKembali() {
+        if (!tglPinjam.value) {
+            fpTglKembali.set('maxDate', null);
+            return;
+        }
+        const d = new Date(tglPinjam.value);
+        d.setDate(d.getDate() + (MAKS_DURASI_HARI_BARANG - 1));
+        fpTglKembali.set('maxDate', d);
+    }
+
     function syncMinTglKembali() {
         if (tglPinjam.value) {
-            tglKembali.min = tglPinjam.value;
+            fpTglKembali.set('minDate', tglPinjam.value);
             if (tglKembali.value && tglKembali.value < tglPinjam.value) {
-                tglKembali.value = tglPinjam.value;
+                fpTglKembali.setDate(tglPinjam.value, true);
             }
         }
+        updateMaxTglKembali();
         validasiDurasiBarang();
         cekStokRealtime();
     }
 
-    tglPinjam.addEventListener('change', syncMinTglKembali);
-    tglKembali.addEventListener('change', function () {
-        validasiDurasiBarang();
-        cekStokRealtime();
-    });
     syncMinTglKembali();
 });
 </script>

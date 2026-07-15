@@ -43,6 +43,7 @@
                     <th style="width:120px;">TGL Pinjam</th>
                     <th style="width:170px;">Rencana Kembali</th>
                     <th style="width:130px;">Keperluan</th>
+                    <th style="width:110px;">Dokumen</th>
                     <th style="width:140px;">Status</th>
                     <th style="width:140px;">Diserahkan</th>
                 </tr>
@@ -88,6 +89,16 @@
                     {{ $pb->keperluan }}
                     </div>
                     </td>
+                    <td style="font-size:12px;">
+                        @if($pb->dokumen_pendukung)
+                            <a href="{{ Storage::url($pb->dokumen_pendukung) }}" target="_blank"
+                               style="color:var(--accent);text-decoration:none;font-weight:600;white-space:nowrap;">
+                                📄 Lihat Dokumen
+                            </a>
+                        @else
+                            <span style="color:var(--text-muted);">—</span>
+                        @endif
+                    </td>
                     <td>
                         @php
                             [$cls, $lbl] = match($pb->status ?? 'menunggu_pic') {
@@ -117,7 +128,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8">
+                    <td colspan="9">
                         <div class="empty-state">
                             <p>Belum ada riwayat peminjaman barang.</p>
                         </div>

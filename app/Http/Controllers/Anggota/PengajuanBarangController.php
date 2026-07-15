@@ -37,6 +37,7 @@ class PengajuanBarangController extends Controller
         'tanggal_pinjam'          => 'required|date|after_or_equal:today',
         'tanggal_kembali_rencana' => 'required|date|after_or_equal:tanggal_pinjam',
         'keperluan'               => 'required|string|max:500',
+        'dokumen_pendukung'       => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
     ], [
         'barang_id.required'                     => 'Barang harus dipilih.',
         'barang_id.exists'                       => 'Barang yang dipilih tidak valid.',
@@ -51,6 +52,10 @@ class PengajuanBarangController extends Controller
         'tanggal_kembali_rencana.after_or_equal' => 'Tanggal kembali tidak boleh sebelum tanggal pinjam.',
         'keperluan.required'                     => 'Keperluan harus diisi.',
         'keperluan.max'                          => 'Keperluan maksimal 500 karakter.',
+        'dokumen_pendukung.required'             => 'Dokumen pendukung wajib diunggah.',
+        'dokumen_pendukung.file'                 => 'Dokumen pendukung tidak valid.',
+        'dokumen_pendukung.mimes'                => 'Dokumen pendukung harus berformat PDF, JPG, JPEG, atau PNG.',
+        'dokumen_pendukung.max'                  => 'Ukuran dokumen pendukung maksimal 5MB.',
     ]);
 
     $barang = Barang::findOrFail($request->barang_id);
@@ -71,6 +76,8 @@ class PengajuanBarangController extends Controller
         );
     }
 
+    $dokumenPath = $request->file('dokumen_pendukung')->store('dokumen-pengajuan-barang', 'public');
+
     PeminjamanBarang::create([
         'user_id'                 => Auth::id(),
         'barang_id'               => $request->barang_id,
@@ -79,6 +86,7 @@ class PengajuanBarangController extends Controller
         'tanggal_pinjam'          => $request->tanggal_pinjam,
         'tanggal_kembali_rencana' => $request->tanggal_kembali_rencana,
         'keperluan'               => $request->keperluan,
+        'dokumen_pendukung'       => $dokumenPath,
         'status'                  => 'menunggu_pic',
     ]);
 
