@@ -16,7 +16,7 @@ class PengajuanRuanganController extends Controller
 
     const MIN_DURASI_MENIT = 60;
 
-    const STATUS_MENGUNCI = ['disetujui'];
+    const STATUS_MENGUNCI = ['disetujui', 'berjalan'];
 
     public function index()
     {

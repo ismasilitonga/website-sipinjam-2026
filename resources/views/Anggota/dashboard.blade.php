@@ -87,17 +87,21 @@
                 </thead>
                 <tbody>
                     @forelse($ruanganAktifHariIni as $p)
-                    @php
+                   @php
                         $mulai   = \Carbon\Carbon::parse($p->tanggal_mulai);
                         $selesai = \Carbon\Carbon::parse($p->tanggal_selesai);
+                        $checkInHariIni = $p->checkIns->firstWhere('tanggal', today()->toDateString());
 
-                        $statusLive = match($p->status) {
-                            'disetujui' => ['badge-yellow', '🟡 Akan Digunakan'],
-                            'berjalan'  => ['badge-green', '🟢 Sedang Digunakan'],
-                            'selesai'   => ['badge-gray', '⚪ Selesai'],
-                            default     => ['badge-gray', $p->status],
-                        };
-                    @endphp
+                    if ($checkInHariIni && is_null($checkInHariIni->waktu_checkout)) {
+                        $statusLive = ['badge-green', '🟢 Sedang Digunakan'];
+                    } elseif ($checkInHariIni && $checkInHariIni->waktu_checkout) {
+                        $statusLive = ['badge-gray', '⚪ Selesai Hari Ini'];
+                    } elseif ($p->status === 'selesai') {
+                        $statusLive = ['badge-gray', '⚪ Selesai'];
+                    } else {
+                        $statusLive = ['badge-yellow', '🟡 Akan Digunakan'];
+                    }
+                @endphp
                     <tr>
                         <td>
                             <div style="font-weight:600;">{{ $p->ruangan->nama_ruangan ?? '-' }}</div>

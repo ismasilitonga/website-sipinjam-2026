@@ -16,7 +16,7 @@
             Tidak ada ruangan yang sedang digunakan
         </p>
         <p style="font-size:13.5px;">
-            Halaman ini hanya menampilkan peminjaman yang sudah check-in (<em>ongoing</em>).
+            Halaman ini hanya menampilkan peminjaman yang sudah check-in (<em>ongoing</em>) untuk hari ini.
         </p>
         <div style="margin-top:20px;">
             <a href="{{ route('anggota.checkin') }}" class="btn btn-primary">Ke Halaman Check-in</a>
@@ -29,9 +29,10 @@
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;">
     @foreach($peminjaman_ruangan as $p)
     @php
-        $mulai    = \Carbon\Carbon::parse($p->tanggal_mulai);
-        $selesai  = \Carbon\Carbon::parse($p->tanggal_selesai);
-        $durasi   = $mulai->diffInMinutes(now());
+  
+        $jamSelesai   = \Carbon\Carbon::parse($p->tanggal_selesai)->format('H:i:s');
+        $selesaiHariIni = \Carbon\Carbon::parse(today()->toDateString() . ' ' . $jamSelesai);
+        $waktuCheckin = $p->checkInHariIni->waktu_checkin ?? $p->tanggal_mulai;
     @endphp
     <div class="card" style="border-left:4px solid #06b6d4;">
         <div class="card-body">
@@ -51,14 +52,14 @@
                 <div style="background:#ecfeff;border-radius:8px;padding:10px 12px;">
                     <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">CHECK-IN</div>
                     <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:700;color:#0891b2;">
-                        {{ \Carbon\Carbon::parse($p->checkIn->waktu_checkin ?? $p->tanggal_mulai)->format('H:i') }}
+                        {{ \Carbon\Carbon::parse($waktuCheckin)->format('H:i') }}
                     </div>
                 </div>
                 <div style="background:#f8fafc;border-radius:8px;padding:10px 12px;">
                     <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">SELESAI</div>
                     <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:700;
-                                color:{{ now()->gt($selesai) ? '#dc2626' : 'var(--text)' }};">
-                        {{ $selesai->format('H:i') }}
+                                color:{{ now()->gt($selesaiHariIni) ? '#dc2626' : 'var(--text)' }};">
+                        {{ $selesaiHariIni->format('H:i') }}
                     </div>
                 </div>
             </div>
@@ -66,16 +67,20 @@
             <div style="background:#f0f9ff;border-radius:8px;padding:10px 12px;margin-bottom:14px;
                         display:flex;align-items:center;gap:8px;font-size:13px;">
                 <span>⏱</span>
-                <span>Sudah digunakan selama <strong>{{ $durasi }} menit</strong></span>
+                <span>Sudah digunakan selama
+                    <strong class="durasi-timer" data-checkin="{{ \Carbon\Carbon::parse($waktuCheckin)->toDateTimeString() }}">
+                        00:00:00
+                    </strong>
+                </span>
             </div>
 
-            @if(now()->gt($selesai))
+            @if(now()->gt($selesaiHariIni))
             <div class="alert alert-warning" style="margin-bottom:12px;padding:10px 12px;">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;flex-shrink:0;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                 </svg>
-                Waktu penggunaan sudah berakhir. Segera lakukan check-out!
+                Waktu penggunaan hari ini sudah berakhir. Segera lakukan check-out!
             </div>
             @endif
 
@@ -175,6 +180,25 @@
     document.getElementById('modalCheckout').addEventListener('click', function(e) {
         if (e.target === this) tutupModalCheckout();
     });
+
+    function formatDurasi(detik) {
+        const h = String(Math.floor(detik / 3600)).padStart(2, '0');
+        const m = String(Math.floor((detik % 3600) / 60)).padStart(2, '0');
+        const s = String(Math.floor(detik % 60)).padStart(2, '0');
+        return `${h}:${m}:${s}`;
+    }
+
+    function updateAllTimers() {
+        document.querySelectorAll('.durasi-timer').forEach(el => {
+            const checkinTime = new Date(el.dataset.checkin.replace(' ', 'T'));
+            const now = new Date();
+            const detik = Math.floor((now - checkinTime) / 1000);
+            el.textContent = formatDurasi(Math.max(detik, 0));
+        });
+    }
+
+    updateAllTimers();
+    setInterval(updateAllTimers, 1000);
 </script>
 
 @endsection

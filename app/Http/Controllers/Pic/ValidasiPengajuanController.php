@@ -41,7 +41,7 @@ class ValidasiPengajuanController extends Controller
 
         $bentrok = PeminjamanRuangan::where('ruangan_id', $peminjaman->ruangan_id)
             ->where('id', '!=', $peminjaman->id)
-            ->where('status', 'disetujui')
+            ->whereIn('status', ['disetujui', 'berjalan']) 
             ->where('tanggal_mulai', '<', $selesaiDenganJeda)
             ->where('tanggal_selesai', '>', $mulaiDenganJeda)
             ->exists();

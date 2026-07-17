@@ -7,10 +7,19 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\PeminjamanRuangan;
 use App\Models\Ruangan;
-use Illuminate\Http\Request; 
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class RiwayatRuanganAnggotaController extends Controller
 {
+    const JEDA_MENIT = 30;
+
+    const MIN_DURASI_MENIT = 60;
+
+    const MAKS_DURASI_HARI = 3;
+
+    const STATUS_MENGUNCI = ['disetujui', 'berjalan'];
+
     public function index(Request $request)
     {
         $filters = [
@@ -51,7 +60,7 @@ class RiwayatRuanganAnggotaController extends Controller
     {
         $request->validate([
             'ruangan_id'        => 'required|exists:ruangan,id',
-            'tanggal_mulai'     => 'required|date',
+            'tanggal_mulai'     => 'required|date|after_or_equal:today',
             'tanggal_selesai'   => 'required|date|after_or_equal:tanggal_mulai',
             'keperluan'         => 'required|string|max:255',
             'dokumen_pendukung' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
@@ -62,7 +71,34 @@ class RiwayatRuanganAnggotaController extends Controller
             ->where('status', 'menunggu_ketua')
             ->firstOrFail();
 
-        $data = $request->only(['ruangan_id', 'tanggal_mulai', 'tanggal_selesai', 'keperluan']);
+        $mulai   = Carbon::parse($request->tanggal_mulai);
+        $selesai = Carbon::parse($request->tanggal_selesai);
+
+        if ($selesai->lte($mulai)) {
+            return back()->withInput()->with('error', 'Tanggal & jam selesai harus setelah tanggal & jam mulai.');
+        }
+
+        if ($mulai->diffInMinutes($selesai) < self::MIN_DURASI_MENIT) {
+            return back()->withInput()->with('error',
+                'Minimal durasi peminjaman ' . self::MIN_DURASI_MENIT . ' menit.');
+        }
+
+        $batasTanggal = $mulai->copy()->startOfDay()->addDays(self::MAKS_DURASI_HARI - 1)->endOfDay();
+
+        if ($selesai->gt($batasTanggal)) {
+            return back()->withInput()->with('error',
+                'Peminjaman ruangan maksimal ' . self::MAKS_DURASI_HARI . ' hari.');
+        }
+
+        $bentrokDengan = $this->cariBentrokMultiHari($request->ruangan_id, $peminjaman->id, $mulai, $selesai);
+
+        if ($bentrokDengan) {
+            return back()->withInput()->with('error', $this->pesanBentrok($bentrokDengan));
+        }
+
+        $data = $request->only(['ruangan_id', 'keperluan']);
+        $data['tanggal_mulai']   = $mulai;
+        $data['tanggal_selesai'] = $selesai;
 
         if ($request->hasFile('dokumen_pendukung')) {
             if ($peminjaman->dokumen_pendukung) {
@@ -76,5 +112,53 @@ class RiwayatRuanganAnggotaController extends Controller
         return redirect()
             ->route('anggota.riwayat-ruangan')
             ->with('success', 'Pengajuan berhasil diperbarui.');
+    }
+
+    private function cariBentrokMultiHari($ruanganId, $peminjamanId, Carbon $mulai, Carbon $selesai)
+    {
+        $tglMulaiBaru   = $mulai->copy()->startOfDay();
+        $tglSelesaiBaru = $selesai->copy()->startOfDay();
+
+        $kandidat = PeminjamanRuangan::where('ruangan_id', $ruanganId)
+            ->where('id', '!=', $peminjamanId)
+            ->whereIn('status', self::STATUS_MENGUNCI)
+            ->whereDate('tanggal_mulai', '<=', $tglSelesaiBaru)
+            ->whereDate('tanggal_selesai', '>=', $tglMulaiBaru)
+            ->orderBy('tanggal_mulai')
+            ->get();
+
+        if ($kandidat->isEmpty()) {
+            return null;
+        }
+
+        $jamMulaiBaru   = $mulai->hour * 60 + $mulai->minute - self::JEDA_MENIT;
+        $jamSelesaiBaru = $selesai->hour * 60 + $selesai->minute + self::JEDA_MENIT;
+
+        foreach ($kandidat as $item) {
+            $itemMulai   = Carbon::parse($item->tanggal_mulai);
+            $itemSelesai = Carbon::parse($item->tanggal_selesai);
+
+            $jamMulaiItem   = $itemMulai->hour * 60 + $itemMulai->minute;
+            $jamSelesaiItem = $itemSelesai->hour * 60 + $itemSelesai->minute;
+
+            $jamBeririsan = $jamMulaiBaru < $jamSelesaiItem && $jamSelesaiBaru > $jamMulaiItem;
+
+            if ($jamBeririsan) {
+                return $item;
+            }
+        }
+
+        return null;
+    }
+
+    private function pesanBentrok(PeminjamanRuangan $bentrokDengan): string
+    {
+        $itemMulai   = Carbon::parse($bentrokDengan->tanggal_mulai);
+        $itemSelesai = Carbon::parse($bentrokDengan->tanggal_selesai);
+
+        return "Ruangan sudah dipesan pihak lain pada jam " .
+            $itemMulai->format('H:i') . '–' . $itemSelesai->format('H:i') .
+            " (berlaku tiap hari selama " . $itemMulai->format('d/m/Y') . ' – ' . $itemSelesai->format('d/m/Y') .
+            "). Minimal jeda " . self::JEDA_MENIT . " menit dari jam tersebut. Silakan pilih jam lain.";
     }
 }

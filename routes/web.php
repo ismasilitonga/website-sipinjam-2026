@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LupaKatasandiController;
+use App\Http\Controllers\FotoIdentitasController;
 
 use App\Http\Controllers\Anggota\DashboardAnggotaController;
 use App\Http\Controllers\Anggota\DaftarRuanganController;
@@ -239,6 +240,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/pengguna', KelolaUserController::class);
         Route::resource('/ormawa',   KelolaOrmawaController::class);
 
+        Route::get('/foto-identitas/{checkIn}', [FotoIdentitasController::class, 'show'])->middleware('auth')->name('foto-identitas.show');
         Route::get('/pendaftar',                [ValidasiPendaftarController::class, 'index'])->name('pendaftar.index');
         Route::post('/pendaftar/{id}/setujui',  [ValidasiPendaftarController::class, 'setujui'])->name('pendaftar.setujui');
         Route::post('/pendaftar/{id}/tolak',    [ValidasiPendaftarController::class, 'tolak'])->name('pendaftar.tolak');

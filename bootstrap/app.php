@@ -11,14 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Alias middleware 'role' untuk dipakai di routes
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);
 
-        // Override 'guest' middleware agar redirect ke landing page
         $middleware->redirectGuestsTo(fn () => route('landingpage'));
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
     })->create();

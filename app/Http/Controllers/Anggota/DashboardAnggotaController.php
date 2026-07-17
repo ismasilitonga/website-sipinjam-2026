@@ -19,9 +19,10 @@ class DashboardAnggotaController extends Controller
     $disetujui       = PeminjamanRuangan::where('user_id', $userId)->where('status', 'disetujui')->count();
     $menunggu        = PeminjamanRuangan::where('user_id', $userId)->whereIn('status', ['menunggu_ketua', 'menunggu_pic'])->count();
 
-    $ruanganAktifHariIni = PeminjamanRuangan::with(['ruangan', 'user'])
+    $ruanganAktifHariIni = PeminjamanRuangan::with(['ruangan', 'user', 'checkIns'])   
         ->whereIn('status', ['disetujui', 'berjalan', 'selesai'])
-        ->whereDate('tanggal_mulai', today())
+        ->whereDate('tanggal_mulai', '<=', today())
+        ->whereDate('tanggal_selesai', '>=', today())
         ->orderBy('tanggal_mulai')
         ->get();
 

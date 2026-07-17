@@ -85,12 +85,12 @@
                 @endif
             </div>
         </div>
-
-        @if($p->checkIn)
+        
+        @if($p->checkIn && auth()->user()->role !== 'pic')
             <div style="display: grid; grid-template-columns: 160px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border);">
                 <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding-top: 3px;">Identitas Check-in</div>
                 <div>
-                    <img src="{{ Storage::url($p->checkIn->foto_ktp) }}" alt="Foto KTP"
+                    <img src="{{ route('foto-identitas.show', $p->checkIn->id) }}" alt="Foto Identitas"
                          style="max-width: 260px; max-height: 160px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); display: block; margin-bottom: 6px;">
                     <div style="font-size: 12px; color: var(--text-muted);">
                         Check-in pada {{ \Carbon\Carbon::parse($p->checkIn->waktu_checkin)->format('d M Y, H:i') }}

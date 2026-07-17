@@ -11,16 +11,18 @@ use Carbon\Carbon;
 
 class CheckinController extends Controller
 {
-
     const TOLERANSI_MENIT_SEBELUM = 15;
 
     public function index()
     {
         $peminjaman_ruangan = PeminjamanRuangan::with('ruangan')
             ->where('user_id', Auth::id())
-            ->where('status', 'disetujui')
-            ->whereDoesntHave('checkIn')
-            ->whereDate('tanggal_mulai', today())
+            ->whereIn('status', ['disetujui', 'berjalan'])
+            ->whereDate('tanggal_mulai', '<=', today())
+            ->whereDate('tanggal_selesai', '>=', today())
+            ->whereDoesntHave('checkIns', function ($q) {
+                $q->whereDate('tanggal', today());
+            })
             ->get();
 
         return view('anggota.checkin', compact('peminjaman_ruangan'));
@@ -35,19 +37,26 @@ class CheckinController extends Controller
 
         $peminjaman = PeminjamanRuangan::where('id', $request->peminjaman_id)
             ->where('user_id', Auth::id())
-            ->where('status', 'disetujui')
-            ->whereDoesntHave('checkIn')
-            ->whereDate('tanggal_mulai', today())
+            ->whereIn('status', ['disetujui', 'berjalan'])
+            ->whereDate('tanggal_mulai', '<=', today())
+            ->whereDate('tanggal_selesai', '>=', today())
+            ->whereDoesntHave('checkIns', function ($q) {
+                $q->whereDate('tanggal', today());
+            })
             ->first();
 
         if (!$peminjaman) {
             return redirect()->back()->with('error',
-                'Check-in tidak dapat dilakukan. Pastikan pengajuan sudah disetujui, jadwalnya hari ini, dan belum pernah check-in sebelumnya.');
+                'Check-in tidak dapat dilakukan. Pastikan pengajuan sudah disetujui, jadwal hari ini termasuk dalam periode peminjaman, dan belum check-in untuk hari ini.');
         }
 
-        $sekarang       = now();
-        $batasMulai     = Carbon::parse($peminjaman->tanggal_mulai)->subMinutes(self::TOLERANSI_MENIT_SEBELUM);
-        $batasSelesai   = Carbon::parse($peminjaman->tanggal_selesai);
+        $sekarang = now();
+        $jamMulai   = Carbon::parse($peminjaman->tanggal_mulai)->format('H:i:s');
+        $jamSelesai = Carbon::parse($peminjaman->tanggal_selesai)->format('H:i:s');
+
+        $batasMulai   = Carbon::parse(today()->toDateString() . ' ' . $jamMulai)
+                            ->subMinutes(self::TOLERANSI_MENIT_SEBELUM);
+        $batasSelesai = Carbon::parse(today()->toDateString() . ' ' . $jamSelesai);
 
         if ($sekarang->lt($batasMulai)) {
             return redirect()->back()->with('error',
@@ -57,13 +66,14 @@ class CheckinController extends Controller
 
         if ($sekarang->gt($batasSelesai)) {
             return redirect()->back()->with('error',
-                'Jadwal peminjaman sudah lewat. Check-in tidak dapat dilakukan lagi untuk pengajuan ini.');
+                'Jadwal hari ini sudah lewat. Check-in tidak dapat dilakukan lagi.');
         }
 
-        $path = $request->file('foto_ktp')->store('ktp', 'public');
+        $path = $request->file('foto_ktp')->store('ktp', 'local');
 
         CheckIn::create([
             'peminjaman_id' => $peminjaman->id,
+            'tanggal'       => today(),
             'foto_ktp'      => $path,
             'waktu_checkin' => now(),
             'status_kunci'  => 'diambil',

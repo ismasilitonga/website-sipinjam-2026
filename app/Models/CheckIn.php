@@ -13,6 +13,7 @@ class CheckIn extends Model
 
     protected $fillable = [
         'peminjaman_id',
+        'tanggal',
         'foto_ktp',
         'waktu_checkin',
         'waktu_checkout',

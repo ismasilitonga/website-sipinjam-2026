@@ -6,43 +6,51 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\PeminjamanRuangan;
+use Carbon\Carbon;
 
 class CheckoutController extends Controller
 {
     public function index()
-{
-    $peminjaman_ruangan = PeminjamanRuangan::with(['ruangan', 'checkIn'])
-        ->where('user_id', Auth::id())
-        ->where('status', 'berjalan')
-        ->get();
+    {
+        $peminjaman_ruangan = PeminjamanRuangan::with(['ruangan', 'checkInHariIni'])
+            ->where('user_id', Auth::id())
+            ->where('status', 'berjalan')
+            ->whereHas('checkIns', function ($q) {
+                $q->whereDate('tanggal', today())->whereNull('waktu_checkout');
+            })
+            ->get();
 
-    return view('anggota.checkout', compact('peminjaman_ruangan'));
-}
+        return view('anggota.checkout', compact('peminjaman_ruangan'));
+    }
 
     public function store(Request $request)
     {
         $request->validate([
-            'peminjaman_id' => 'required|exists:peminjaman_ruangan,id', 
+            'peminjaman_id' => 'required|exists:peminjaman_ruangan,id',
         ]);
 
-        $peminjaman = PeminjamanRuangan::with('checkIn')
-            ->where('id', $request->peminjaman_id)
+        $peminjaman = PeminjamanRuangan::where('id', $request->peminjaman_id)
             ->where('user_id', Auth::id())
+            ->where('status', 'berjalan')
             ->firstOrFail();
 
-        $checkIn = $peminjaman->checkIn ?? $peminjaman->checkIn()->create([
-            'status_kunci' => 'belum_diambil',
-        ]);
-
-        $checkIn->update([
+        $checkInHariIni = $peminjaman->checkIns()
+            ->whereDate('tanggal', today())
+            ->whereNull('waktu_checkout')
+            ->firstOrFail(); 
+        $checkInHariIni->update([
             'waktu_checkout' => now(),
             'status_kunci'   => 'dikembalikan',
         ]);
 
-        $peminjaman->update(['status' => 'selesai']);
+        $hariTerakhir = Carbon::parse($peminjaman->tanggal_selesai)->isSameDay(today());
+
+        $peminjaman->update([
+            'status' => $hariTerakhir ? 'selesai' : 'berjalan',
+        ]);
 
         return redirect()
-            ->route('anggota.riwayat-ruangan', ['status' => 'selesai'])
+            ->route('anggota.riwayat-ruangan', ['status' => $hariTerakhir ? 'selesai' : 'berjalan'])
             ->with('success', 'Check-out berhasil!');
     }
 }

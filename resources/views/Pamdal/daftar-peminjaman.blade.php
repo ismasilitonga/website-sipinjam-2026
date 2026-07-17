@@ -32,22 +32,26 @@
             </tr>
         </thead>
         <tbody id="tableBody">
+
             @forelse($peminjaman_ruangans as $p)
             <tr style="border-bottom:1px solid #f1f5f9;">
                 <td style="padding:14px 15px;">
-                    <div style="font-weight:450;">{{ $p->user->nama ?? '-' }}</div>
+                    <div style="font-weight:450;">{{ $p->user_nama }}</div>
                     <div style="font-size:12px; color:#64748b;">{{ $p->nama_ormawa }}</div>
                 </td>
-                <td style="padding:14px 15px; font-weight:500;">{{ $p->ruangan->nama_ruangan ?? '-' }}</td>
+                <td style="padding:14px 15px; font-weight:500;">{{ $p->ruangan_nama }}</td>
                 <td style="padding:14px 15px; text-align:center; font-size:13px;">
-                    {{ \Carbon\Carbon::parse($p->tanggal_mulai)->format('d M Y') }}<br>
-                    <span style="color:#64748b;">
-                        {{ \Carbon\Carbon::parse($p->tanggal_mulai)->format('H:i') }}–{{ \Carbon\Carbon::parse($p->tanggal_selesai)->format('H:i') }}
-                    </span>
+                    @if($p->multi_hari)
+                        {{ $p->tanggal_mulai }} s/d {{ $p->tanggal_selesai }}<br>
+                        <span style="color:#64748b;">{{ $p->jam_mulai }}–{{ $p->jam_selesai }}</span>
+                    @else
+                        {{ $p->tanggal_mulai }}<br>
+                        <span style="color:#64748b;">{{ $p->jam_mulai }}–{{ $p->jam_selesai }}</span>
+                    @endif
                 </td>
                 <td style="padding:14px 15px; text-align:center;">
-                    @if($p->checkIn)
-                        <a href="{{ Storage::url($p->checkIn->foto_ktp) }}" target="_blank"
+                    @if($p->foto_ktp_url)
+                        <a href="{{ $p->foto_ktp_url }}" target="_blank"
                            style="color:#2563eb; font-weight:600; font-size:13px; text-decoration:none; display:inline-flex; align-items:center; gap:5px;">
                             <i class="fa-solid fa-id-card"></i> Lihat File
                         </a>
@@ -56,34 +60,34 @@
                     @endif
                 </td>
                 <td style="padding:14px 15px; text-align:center;">
-                    @if($p->waktu_kunci_diambil)
+                    @if($p->waktu_checkin)
                         <span style="color:#16a34a; font-weight:600; font-size:13px;">
                             <i class="fa-solid fa-check-circle"></i>
-                            Diambil {{ \Carbon\Carbon::parse($p->waktu_kunci_diambil)->format('H:i') }}
+                            Diambil {{ $p->waktu_checkin }}
                         </span>
                     @else
                         <span style="color:#94a3b8; font-size:13px; font-style:italic;">Belum</span>
                     @endif
                 </td>
                 <td style="padding:14px 15px; text-align:center;">
-                    @if($p->waktu_kunci_dikembalikan)
+                    @if($p->waktu_checkout)
                         <span style="color:#16a34a; font-weight:600; font-size:13px;">
                             <i class="fa-solid fa-check-circle"></i>
-                            Kembali {{ \Carbon\Carbon::parse($p->waktu_kunci_dikembalikan)->format('H:i') }}
+                            Kembali {{ $p->waktu_checkout }}
                         </span>
                     @else
                         <span style="color:#94a3b8; font-size:13px; font-style:italic;">Belum</span>
                     @endif
                 </td>
                 <td style="padding:14px 15px; text-align:center; white-space:nowrap;">
-                    @if(!$p->waktu_kunci_diambil)
-                        <button onclick="bukaModal('ambil', {{ $p->id }}, '{{ $p->user->nama ?? '-' }}', '{{ $p->ruangan->nama_ruangan ?? '-' }}')"
+                    @if(!$p->sudah_checkin)
+                        <button onclick="bukaModal('ambil', {{ $p->id }}, '{{ $p->user_nama }}', '{{ $p->ruangan_nama }}')"
                             style="background:#2f7ea1; color:white; padding:7px 14px; border-radius:8px;
                                    border:none; cursor:pointer; font-size:13px; font-weight:600; width:100%;">
                             <i class="fa-solid fa-key"></i> Ambil Kunci
                         </button>
-                    @elseif(!$p->waktu_kunci_dikembalikan)
-                        <button onclick="bukaModal('kembali', {{ $p->id }}, '{{ $p->user->nama ?? '-' }}', '{{ $p->ruangan->nama_ruangan ?? '-' }}')"
+                    @elseif(!$p->sudah_checkout)
+                        <button onclick="bukaModal('kembali', {{ $p->id }}, '{{ $p->user_nama }}', '{{ $p->ruangan_nama }}')"
                             style="background:#16a34a; color:white; padding:7px 14px; border-radius:8px;
                                    border:none; cursor:pointer; font-size:13px; font-weight:600; width:100%;">
                             <i class="fa-solid fa-rotate-left"></i> Kembalikan
@@ -213,28 +217,33 @@ document.addEventListener('DOMContentLoaded', function () {
                     tableBody.innerHTML = `<tr><td colspan="7" style="padding:60px; text-align:center; color:#94a3b8; font-style:italic;">Tidak ada hasil ditemukan.</td></tr>`;
                     return;
                 }
-
                 data.forEach(p => {
+                    const waktu = p.multi_hari
+                        ? `${p.tanggal_mulai} s/d ${p.tanggal_selesai}<br>
+                           <span style="color:#64748b;">${p.jam_mulai}–${p.jam_selesai}</span>`
+                        : `${p.tanggal_mulai}<br>
+                           <span style="color:#64748b;">${p.jam_mulai}–${p.jam_selesai}</span>`;
+
                     const verifikasiDataDiri = p.foto_ktp_url
-                        ? `<a href="${p.foto_ktp_url}" target="_blank" style="color:#2563eb; font-weight:600; font-size:13px; text-decoration:none; display:inline-flex; align-items:center; gap:5px;"><i class="fa-solid fa-id-card"></i> Lihat KTP</a>`
+                        ? `<a href="${p.foto_ktp_url}" target="_blank" style="color:#2563eb; font-weight:600; font-size:13px; text-decoration:none; display:inline-flex; align-items:center; gap:5px;"><i class="fa-solid fa-id-card"></i> Lihat File</a>`
                         : `<span style="color:#dc2626; font-size:12.5px; font-style:italic;">Belum check-in</span>`;
 
-                    const ambilKunci = p.waktu_kunci_diambil
-                        ? `<span style="color:#16a34a; font-weight:600; font-size:13px;"><i class="fa-solid fa-check-circle"></i> Diambil ${p.waktu_kunci_diambil}</span>`
+                    const ambilKunci = p.waktu_checkin
+                        ? `<span style="color:#16a34a; font-weight:600; font-size:13px;"><i class="fa-solid fa-check-circle"></i> Diambil ${p.waktu_checkin}</span>`
                         : `<span style="color:#94a3b8; font-size:13px; font-style:italic;">Belum</span>`;
 
-                    const kembalikan = p.waktu_kunci_dikembalikan
-                        ? `<span style="color:#16a34a; font-weight:600; font-size:13px;"><i class="fa-solid fa-check-circle"></i> Kembali ${p.waktu_kunci_dikembalikan}</span>`
+                    const kembalikan = p.waktu_checkout
+                        ? `<span style="color:#16a34a; font-weight:600; font-size:13px;"><i class="fa-solid fa-check-circle"></i> Kembali ${p.waktu_checkout}</span>`
                         : `<span style="color:#94a3b8; font-size:13px; font-style:italic;">Belum</span>`;
 
                     let aksi = '';
-                    if (!p.waktu_kunci_diambil) {
+                    if (!p.sudah_checkin) {
                         aksi = `<button onclick="bukaModal('ambil', ${p.id}, '${p.user_nama}', '${p.ruangan_nama}')"
                             style="background:#2f7ea1; color:white; padding:7px 14px; border-radius:8px;
                                    border:none; cursor:pointer; font-size:13px; font-weight:600; width:100%;">
                             <i class="fa-solid fa-key"></i> Ambil Kunci
                         </button>`;
-                    } else if (!p.waktu_kunci_dikembalikan) {
+                    } else if (!p.sudah_checkout) {
                         aksi = `<button onclick="bukaModal('kembali', ${p.id}, '${p.user_nama}', '${p.ruangan_nama}')"
                             style="background:#16a34a; color:white; padding:7px 14px; border-radius:8px;
                                    border:none; cursor:pointer; font-size:13px; font-weight:600; width:100%;">
@@ -251,10 +260,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <div style="font-size:12px; color:#64748b;">${p.nama_ormawa}</div>
                             </td>
                             <td style="padding:14px 15px; font-weight:500;">${p.ruangan_nama}</td>
-                            <td style="padding:14px 15px; text-align:center; font-size:13px;">
-                                ${p.tanggal_mulai}<br>
-                                <span style="color:#64748b;">${p.jam_mulai}–${p.jam_selesai}</span>
-                            </td>
+                            <td style="padding:14px 15px; text-align:center; font-size:13px;">${waktu}</td>
                             <td style="padding:14px 15px; text-align:center;">${verifikasiDataDiri}</td>
                             <td style="padding:14px 15px; text-align:center;">${ambilKunci}</td>
                             <td style="padding:14px 15px; text-align:center;">${kembalikan}</td>
