@@ -44,6 +44,16 @@ class RiwayatRuanganAnggotaController extends Controller
         return view('anggota.riwayat-ruangan', compact('riwayat', 'filters'));
     }
 
+    public function show($id)
+    {
+        $peminjaman = PeminjamanRuangan::with('ruangan')
+            ->where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        return view('anggota.riwayat-ruangan-detail', compact('peminjaman'));
+    }
+
     public function edit($id)
     {
         $peminjaman = PeminjamanRuangan::where('id', $id)

@@ -49,17 +49,31 @@
             </div>
         </div>
 
+        @php
+            $tglMulai   = \Carbon\Carbon::parse($p->tanggal_mulai)->locale('id');
+            $tglSelesai = \Carbon\Carbon::parse($p->tanggal_selesai)->locale('id');
+            $satuHari   = $tglMulai->isSameDay($tglSelesai);
+        @endphp
+
         <div style="display: grid; grid-template-columns: 160px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border);">
             <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding-top: 3px;">Tanggal</div>
-            <div style="font-size: 14px;">{{ \Carbon\Carbon::parse($p->tanggal_mulai)->translatedFormat('l, d F Y') }}</div>
+            <div style="font-size: 14px;">
+                @if($satuHari)
+                    {{ $tglMulai->translatedFormat('l, d F Y') }}
+                @else
+                    {{ $tglMulai->translatedFormat('l, d F Y') }} s/d {{ $tglSelesai->translatedFormat('l, d F Y') }}
+                @endif
+            </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 160px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border);">
             <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding-top: 3px;">Waktu</div>
             <div style="font-size: 14px;">
-                {{ \Carbon\Carbon::parse($p->tanggal_mulai)->format('H:i') }}
-                –
-                {{ \Carbon\Carbon::parse($p->tanggal_selesai)->format('H:i') }}
+                @if($satuHari)
+                    {{ $tglMulai->format('H:i') }} – {{ $tglSelesai->format('H:i') }}
+                @else
+                    Setiap {{ $tglMulai->format('H:i') }} – {{ $tglSelesai->format('H:i') }}
+                @endif
             </div>
         </div>
 
@@ -93,7 +107,7 @@
                     <img src="{{ route('foto-identitas.show', $p->checkIn->id) }}" alt="Foto Identitas"
                          style="max-width: 260px; max-height: 160px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); display: block; margin-bottom: 6px;">
                     <div style="font-size: 12px; color: var(--text-muted);">
-                        Check-in pada {{ \Carbon\Carbon::parse($p->checkIn->waktu_checkin)->format('d M Y, H:i') }}
+                        Check-in pada {{ \Carbon\Carbon::parse($p->checkIn->waktu_checkin)->locale('id')->translatedFormat('d F Y, H:i') }}
                     </div>
                 </div>
             </div>

@@ -31,6 +31,11 @@
         </thead>
             <tbody>
                 @forelse($peminjaman_ruangans as $p)
+                @php
+                    $tglMulai   = \Carbon\Carbon::parse($p->tanggal_mulai)->locale('id');
+                    $tglSelesai = \Carbon\Carbon::parse($p->tanggal_selesai)->locale('id');
+                    $satuHari   = $tglMulai->isSameDay($tglSelesai);
+                @endphp
                 <tr>
                     <td>{{ ($peminjaman_ruangans->currentPage() - 1) * $peminjaman_ruangans->perPage() + $loop->iteration }}</td>
                     <td>
@@ -42,9 +47,18 @@
                         <div style="font-weight:500;">{{ $p->ruangan->nama_ruangan ?? '-' }}</div>
                         <div style="font-size:12px;color:var(--text-muted);">{{ $p->ruangan->kode ?? '' }}</div>
                     </td>
-                    <td>
-                        {{ \Carbon\Carbon::parse($p->tanggal_mulai)->format('d M Y') }},
-                        {{ \Carbon\Carbon::parse($p->tanggal_mulai)->format('H:i') }}–{{ \Carbon\Carbon::parse($p->tanggal_selesai)->format('H:i') }}
+                    <td style="white-space:nowrap;">
+                        <div style="font-weight:500;">{{ $tglMulai->translatedFormat('d F Y') }}</div>
+                        @unless($satuHari)
+                            <div style="font-weight:500;">s/d {{ $tglSelesai->translatedFormat('d F Y') }}</div>
+                        @endunless
+                        <div style="color:var(--text-muted);font-size:12px;">
+                            @if($satuHari)
+                                {{ $tglMulai->format('H:i') }}–{{ $tglSelesai->format('H:i') }}
+                            @else
+                                Setiap {{ $tglMulai->format('H:i') }}–{{ $tglSelesai->format('H:i') }}
+                            @endif
+                        </div>
                     </td>
                     <td>
                         @php

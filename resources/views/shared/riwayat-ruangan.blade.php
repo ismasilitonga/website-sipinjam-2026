@@ -172,13 +172,13 @@
                 </svg>
                 Menampilkan hasil filter:
                 @if(request('tanggal'))
-                    <strong>Tanggal {{ \Carbon\Carbon::parse(request('tanggal'))->translatedFormat('d F Y') }}</strong>
+                    <strong>Tanggal {{ \Carbon\Carbon::parse(request('tanggal'))->locale('id')->translatedFormat('d F Y') }}</strong>
                 @endif
                 @if(request('minggu'))
                     <strong>Minggu {{ request('minggu') }}</strong>
                 @endif
                 @if(request('bulan'))
-                    <strong>Bulan {{ \Carbon\Carbon::parse(request('bulan') . '-01')->translatedFormat('F Y') }}</strong>
+                    <strong>Bulan {{ \Carbon\Carbon::parse(request('bulan') . '-01')->locale('id')->translatedFormat('F Y') }}</strong>
                 @endif
                 @if(request('ruangan_id') && $ruangans->firstWhere('id', request('ruangan_id')))
                     · <strong>{{ $ruangans->firstWhere('id', request('ruangan_id'))->nama_ruangan }}</strong>
@@ -203,6 +203,11 @@
         </thead>
             <tbody>
                 @forelse($riwayat as $p)
+                    @php
+                        $tglMulai   = \Carbon\Carbon::parse($p->tanggal_mulai)->locale('id');
+                        $tglSelesai = \Carbon\Carbon::parse($p->tanggal_selesai)->locale('id');
+                        $satuHari   = $tglMulai->isSameDay($tglSelesai);
+                    @endphp
                     <tr>
                         <td style="color: var(--text-muted); font-size: 12px;">
                             {{ ($riwayat->currentPage() - 1) * $riwayat->perPage() + $loop->iteration }}
@@ -214,7 +219,10 @@
                         <td style="font-size: 12.5px;">{{ $p->nama_ormawa ?? '-' }}</td>
                         <td style="font-size: 13px; font-weight: 500; white-space: nowrap;">{{ $p->ruangan->nama_ruangan ?? '-' }}</td>
                         <td style="font-size: 12px; white-space: nowrap;">
-                            {{ \Carbon\Carbon::parse($p->tanggal_mulai)->translatedFormat('d M Y') }}
+                            <div style="font-weight:500;">{{ $tglMulai->translatedFormat('d F Y') }}</div>
+                            @unless($satuHari)
+                                <div style="font-weight:500;">s/d {{ $tglSelesai->translatedFormat('d F Y') }}</div>
+                            @endunless
                         </td>
                         <td>
                             @php
@@ -236,11 +244,11 @@
              @else
                  {{ route('pic.riwayat-peminjaman.detail', $p->id) }}
              @endif"
-       class="btn btn-outline" style="font-size: 12px; padding: 4px 12px;">
-        Detail
-    </a>
-</td>
-                    </tr>
+                class="btn btn-outline" style="font-size: 12px; padding: 4px 12px;">
+                 Detail
+            </a>
+            </td>
+            </tr>
                 @empty
                     <tr>
                         <td colspan="7">

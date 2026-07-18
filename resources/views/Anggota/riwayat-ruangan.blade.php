@@ -59,26 +59,48 @@
     </div>
 
     <div class="table-wrap">
-        <table>
+        <table style="table-layout: fixed; width: 100%;">
             <thead>
                 <tr>
-                    <th>No</th>
-                    <th>Ruangan</th>
-                    <th>Tanggal</th>
-                    <th>Waktu</th>
-                    <th>Keperluan</th>
-                    <th>Dokumen</th>
-                    <th>Status</th>
-                    <th>Alasan Tolak</th>
-                    <th>Aksi</th>
+                    <th style="width:40px;">No</th>
+                    <th style="width:190px;">Ruangan</th>
+                    <th style="width:130px;">Tanggal</th>
+                    <th style="width:140px;">Waktu</th>
+                    <th style="width:130px;">Status</th>
+                    <th style="width:220px;">Alasan Tolak</th>
+                    <th style="width:150px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($riwayat as $p)
                 @php
-                    $tglMulai   = \Carbon\Carbon::parse($p->tanggal_mulai);
-                    $tglSelesai = \Carbon\Carbon::parse($p->tanggal_selesai);
+                    $tglMulai   = \Carbon\Carbon::parse($p->tanggal_mulai)->locale('id');
+                    $tglSelesai = \Carbon\Carbon::parse($p->tanggal_selesai)->locale('id');
                     $satuHari   = $tglMulai->isSameDay($tglSelesai);
+
+                    $labelDitolak = match($p->ditolak_oleh) {
+                        'ketua'  => 'Ditolak Ketua',
+                        'pic'    => 'Ditolak PIC',
+                        'sistem' => 'Ditolak Sistem',
+                        default  => 'Ditolak',
+                    };
+
+                    [$cls, $lbl] = match($p->status) {
+                        'menunggu_ketua' => ['badge-orange', 'Menunggu Ketua'],
+                        'menunggu_pic'   => ['badge-blue',   'Menunggu PIC'],
+                        'disetujui'      => ['badge-green',  'Disetujui'],
+                        'ditolak'        => ['badge-red',    $labelDitolak],
+                        'selesai'        => ['badge-gray',   'Selesai'],
+                        'berjalan'       => ['badge-cyan',   'Berjalan'],
+                        default          => ['badge-gray',   ucfirst($p->status)],
+                    };
+
+                    $ditolakOlehLabel = $p->ditolak_oleh ? match($p->ditolak_oleh) {
+                        'ketua'  => 'Ketua Ormawa',
+                        'pic'    => 'PIC',
+                        'sistem' => 'Sistem (otomatis)',
+                        default  => ucfirst($p->ditolak_oleh),
+                    } : null;
                 @endphp
                 <tr>
                     <td style="color:var(--text-muted);font-size:12px;">
@@ -90,68 +112,24 @@
                             {{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->lantai) ? ' · Lt.'.$p->ruangan->lantai : '' }}
                         </div>
                     </td>
-                    <td style="font-size:12.5px;white-space:nowrap;">
+                    <td style="font-size:12.5px;">
                         @if($satuHari)
-                            {{ $tglMulai->format('d M Y') }}
+                            {{ $tglMulai->translatedFormat('d F Y') }}
                         @else
-                            <div>{{ $tglMulai->format('d M Y') }}</div>
-                            <div style="font-size:11px;color:var(--text-muted);">s/d {{ $tglSelesai->format('d M Y') }}</div>
+                            <div>{{ $tglMulai->translatedFormat('d F Y') }}</div>
+                            <div style="font-size:11px;color:var(--text-muted);">s/d {{ $tglSelesai->translatedFormat('d F Y') }}</div>
                         @endif
                     </td>
-                    <td style="font-size:12.5px;white-space:nowrap;">
+                    <td style="font-size:12.5px;">
                         {{ $tglMulai->format('H:i') }} –
                         {{ $tglSelesai->format('H:i') }}
                         @unless($satuHari)
-                            @php
-                                $totalMenit  = $tglMulai->diffInMinutes($tglSelesai, false);
-                                $hariDurasi  = intdiv($totalMenit, 60 * 24);
-                                $jamDurasi   = intdiv($totalMenit % (60 * 24), 60);
-                                $menitDurasi = $totalMenit % 60;
-
-                                $labelDurasi = trim(
-                                    ($hariDurasi > 0 ? $hariDurasi.' hari ' : '') .
-                                    $jamDurasi.' jam' .
-                                    ($menitDurasi > 0 ? ' '.$menitDurasi.' menit' : '')
-                                );
-                            @endphp
                             <div style="font-size:11px;color:var(--text-muted);">
-                                ({{ $labelDurasi }})
+                                (setiap hari)
                             </div>
                         @endunless
                     </td>
-                    <td style="font-size:12.5px;max-width:180px;">
-                        <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ $p->keperluan }}">
-                            {{ $p->keperluan }}
-                        </div>
-                    </td>
-                    <td style="font-size:12px;">
-                        @if($p->dokumen_pendukung)
-                            <a href="{{ Storage::url($p->dokumen_pendukung) }}" target="_blank"
-                               style="color:var(--accent);text-decoration:none;font-weight:600;white-space:nowrap;">
-                                📄 Lihat Dokumen
-                            </a>
-                        @else —
-                        @endif
-                    </td>
                     <td>
-    @php
-    $labelDitolak = match($p->ditolak_oleh) {
-        'ketua'  => 'Ditolak Ketua',
-        'pic'    => 'Ditolak PIC',
-        'sistem' => 'Ditolak Sistem',
-        default  => 'Ditolak',
-    };
-
-    [$cls, $lbl] = match($p->status) {
-        'menunggu_ketua' => ['badge-orange', 'Menunggu Ketua'],
-        'menunggu_pic'   => ['badge-blue',   'Menunggu PIC'],
-        'disetujui'      => ['badge-green',  'Disetujui'],
-        'ditolak'        => ['badge-red',    $labelDitolak],
-        'selesai'        => ['badge-gray',   'Selesai'],
-        'berjalan'       => ['badge-cyan',   'Berjalan'],
-        default          => ['badge-gray',   ucfirst($p->status)],
-    };
-@endphp
                         <span class="badge {{ $cls }}">{{ $lbl }}</span>
                         @if($p->status === 'disetujui' && ($p->status_pemakaian ?? '') === 'booked' && $tglMulai->isToday())
                             <a href="{{ route('anggota.checkin') }}"
@@ -160,19 +138,14 @@
                             </a>
                         @endif
                     </td>
-                    <td style="font-size:12px;color:var(--text-muted);max-width:150px;">
+                    <td style="font-size:12px;color:var(--text-muted);">
                         @if($p->alasan_tolak)
-                            <span title="{{ $p->alasan_tolak }}" style="cursor:help;border-bottom:1px dashed #cbd5e1;">
-                                {{ Str::limit($p->alasan_tolak, 40) }}
-                            </span>
-                            @if($p->ditolak_oleh)
+                            <div style="white-space:normal;word-break:break-word;overflow-wrap:break-word;line-height:1.4;">
+                                {{ $p->alasan_tolak }}
+                            </div>
+                            @if($ditolakOlehLabel)
                                 <div style="font-size:10.5px;color:#94a3b8;margin-top:2px;">
-                                    oleh {{ match($p->ditolak_oleh) {
-                                        'ketua'  => 'Ketua Ormawa',
-                                        'pic'    => 'PIC',
-                                        'sistem' => 'Sistem (otomatis)',
-                                        default  => ucfirst($p->ditolak_oleh),
-                                    } }}
+                                    oleh {{ $ditolakOlehLabel }}
                                 </div>
                             @endif
                         @else —
@@ -190,13 +163,18 @@
                                 style="font-size:12px;padding:4px 10px;color:var(--danger);border-color:var(--danger);">
                                 Batalkan
                             </button>
-                        @else —
+                        @else
+                            <a href="{{ route('anggota.riwayat-ruangan.show', $p->id) }}"
+                                class="btn btn-outline"
+                                style="font-size:12px;padding:4px 10px;display:inline-block;">
+                                Detail
+                            </a>
                         @endif
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="9">
+                    <td colspan="7">
                         <div class="empty-state">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"

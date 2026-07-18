@@ -44,6 +44,11 @@
             </thead>
             <tbody>
                 @forelse($riwayat as $p)
+                    @php
+                        $tglMulai   = \Carbon\Carbon::parse($p->tanggal_mulai)->locale('id');
+                        $tglSelesai = \Carbon\Carbon::parse($p->tanggal_selesai)->locale('id');
+                        $satuHari   = $tglMulai->isSameDay($tglSelesai);
+                    @endphp
                     <tr>
                         <td style="color: var(--text-muted); font-size: 12px;">
                             {{ ($riwayat->currentPage() - 1) * $riwayat->perPage() + $loop->iteration }}
@@ -55,7 +60,14 @@
                         <td style="font-size: 12.5px;">{{ $p->nama_ormawa ?? '-' }}</td>
                         <td style="font-size: 13px; font-weight: 500; white-space: nowrap;">{{ $p->ruangan->nama_ruangan ?? '-' }}</td>
                         <td style="font-size: 12px; white-space: nowrap;">
-                            {{ \Carbon\Carbon::parse($p->tanggal_mulai)->translatedFormat('d M Y, H:i') }}–{{ \Carbon\Carbon::parse($p->tanggal_selesai)->format('H:i') }}
+                            @if($satuHari)
+                                <div>{{ $tglMulai->translatedFormat('d F Y') }}</div>
+                                <div style="color: var(--text-muted);">{{ $tglMulai->format('H:i') }}–{{ $tglSelesai->format('H:i') }}</div>
+                            @else
+                                <div>{{ $tglMulai->translatedFormat('d F Y') }}</div>
+                                <div>s/d {{ $tglSelesai->translatedFormat('d F Y') }}</div>
+                                <div style="color: var(--text-muted);">Setiap {{ $tglMulai->format('H:i') }}–{{ $tglSelesai->format('H:i') }}</div>
+                            @endif
                         </td>
                         <td style="font-size: 12.5px; max-width: 160px;">
                             <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">

@@ -116,49 +116,49 @@
                         <th>Status</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @forelse($ruanganAktifHariIni as $p)
-                    @php
-                        $mulai   = \Carbon\Carbon::parse($p->tanggal_mulai);
-                        $selesai = \Carbon\Carbon::parse($p->tanggal_selesai);
 
-                        $statusLive = match($p->status) {
-                       'disetujui' => ['badge-yellow', '🟡 Akan Digunakan'],
-                       'berjalan'  => ['badge-green', '🟢 Sedang Digunakan'],
-                       'selesai'   => ['badge-gray', '⚪ Selesai'],
-                        default     => ['badge-gray', $p->status],
-                        };
-                    @endphp
-                    <tr>
-                        <td>
-                            <div style="font-weight:600;">{{ $p->ruangan->nama_ruangan ?? '-' }}</div>
-                            <div style="font-size:11.5px;color:var(--text-muted);">{{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->lantai) ? ' · Lt.'.$p->ruangan->lantai : '' }}</div>
-                        </td>
-                        <td style="font-size:13px;">
-                            <div style="font-weight:500;">{{ $p->nama_ormawa }}</div>
-                            <div style="font-size:11.5px;color:var(--text-muted);">{{ $p->keperluan }}</div>
-                        </td>
-                        <td style="font-size:13px;white-space:nowrap;">
-                            {{ $mulai->format('H:i') }}–{{ $selesai->format('H:i') }}
-                        </td>
-                        <td>
-                            <span class="badge {{ $statusLive[0] }}" style="white-space:nowrap;">{{ $statusLive[1] }}</span>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4">
-                            <div class="empty-state" style="padding:30px 20px;">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
-                                <p>Tidak ada ruangan yang digunakan hari ini.</p>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
+<tbody>
+    @forelse($ruanganAktifHariIni as $p)
+        @php
+            $mulai   = \Carbon\Carbon::parse($p->tanggal_mulai);
+            $selesai = \Carbon\Carbon::parse($p->tanggal_selesai);
+
+            $badgeMap = [
+                'sedang_digunakan' => ['badge-green',  '🟢 Sedang Digunakan'],
+                'selesai_hari_ini' => ['badge-gray',   '⚪ Selesai Hari Ini'],
+                'selesai'          => ['badge-gray',   '⚪ Selesai'],
+                'akan_digunakan'   => ['badge-yellow', '🟡 Akan Digunakan'],
+            ];
+            $statusLive = $badgeMap[$p->status_hari_ini];
+        @endphp
+        <tr>
+            <td>
+                <div style="font-weight:600;">{{ $p->ruangan->nama_ruangan ?? '-' }}</div>
+                <div style="font-size:11.5px;color:var(--text-muted);">
+                    {{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->lantai) ? ' · Lt.'.$p->ruangan->lantai : '' }}
+                </div>
+            </td>
+            <td style="font-size:13px;">
+                <div style="font-weight:500;">{{ $p->nama_ormawa }}</div>
+                <div style="font-size:11.5px;color:var(--text-muted);">{{ $p->keperluan }}</div>
+            </td>
+            <td style="font-size:13px;white-space:nowrap;">
+                {{ $mulai->format('H:i') }}–{{ $selesai->format('H:i') }}
+            </td>
+            <td>
+                <span class="badge {{ $statusLive[0] }}" style="white-space:nowrap;">{{ $statusLive[1] }}</span>
+            </td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="4">
+                <div class="empty-state" style="padding:16px 20px;">
+                    <p>Tidak ada ruangan yang digunakan hari ini.</p>
+                </div>
+            </td>
+        </tr>
+    @endforelse
+</tbody>
             </table>
         </div>
     </div>

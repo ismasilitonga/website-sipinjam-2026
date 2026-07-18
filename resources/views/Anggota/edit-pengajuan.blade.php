@@ -163,6 +163,10 @@
             fpSelesai.set('maxDate', maxDate);
         }
 
+        function tanggalSaja(d) {
+            return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        }
+
         function validasiDurasi() {
             durasiInfo.style.display  = 'none';
             durasiError.style.display = 'none';
@@ -200,13 +204,15 @@
                 return;
             }
 
-            const hari  = Math.floor(menitDurasi / (60 * 24));
-            const jam   = Math.floor((menitDurasi % (60 * 24)) / 60);
-            const menit = menitDurasi % 60;
+            const jumlahHari = Math.round(
+                (tanggalSaja(selesaiDate) - tanggalSaja(mulaiDate)) / (1000 * 60 * 60 * 24)
+            ) + 1;
 
-            let teks = 'Durasi peminjaman: ';
-            if (hari > 0) teks += `${hari} hari `;
-            teks += `${jam} jam${menit ? ' ' + menit + ' menit' : ''}.`;
+            const jamMulaiStr   = mulaiDate.toLocaleTimeString('id-ID',   { hour: '2-digit', minute: '2-digit' });
+            const jamSelesaiStr = selesaiDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+            const teksHari = jumlahHari <= 1 ? '1 hari' : `${jumlahHari} hari`;
+            const teks = `Durasi peminjaman: selama ${teksHari}, waktu ${jamMulaiStr} – ${jamSelesaiStr} setiap hari.`;
 
             durasiInfo.textContent = teks;
             durasiInfo.style.display = 'block';

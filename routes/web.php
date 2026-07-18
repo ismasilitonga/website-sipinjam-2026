@@ -124,6 +124,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/riwayat-ruangan', [RiwayatRuanganAnggotaController::class, 'index'])->name('riwayat-ruangan');
         Route::get('/riwayat-ruangan/{id}/edit', [RiwayatRuanganAnggotaController::class, 'edit'])->name('riwayat-ruangan.edit');
         Route::put('/riwayat-ruangan/{id}', [RiwayatRuanganAnggotaController::class, 'update'])->name('riwayat-ruangan.update');
+        Route::get('/riwayat-ruangan/{id}', [RiwayatRuanganAnggotaController::class, 'show'])->name('riwayat-ruangan.show');
         Route::get('/riwayat-barang',  [RiwayatBarangController::class, 'index'])->name('riwayat-barang');
     });
 
@@ -143,7 +144,6 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/riwayat-peminjaman', [RiwayatRuanganKetuaController::class, 'index'])->name('riwayat-peminjaman');
         Route::get('/riwayat-peminjaman/{id}', [RiwayatRuanganKetuaController::class, 'show'])->name('riwayat-peminjaman.show');
-
 
         Route::get('/barang-ormawa/pilih-jenis', function () {return view('ketua.barang-ormawa.pilih-jenis');})->name('barang-ormawa.pilih-jenis');   
         Route::resource('barang-ormawa', BarangOrmawaController::class);

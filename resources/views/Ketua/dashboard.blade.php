@@ -3,18 +3,19 @@
 @section('title', 'Dashboard Ketua')
 @section('subtitle', 'Ringkasan aktivitas ormawa ' . auth()->user()->organisasi)
 @section('topbar-action')
-<a href="{{ route('ketua.daftar-pengajuan') }}" class="btn btn-primary btn-sm">        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        Kelola Pengajuan
-        @if($menungguPersetujuan > 0)
-            <span style="background:#fff;color:var(--accent);font-size:11px;font-weight:700;
-                         padding:1px 7px;border-radius:999px;margin-left:2px;">
-                {{ $menungguPersetujuan }}
-            </span>
-        @endif
-    </a>
+<a href="{{ route('ketua.daftar-pengajuan') }}" class="btn btn-primary btn-sm">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    Kelola Pengajuan
+    @if($menungguPersetujuan > 0)
+        <span style="background:#fff;color:var(--accent);font-size:11px;font-weight:700;
+                     padding:1px 7px;border-radius:999px;margin-left:2px;">
+            {{ $menungguPersetujuan }}
+        </span>
+    @endif
+</a>
 @endsection
 
 @section('content')
@@ -49,7 +50,7 @@
         </div>
         <div>
             <div class="stat-value" style="color:#0891b2;">
-                {{ $peminjamanAktif->where('status', 'menunggu_pic')->count() }}
+                {{ $diteruskanPic }}
             </div>
             <div class="stat-label">DITERUSKAN KE PIC</div>
         </div>
@@ -64,7 +65,7 @@
         </div>
         <div>
             <div class="stat-value" style="color:#16a34a;">
-                {{ $peminjamanAktif->where('status', 'disetujui')->count() }}
+                {{ $disetujuiAktif }}
             </div>
             <div class="stat-label">DISETUJUI (AKTIF)</div>
         </div>
@@ -78,8 +79,8 @@
             </svg>
         </div>
         <div>
-            <div class="stat-value" style="color:#4f46e5;">{{ $peminjamanAktif->count() }}</div>
-            <div class="stat-label">TOTAL PENGAJUAN (5 TERAKHIR)</div>
+            <div class="stat-value" style="color:#4f46e5;">{{ $totalPengajuan }}</div>
+            <div class="stat-label">TOTAL PENGAJUAN</div>
         </div>
     </div>
 </div>
@@ -111,12 +112,13 @@
                         $mulai   = \Carbon\Carbon::parse($p->tanggal_mulai);
                         $selesai = \Carbon\Carbon::parse($p->tanggal_selesai);
 
-                        $statusLive = match($p->status) {
-                            'disetujui' => ['badge-yellow', '🟡 Akan Digunakan'],
-                            'berjalan'  => ['badge-green', '🟢 Sedang Digunakan'],
-                            'selesai'   => ['badge-gray', '⚪ Selesai'],
-                            default     => ['badge-gray', $p->status],
-                        };
+                        $badgeMap = [
+                            'sedang_digunakan' => ['badge-green',  '🟢 Sedang Digunakan'],
+                            'selesai_hari_ini' => ['badge-gray',   '⚪ Selesai Hari Ini'],
+                            'selesai'          => ['badge-gray',   '⚪ Selesai'],
+                            'akan_digunakan'   => ['badge-yellow', '🟡 Akan Digunakan'],
+                        ];
+                        $statusLive = $badgeMap[$p->status_hari_ini];
                     @endphp
                     <tr>
                         <td>
@@ -137,8 +139,8 @@
                     @empty
                     <tr>
                         <td colspan="4">
-                            <div class="empty-state" style="padding:16px 20px;">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:26px;height:26px;margin-bottom:6px;">
+                            <div class="empty-state" style="padding:30px 20px;">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>

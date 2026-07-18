@@ -16,10 +16,10 @@
 @section('content')
 
 @php
-    $totalHariIni    = $peminjamansHariIni->count();
-    $sudahDiambil    = $peminjamansHariIni->filter(fn($p) => !is_null($p->waktu_kunci_diambil))->count();
-    $sudahDikembali  = $peminjamansHariIni->filter(fn($p) => !is_null($p->waktu_kunci_dikembalikan))->count();
-    $menungguKunciVal = $peminjamansHariIni->filter(fn($p) => is_null($p->waktu_kunci_diambil))->count();
+    $totalHariIni     = $peminjamansHariIni->count();
+    $menungguKunciVal = $menungguKunci;
+    $sudahDiambil     = $totalSudahDiambil;
+    $sudahDikembali   = $totalSudahDikembalikan;
 @endphp
 
 <div class="stat-grid">
@@ -105,10 +105,10 @@
             </thead>
             <tbody>
                 @forelse($peminjamansHariIni as $i => $p)
-                @php
-                    $sudahAmbil   = !is_null($p->waktu_kunci_diambil);
-                    $sudahKembali = !is_null($p->waktu_kunci_dikembalikan);
-                    $rowClass     = $sudahKembali ? 'row-done' : (!$sudahAmbil ? 'row-waiting' : '');
+               @php
+                $sudahAmbil   = $p->sudah_ambil_hari_ini;
+                $sudahKembali = $p->sudah_kembali_hari_ini;
+                $rowClass     = $sudahKembali ? 'row-done' : (!$sudahAmbil ? 'row-waiting' : '');
                 @endphp
                 <tr class="{{ $rowClass }}">
                     <td style="color:var(--text-muted);font-size:12px;">{{ $i + 1 }}</td>
@@ -161,16 +161,16 @@
                             </span>
                         </div>
                         @if($sudahAmbil && !$sudahKembali)
-                        <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">
-                            Diambil {{ \Carbon\Carbon::parse($p->waktu_kunci_diambil)->format('H:i') }}
-                        </div>
-                        @endif
-                        @if($sudahKembali)
-                        <div style="font-size:11px;color:#15803d;margin-top:3px;">
-                            Kembali {{ \Carbon\Carbon::parse($p->waktu_kunci_dikembalikan)->format('H:i') }}
-                        </div>
-                        @endif
-                    </td>
+                    <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">
+                    Diambil {{ \Carbon\Carbon::parse($p->waktu_ambil_hari_ini)->format('H:i') }}
+                </div>
+            @endif
+            @if($sudahKembali)
+            <div style="font-size:11px;color:#15803d;margin-top:3px;">
+            Kembali {{ \Carbon\Carbon::parse($p->waktu_kembali_hari_ini)->format('H:i') }}
+            </div>
+            @endif
+            </td>
                     <td>
                         @if(!$sudahAmbil)
                             <button type="button" class="btn btn-warning btn-sm"
