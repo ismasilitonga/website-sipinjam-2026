@@ -27,7 +27,7 @@
                 <th style="padding:15px; text-align:center;">Waktu</th>
                 <th style="padding:15px; text-align:center;">Verifikasi Data Diri</th>
                 <th style="padding:15px; text-align:center;">Ambil Kunci</th>
-                <th style="padding:15px; text-align:center;">Kembalikan</th>
+                <th style="padding:15px; text-align:center;">Kunci Kembali</th>
                 <th style="padding:15px; text-align:center;">Aksi</th>
             </tr>
         </thead>
@@ -90,7 +90,7 @@
                         <button onclick="bukaModal('kembali', {{ $p->id }}, '{{ $p->user_nama }}', '{{ $p->ruangan_nama }}')"
                             style="background:#16a34a; color:white; padding:7px 14px; border-radius:8px;
                                    border:none; cursor:pointer; font-size:13px; font-weight:600; width:100%;">
-                            <i class="fa-solid fa-rotate-left"></i> Kembalikan
+                            <i class="fa-solid fa-rotate-left"></i> Kembali
                         </button>
                     @else
                         <span style="color:#94a3b8; font-size:13px; font-style:italic;">Selesai</span>

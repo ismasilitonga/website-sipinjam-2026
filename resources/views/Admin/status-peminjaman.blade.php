@@ -62,15 +62,18 @@
                     </td>
                     <td>
                         @php
-                            $statusLabel = match($p->status) {
-                                'ditolak'        => 'Ditolak',
-                                'menunggu_pic'   => 'Menunggu PIC',
-                                'menunggu_ketua' => 'Menunggu Ketua',
-                                default          => 'Menunggu',
+                            $statusLabel = match(true) {
+                                $p->status === 'ditolak' && $p->ditolak_oleh === 'ketua'  => 'Ditolak Ketua',
+                                $p->status === 'ditolak' && $p->ditolak_oleh === 'pic'    => 'Ditolak PIC',
+                                $p->status === 'ditolak' && $p->ditolak_oleh === 'sistem' => 'Ditolak Sistem',
+                                $p->status === 'ditolak'        => 'Ditolak',
+                                $p->status === 'menunggu_pic'   => 'Menunggu PIC',
+                                $p->status === 'menunggu_ketua' => 'Menunggu Ketua',
+                                default => 'Menunggu',
                             };
-                            $badgeClass = match($p->status) {
-                                'ditolak' => 'badge-red',
-                                default   => 'badge-orange',
+                            $badgeClass = match(true) {
+                                $p->status === 'ditolak' => 'badge-red',
+                                default                  => 'badge-orange',
                             };
                         @endphp
                         <span class="badge {{ $badgeClass }}">{{ $statusLabel }}</span>

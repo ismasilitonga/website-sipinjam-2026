@@ -33,15 +33,15 @@ class DashboardAdminController extends Controller
         ));
     }
 
-    public function statusPeminjaman()
-    {
-        $peminjaman_ruangans = PeminjamanRuangan::with(['user', 'ruangan'])
-            ->whereIn('status', ['menunggu_ketua', 'ditolak'])
-            ->latest()
-            ->paginate(10);
+public function statusPeminjaman()
+{
+    $peminjaman_ruangans = PeminjamanRuangan::with(['user', 'ruangan'])
+        ->whereIn('status', ['menunggu_pic', 'menunggu_ketua', 'ditolak'])
+        ->latest()
+        ->paginate(10);
 
-        return view('admin.status-peminjaman', compact('peminjaman_ruangans'));
-    }
+    return view('admin.status-peminjaman', compact('peminjaman_ruangans'));
+}
 
     public function detailPeminjaman($id)
     {
