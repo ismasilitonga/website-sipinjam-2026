@@ -17,15 +17,6 @@ class DashboardAdminController extends Controller
         $totalPeminjaman = PeminjamanRuangan::count();
         $totalRuangan    = Ruangan::count();
 
-        // (Catatan: $menungguValidasi TIDAK ditambahkan di sini.
-        // Error itu sebelumnya muncul karena blade admin.dashboard
-        // ternyata berisi potongan kode blade PIC yang nyasar/ke-paste
-        // di tengah file. Setelah blade dibersihkan, variabel itu
-        // tidak lagi dibutuhkan oleh dashboard Admin.)
-
-        // FIX: tambahkan eager-load 'checkInHariIni' supaya accessor
-        // status_hari_ini() di model bisa baca data check-in hari ini
-        // tanpa query tambahan, dan hasilnya sinkron dengan Anggota/PIC/Ketua.
         $ruanganAktifHariIni = PeminjamanRuangan::with(['ruangan', 'user', 'checkInHariIni'])
             ->whereIn('status', ['disetujui', 'berjalan', 'selesai'])
             ->whereDate('tanggal_mulai', '<=', today())
@@ -45,6 +36,7 @@ class DashboardAdminController extends Controller
     public function statusPeminjaman()
     {
         $peminjaman_ruangans = PeminjamanRuangan::with(['user', 'ruangan'])
+            ->whereIn('status', ['menunggu_ketua', 'ditolak'])
             ->latest()
             ->paginate(10);
 

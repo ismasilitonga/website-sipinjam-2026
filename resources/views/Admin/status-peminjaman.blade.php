@@ -64,8 +64,8 @@
                         @php
                             $statusLabel = match($p->status) {
                                 'ditolak'        => 'Ditolak',
-                                'menunggu_pic',
-                                'menunggu_ketua' => 'Menunggu',
+                                'menunggu_pic'   => 'Menunggu PIC',
+                                'menunggu_ketua' => 'Menunggu Ketua',
                                 default          => 'Menunggu',
                             };
                             $badgeClass = match($p->status) {
