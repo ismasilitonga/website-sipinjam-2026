@@ -12,13 +12,15 @@ class CheckIn extends Model
     protected $table = 'check_in';
 
     protected $fillable = [
-        'peminjaman_id',
-        'tanggal',
-        'foto_ktp',
-        'waktu_checkin',
-        'waktu_checkout',
-        'status_kunci',
-    ];
+    'peminjaman_id',
+    'tanggal',
+    'foto_ktp',
+    'waktu_checkin',
+    'waktu_checkout',
+    'status_kunci',
+    'kunci_diambil_pamdal_at',
+    'kunci_dikembalikan_pamdal_at',
+];
 
     protected $casts = [
         'waktu_checkin' => 'datetime',

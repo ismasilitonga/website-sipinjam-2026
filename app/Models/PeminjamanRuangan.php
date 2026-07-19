@@ -59,36 +59,24 @@ class PeminjamanRuangan extends Model
         return $this->status === 'disetujui';
     }
 
-    /**
-     * Sumber kebenaran TUNGGAL untuk status penggunaan ruangan HARI INI.
-     * Dipakai oleh SEMUA dashboard (Anggota, PIC, Ketua, Admin) supaya
-     * tidak ada lagi logic status yang beda-beda / tidak sinkron.
-     *
-     * Nilai balik:
-     * - 'sedang_digunakan' : sudah check-in / kunci diambil hari ini, belum checkout/kembali
-     * - 'selesai_hari_ini' : sudah checkout/kembali kunci hari ini
-     * - 'selesai'          : peminjaman keseluruhan sudah berstatus selesai (di luar hari ini)
-     * - 'akan_digunakan'   : belum ada aktivitas check-in hari ini
-     */
     public function getStatusHariIniAttribute(): string
-    {
-        // Pakai relasi yang sudah di-eager-load jika ada, hindari query N+1
-        $checkin = $this->relationLoaded('checkInHariIni')
-            ? $this->checkInHariIni
-            : $this->checkInHariIni()->first();
+{
+    $checkin = $this->relationLoaded('checkInHariIni')
+        ? $this->checkInHariIni
+        : $this->checkInHariIni()->first();
 
-        if ($checkin && is_null($checkin->waktu_checkout)) {
-            return 'sedang_digunakan';
-        }
-
-        if ($checkin && $checkin->waktu_checkout) {
-            return 'selesai_hari_ini';
-        }
-
-        if ($this->status === 'selesai') {
-            return 'selesai';
-        }
-
-        return 'akan_digunakan';
+    if ($checkin && is_null($checkin->kunci_dikembalikan_pamdal_at)) {
+        return 'sedang_digunakan';
     }
+
+    if ($checkin && $checkin->kunci_dikembalikan_pamdal_at) {
+        return 'selesai_hari_ini';
+    }
+
+    if ($this->status === 'selesai') {
+        return 'selesai';
+    }
+
+    return 'akan_digunakan';
+}
 }

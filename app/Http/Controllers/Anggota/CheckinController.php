@@ -76,11 +76,11 @@ class CheckinController extends Controller
             'tanggal'       => today(),
             'foto_ktp'      => $path,
             'waktu_checkin' => now(),
-            'status_kunci'  => 'diambil',
+            'status_kunci'  => 'belum_diambil',
         ]);
 
         $peminjaman->update(['status' => 'berjalan']);
 
-        return redirect()->back()->with('success', 'Check-in berhasil!');
+        return redirect()->back()->with('success', 'Check-in berhasil! Silakan temui petugas Pamdal untuk verifikasi & pengambilan kunci ruangan.');
     }
 }

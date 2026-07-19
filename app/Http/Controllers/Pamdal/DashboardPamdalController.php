@@ -19,11 +19,13 @@ class DashboardPamdalController extends Controller
             ->get();
 
         $peminjamansHariIni->each(function ($p) {
-            $checkinHariIni = $p->checkIns->first(); 
-            $p->sudah_ambil_hari_ini   = !is_null($checkinHariIni);
-            $p->sudah_kembali_hari_ini = $checkinHariIni && !is_null($checkinHariIni->waktu_checkout);
-            $p->waktu_ambil_hari_ini   = $checkinHariIni?->waktu_checkin;
-            $p->waktu_kembali_hari_ini = $checkinHariIni?->waktu_checkout;
+            $checkinHariIni = $p->checkIns->first();
+            $p->sudah_ambil_hari_ini   = $checkinHariIni && !is_null($checkinHariIni->kunci_diambil_pamdal_at);
+            $p->sudah_kembali_hari_ini = $checkinHariIni && !is_null($checkinHariIni->kunci_dikembalikan_pamdal_at);
+            $p->waktu_ambil_hari_ini   = $checkinHariIni?->kunci_diambil_pamdal_at;
+            $p->waktu_kembali_hari_ini = $checkinHariIni?->kunci_dikembalikan_pamdal_at;
+
+            $p->anggota_sudah_checkin_app = $checkinHariIni && !is_null($checkinHariIni->waktu_checkin);
         });
 
         $menungguKunci = $peminjamansHariIni->filter(fn ($p) => !$p->sudah_ambil_hari_ini)->count();

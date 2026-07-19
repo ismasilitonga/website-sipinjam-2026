@@ -37,20 +37,14 @@ class CheckoutController extends Controller
         $checkInHariIni = $peminjaman->checkIns()
             ->whereDate('tanggal', today())
             ->whereNull('waktu_checkout')
-            ->firstOrFail(); 
+            ->firstOrFail();
+
         $checkInHariIni->update([
             'waktu_checkout' => now(),
-            'status_kunci'   => 'dikembalikan',
-        ]);
-
-        $hariTerakhir = Carbon::parse($peminjaman->tanggal_selesai)->isSameDay(today());
-
-        $peminjaman->update([
-            'status' => $hariTerakhir ? 'selesai' : 'berjalan',
         ]);
 
         return redirect()
-            ->route('anggota.riwayat-ruangan', ['status' => $hariTerakhir ? 'selesai' : 'berjalan'])
-            ->with('success', 'Check-out berhasil!');
+            ->route('anggota.riwayat-ruangan')
+            ->with('success', 'Check-out berhasil dicatat! Segera kembalikan kunci ke petugas Pamdal untuk menyelesaikan proses peminjaman hari ini.');
     }
 }

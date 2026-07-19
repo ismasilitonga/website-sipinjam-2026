@@ -59,34 +59,34 @@
                         <span style="color:#dc2626; font-size:12.5px; font-style:italic;">Belum check-in</span>
                     @endif
                 </td>
-                <td style="padding:14px 15px; text-align:center;">
-                    @if($p->waktu_checkin)
+                <td style="padding:14px 15px; text-align:center; white-space:nowrap;">
+                    @if($p->waktu_ambil_kunci)
                         <span style="color:#16a34a; font-weight:600; font-size:13px;">
                             <i class="fa-solid fa-check-circle"></i>
-                            Diambil {{ $p->waktu_checkin }}
-                        </span>
-                    @else
-                        <span style="color:#94a3b8; font-size:13px; font-style:italic;">Belum</span>
-                    @endif
-                </td>
-                <td style="padding:14px 15px; text-align:center;">
-                    @if($p->waktu_checkout)
-                        <span style="color:#16a34a; font-weight:600; font-size:13px;">
-                            <i class="fa-solid fa-check-circle"></i>
-                            Kembali {{ $p->waktu_checkout }}
+                            Diambil {{ $p->waktu_ambil_kunci }}
                         </span>
                     @else
                         <span style="color:#94a3b8; font-size:13px; font-style:italic;">Belum</span>
                     @endif
                 </td>
                 <td style="padding:14px 15px; text-align:center; white-space:nowrap;">
-                    @if(!$p->sudah_checkin)
+                    @if($p->waktu_kembali_kunci)
+                        <span style="color:#16a34a; font-weight:600; font-size:13px;">
+                            <i class="fa-solid fa-check-circle"></i>
+                            Kembali {{ $p->waktu_kembali_kunci }}
+                        </span>
+                    @else
+                        <span style="color:#94a3b8; font-size:13px; font-style:italic;">Belum</span>
+                    @endif
+                </td>
+                <td style="padding:14px 15px; text-align:center; white-space:nowrap;">
+                    @if(!$p->sudah_ambil_kunci)
                         <button onclick="bukaModal('ambil', {{ $p->id }}, '{{ $p->user_nama }}', '{{ $p->ruangan_nama }}')"
                             style="background:#2f7ea1; color:white; padding:7px 14px; border-radius:8px;
                                    border:none; cursor:pointer; font-size:13px; font-weight:600; width:100%;">
                             <i class="fa-solid fa-key"></i> Ambil Kunci
                         </button>
-                    @elseif(!$p->sudah_checkout)
+                    @elseif(!$p->sudah_kembali_kunci)
                         <button onclick="bukaModal('kembali', {{ $p->id }}, '{{ $p->user_nama }}', '{{ $p->ruangan_nama }}')"
                             style="background:#16a34a; color:white; padding:7px 14px; border-radius:8px;
                                    border:none; cursor:pointer; font-size:13px; font-weight:600; width:100%;">
@@ -228,22 +228,22 @@ document.addEventListener('DOMContentLoaded', function () {
                         ? `<a href="${p.foto_ktp_url}" target="_blank" style="color:#2563eb; font-weight:600; font-size:13px; text-decoration:none; display:inline-flex; align-items:center; gap:5px;"><i class="fa-solid fa-id-card"></i> Lihat File</a>`
                         : `<span style="color:#dc2626; font-size:12.5px; font-style:italic;">Belum check-in</span>`;
 
-                    const ambilKunci = p.waktu_checkin
-                        ? `<span style="color:#16a34a; font-weight:600; font-size:13px;"><i class="fa-solid fa-check-circle"></i> Diambil ${p.waktu_checkin}</span>`
+                    const ambilKunci = p.waktu_ambil_kunci
+                        ? `<span style="color:#16a34a; font-weight:600; font-size:13px;"><i class="fa-solid fa-check-circle"></i> Diambil ${p.waktu_ambil_kunci}</span>`
                         : `<span style="color:#94a3b8; font-size:13px; font-style:italic;">Belum</span>`;
 
-                    const kembalikan = p.waktu_checkout
-                        ? `<span style="color:#16a34a; font-weight:600; font-size:13px;"><i class="fa-solid fa-check-circle"></i> Kembali ${p.waktu_checkout}</span>`
+                    const kembalikan = p.waktu_kembali_kunci
+                        ? `<span style="color:#16a34a; font-weight:600; font-size:13px;"><i class="fa-solid fa-check-circle"></i> Kembali ${p.waktu_kembali_kunci}</span>`
                         : `<span style="color:#94a3b8; font-size:13px; font-style:italic;">Belum</span>`;
 
                     let aksi = '';
-                    if (!p.sudah_checkin) {
+                    if (!p.sudah_ambil_kunci) {
                         aksi = `<button onclick="bukaModal('ambil', ${p.id}, '${p.user_nama}', '${p.ruangan_nama}')"
                             style="background:#2f7ea1; color:white; padding:7px 14px; border-radius:8px;
                                    border:none; cursor:pointer; font-size:13px; font-weight:600; width:100%;">
                             <i class="fa-solid fa-key"></i> Ambil Kunci
                         </button>`;
-                    } else if (!p.sudah_checkout) {
+                    } else if (!p.sudah_kembali_kunci) {
                         aksi = `<button onclick="bukaModal('kembali', ${p.id}, '${p.user_nama}', '${p.ruangan_nama}')"
                             style="background:#16a34a; color:white; padding:7px 14px; border-radius:8px;
                                    border:none; cursor:pointer; font-size:13px; font-weight:600; width:100%;">
@@ -262,8 +262,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             <td style="padding:14px 15px; font-weight:500;">${p.ruangan_nama}</td>
                             <td style="padding:14px 15px; text-align:center; font-size:13px;">${waktu}</td>
                             <td style="padding:14px 15px; text-align:center;">${verifikasiDataDiri}</td>
-                            <td style="padding:14px 15px; text-align:center;">${ambilKunci}</td>
-                            <td style="padding:14px 15px; text-align:center;">${kembalikan}</td>
+                            <td style="padding:14px 15px; text-align:center; white-space:nowrap;">${ambilKunci}</td>
+                            <td style="padding:14px 15px; text-align:center; white-space:nowrap;">${kembalikan}</td>
                             <td style="padding:14px 15px; text-align:center; white-space:nowrap;">${aksi}</td>
                         </tr>`;
                 });
