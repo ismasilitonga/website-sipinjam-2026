@@ -32,7 +32,7 @@ class RiwayatRuanganAnggotaController extends Controller
             'selesai'          => 'Selesai',
         ];
 
-        $riwayat = PeminjamanRuangan::with('ruangan')
+        $riwayat = PeminjamanRuangan::with(['ruangan', 'checkInHariIni'])
             ->where('user_id', Auth::id())
             ->when($request->filled('status'), function($q) use ($request) {
                 $q->where('status', $request->status);

@@ -16,9 +16,17 @@ class CheckoutController extends Controller
             ->where('user_id', Auth::id())
             ->where('status', 'berjalan')
             ->whereHas('checkIns', function ($q) {
-                $q->whereDate('tanggal', today())->whereNull('waktu_checkout');
+                $q->whereDate('tanggal', today())
+                  ->whereNull('waktu_checkout')
+                  ->where('status_verifikasi', '!=', 'ditolak');
             })
             ->get();
+
+        foreach ($peminjaman_ruangan as $p) {
+            $jamSelesaiWaktu = Carbon::parse($p->tanggal_selesai)->format('H:i:s');
+            $p->batas_checkout = Carbon::parse(today()->toDateString() . ' ' . $jamSelesaiWaktu);
+            $p->boleh_checkout = now()->gte($p->batas_checkout);
+        }
 
         return view('anggota.checkout', compact('peminjaman_ruangan'));
     }
@@ -37,11 +45,29 @@ class CheckoutController extends Controller
         $checkInHariIni = $peminjaman->checkIns()
             ->whereDate('tanggal', today())
             ->whereNull('waktu_checkout')
+            ->where('status_verifikasi', '!=', 'ditolak')
             ->firstOrFail();
 
+        $jamSelesaiWaktu = Carbon::parse($peminjaman->tanggal_selesai)->format('H:i:s');
+        $batasCheckout   = Carbon::parse(today()->toDateString() . ' ' . $jamSelesaiWaktu);
+
+        if (now()->lt($batasCheckout)) {
+            return redirect()->back()->with('error',
+                'Belum waktunya check-out. Check-out baru bisa dilakukan tepat pada jam ' .
+                $batasCheckout->format('H:i') . ' sesuai jadwal peminjaman.');
+        }
+
         $checkInHariIni->update([
-            'waktu_checkout' => now(),
+            'waktu_checkout'          => now(),
+            'status_checkout'         => 'menunggu',
+            'alasan_checkout_ditolak' => null,
         ]);
+
+        $tanggalSelesaiBooking = Carbon::parse($peminjaman->tanggal_selesai)->toDateString();
+
+        if (today()->toDateString() === $tanggalSelesaiBooking) {
+            $peminjaman->update(['status' => 'selesai']);
+        }
 
         return redirect()
             ->route('anggota.riwayat-ruangan')

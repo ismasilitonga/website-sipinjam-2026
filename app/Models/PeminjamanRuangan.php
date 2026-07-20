@@ -65,6 +65,10 @@ class PeminjamanRuangan extends Model
         ? $this->checkInHariIni
         : $this->checkInHariIni()->first();
 
+    if ($checkin && $checkin->status_verifikasi === 'ditolak') {
+        return 'akan_digunakan';
+    }
+
     if ($checkin && is_null($checkin->kunci_dikembalikan_pamdal_at)) {
         return 'sedang_digunakan';
     }

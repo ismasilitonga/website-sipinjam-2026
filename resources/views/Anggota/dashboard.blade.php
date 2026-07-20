@@ -92,7 +92,9 @@
                         $selesai = \Carbon\Carbon::parse($p->tanggal_selesai);
                         $checkInHariIni = $p->checkIns->firstWhere('tanggal', today()->toDateString());
 
-                    if ($checkInHariIni && is_null($checkInHariIni->waktu_checkout)) {
+                    if ($checkInHariIni && $checkInHariIni->status_verifikasi === 'ditolak') {
+                        $statusLive = ['badge-yellow', '🟡 Akan Digunakan'];
+                    } elseif ($checkInHariIni && is_null($checkInHariIni->waktu_checkout)) {
                         $statusLive = ['badge-green', '🟢 Sedang Digunakan'];
                     } elseif ($checkInHariIni && $checkInHariIni->waktu_checkout) {
                         $statusLive = ['badge-gray', '⚪ Selesai Hari Ini'];

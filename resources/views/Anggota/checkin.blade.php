@@ -43,6 +43,22 @@
                 <span class="badge badge-green">Disetujui</span>
             </div>
 
+            @if($p->alasan_ditolak)
+            <div style="margin-bottom:16px;background:#fef2f2;border:1px solid #fecaca;
+                        border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;">
+                <svg fill="none" stroke="#dc2626" stroke-width="2" viewBox="0 0 24 24"
+                     style="width:18px;height:18px;flex-shrink:0;margin-top:1px;">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 9v3.75m0 3.75h.008M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div style="font-size:13px;color:#991b1b;line-height:1.5;">
+                    <strong>Verifikasi data diri kamu ditolak oleh Pamdal.</strong><br>
+                    Alasan: {{ $p->alasan_ditolak }}<br>
+                    Silakan upload ulang foto KTP/KTM yang jelas di bawah ini.
+                </div>
+            </div>
+            @endif
+
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
                 <div style="background:#f5f3ff;border-radius:8px;padding:10px 12px;">
                     <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">MULAI</div>
@@ -58,13 +74,30 @@
                 </div>
             </div>
 
+            <div id="waktuWarning-{{ $p->id }}"
+                 class="form-error"
+                 style="{{ $p->boleh_checkin ? 'display:none;' : 'display:block;' }}
+                        margin-bottom:14px;background:#fef2f2;border:1px solid #fecaca;
+                        padding:10px 12px;border-radius:8px;">
+                @if($p->ruangan_sedang_dipakai)
+                    Ruangan masih digunakan oleh peminjam sebelumnya. Silakan tunggu hingga mereka check-out
+                    sebelum kamu bisa check-in. Coba muat ulang halaman ini beberapa saat lagi.
+                @elseif(now()->lt($p->batas_mulai_checkin))
+                    Check-in baru bisa dilakukan tepat pada jam
+                    <strong>{{ $p->batas_mulai_checkin->format('H:i') }}</strong> sesuai jadwal peminjaman.
+                @else
+                    Jadwal hari ini sudah lewat. Check-in tidak dapat dilakukan lagi.
+                @endif
+            </div>
+
             <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">
                 <strong style="color:var(--text);">Keperluan:</strong> {{ $p->keperluan }}
             </div>
 
 <form method="POST"
       action="{{ route('anggota.checkin.store') }}"
-      enctype="multipart/form-data">
+      enctype="multipart/form-data"
+      id="checkinForm-{{ $p->id }}">
 
     @csrf
 
@@ -79,8 +112,9 @@
         name="foto_ktp"
         accept="image/*"
         required
-        class="form-control"
+        class="form-control checkin-input-{{ $p->id }}"
         style="margin-top:8px;"
+        {{ $p->boleh_checkin ? '' : 'disabled' }}
         onchange="previewKTP(event, '{{ $p->id }}')">
 
     <img id="preview-{{ $p->id }}"
@@ -113,7 +147,9 @@
 
             <input type="checkbox"
                 id="ktp-check-{{ $p->id }}"
-                style="margin-top:3px;accent-color:#4f46e5;">
+                class="checkin-input-{{ $p->id }}"
+                style="margin-top:3px;accent-color:#4f46e5;"
+                {{ $p->boleh_checkin ? '' : 'disabled' }}>
 
             <span>
                 Saya menyatakan bahwa foto yang diupload adalah KTP/KTM asli milik saya.
@@ -124,8 +160,10 @@
 </div>
 
     <button type="button"
+    id="btnCheckin-{{ $p->id }}"
     class="btn btn-success"
     style="width:100%;justify-content:center;"
+    {{ $p->boleh_checkin ? '' : 'disabled' }}
     onclick="validateCheckin(event, '{{ $p->id }}')">
 
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -134,8 +172,17 @@
                   stroke-width="2"
                   d="M11 16l-4-4m0 0l4-4m-4 4h14"/>
              </svg>
-             Check-in Sekarang
+             <span id="btnCheckinLabel-{{ $p->id }}">
+                {{ $p->boleh_checkin ? 'Check-in Sekarang' : 'Belum Bisa Check-in' }}
+             </span>
              </button>
+
+    <span class="checkin-time-data"
+          data-id="{{ $p->id }}"
+          data-batas-mulai="{{ $p->batas_mulai_checkin->toIso8601String() }}"
+          data-batas-selesai="{{ $p->batas_selesai_checkin->toIso8601String() }}"
+          data-ruangan-sedang-dipakai="{{ $p->ruangan_sedang_dipakai ? '1' : '0' }}"
+          style="display:none;"></span>
             </form>
         </div>
     </div>
@@ -267,6 +314,44 @@ document.getElementById('modalKtpWarning').addEventListener('click', function (e
 document.getElementById('modalKonfirmasiCheckin').addEventListener('click', function (e) {
     if (e.target === this) tutupModalKonfirmasiCheckin();
 });
+
+function updateCheckinAvailability() {
+    document.querySelectorAll('.checkin-time-data').forEach(el => {
+        const id = el.dataset.id;
+        const batasMulai   = new Date(el.dataset.batasMulai);
+        const batasSelesai = new Date(el.dataset.batasSelesai);
+        
+        const ruanganSedangDipakai = el.dataset.ruanganSedangDipakai === '1';
+        const now = new Date();
+
+        const bolehSecaraJam = now >= batasMulai && now <= batasSelesai;
+        const boleh = bolehSecaraJam && !ruanganSedangDipakai;
+
+        const btn   = document.getElementById('btnCheckin-' + id);
+        const label = document.getElementById('btnCheckinLabel-' + id);
+        const warn  = document.getElementById('waktuWarning-' + id);
+        const inputs = document.querySelectorAll('.checkin-input-' + id);
+
+        if (!btn) return;
+
+        btn.disabled = !boleh;
+        inputs.forEach(inp => inp.disabled = !boleh);
+
+        if (boleh) {
+            warn.style.display = 'none';
+            label.textContent = 'Check-in Sekarang';
+        } else if (ruanganSedangDipakai) {
+            warn.style.display = 'block';
+            label.textContent = 'Ruangan Masih Dipakai';
+        } else {
+            warn.style.display = 'block';
+            label.textContent = now < batasMulai ? 'Belum Bisa Check-in' : 'Jadwal Sudah Lewat';
+        }
+    });
+}
+
+updateCheckinAvailability();
+setInterval(updateCheckinAvailability, 1000);
 </script>
 @endif
 @endsection

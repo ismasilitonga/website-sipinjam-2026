@@ -450,8 +450,12 @@
             <span class="nav-label">Manajemen Kunci</span>
             @php
                 $pending = \App\Models\PeminjamanRuangan::whereIn('status', ['disetujui', 'berjalan'])
-                    ->whereDate('tanggal_mulai', now()->toDateString())
-                    ->whereNull('waktu_kunci_diambil')
+                    ->whereDate('tanggal_mulai', '<=', now()->toDateString())
+                    ->whereDate('tanggal_selesai', '>=', now()->toDateString())
+                    ->whereDoesntHave('checkIns', function ($q) {
+                        $q->whereDate('tanggal', now()->toDateString())
+                          ->whereNotNull('kunci_diambil_pamdal_at');
+                    })
                     ->count();
             @endphp
             @if($pending > 0)

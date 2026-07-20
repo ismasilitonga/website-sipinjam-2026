@@ -74,6 +74,16 @@
                 </span>
             </div>
 
+            <div id="checkoutWarning-{{ $p->id }}"
+                 class="form-error"
+                 style="{{ $p->boleh_checkout ? 'display:none;' : 'display:block;' }}
+                        margin-bottom:12px;background:#fef2f2;border:1px solid #fecaca;
+                        padding:10px 12px;border-radius:8px;">
+                Belum waktunya check-out. Ruangan wajib digunakan sampai jam
+                <strong>{{ $selesaiHariIni->format('H:i') }}</strong> sesuai jadwal peminjaman
+                sebelum bisa check-out.
+            </div>
+
             @if(now()->gt($selesaiHariIni))
             <div class="alert alert-warning" style="margin-bottom:12px;padding:10px 12px;">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;flex-shrink:0;">
@@ -84,14 +94,25 @@
             </div>
             @endif
 
-            <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;"
+            <button type="button"
+                id="btnCheckout-{{ $p->id }}"
+                class="btn btn-primary"
+                style="width:100%;justify-content:center;"
+                {{ $p->boleh_checkout ? '' : 'disabled' }}
                 onclick="bukaModalCheckout('{{ $p->id }}', '{{ addslashes($p->ruangan->nama_ruangan ?? '') }}')">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 16l4-4m0 0l-4-4m4 4H7"/>
                 </svg>
-                Check-out Sekarang
+                <span id="btnCheckoutLabel-{{ $p->id }}">
+                    {{ $p->boleh_checkout ? 'Check-out Sekarang' : 'Belum Bisa Check-out' }}
+                </span>
             </button>
+
+            <span class="checkout-time-data"
+                  data-id="{{ $p->id }}"
+                  data-batas-checkout="{{ $p->batas_checkout->toIso8601String() }}"
+                  style="display:none;"></span>
         </div>
     </div>
     @endforeach
@@ -197,8 +218,28 @@
         });
     }
 
+    function updateCheckoutAvailability() {
+        document.querySelectorAll('.checkout-time-data').forEach(el => {
+            const id = el.dataset.id;
+            const batasCheckout = new Date(el.dataset.batasCheckout);
+            const now = new Date();
+            const boleh = now >= batasCheckout;
+
+            const btn   = document.getElementById('btnCheckout-' + id);
+            const label = document.getElementById('btnCheckoutLabel-' + id);
+            const warn  = document.getElementById('checkoutWarning-' + id);
+            if (!btn) return;
+
+            btn.disabled = !boleh;
+            label.textContent = boleh ? 'Check-out Sekarang' : 'Belum Bisa Check-out';
+            warn.style.display = boleh ? 'none' : 'block';
+        });
+    }
+
     updateAllTimers();
+    updateCheckoutAvailability();
     setInterval(updateAllTimers, 1000);
+    setInterval(updateCheckoutAvailability, 1000);
 </script>
 
 @endsection

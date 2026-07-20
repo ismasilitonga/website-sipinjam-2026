@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FotoIdentitasController extends Controller
 {
-
     public function show(CheckIn $checkIn): StreamedResponse
     {
         $peminjaman = $checkIn->peminjaman;
@@ -20,11 +19,16 @@ class FotoIdentitasController extends Controller
 
         abort_unless($bolehLihat, 403, 'Anda tidak berhak melihat file ini.');
 
-        abort_unless(
-            $checkIn->foto_ktp && Storage::disk('local')->exists($checkIn->foto_ktp),
-            404
-        );
+        abort_unless((bool) $checkIn->foto_ktp, 404);
 
-        return Storage::disk('local')->response($checkIn->foto_ktp);
+        if (Storage::disk('local')->exists($checkIn->foto_ktp)) {
+            return Storage::disk('local')->response($checkIn->foto_ktp);
+        }
+
+        if (Storage::disk('public')->exists($checkIn->foto_ktp)) {
+            return Storage::disk('public')->response($checkIn->foto_ktp);
+        }
+
+        abort(404, 'File foto KTP tidak ditemukan di server.');
     }
 }

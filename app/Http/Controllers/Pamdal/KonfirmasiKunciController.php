@@ -44,11 +44,17 @@ class KonfirmasiKunciController extends Controller
 
     private function transform(PeminjamanRuangan $p): array
     {
-        $checkinRelevan = $p->checkIns->sortByDesc('id')->first();
-
         $mulai   = Carbon::parse($p->tanggal_mulai);
         $selesai = Carbon::parse($p->tanggal_selesai);
         $multiHari = !$mulai->isSameDay($selesai);
+
+        $todayInRange = today()->betweenIncluded($mulai->copy()->startOfDay(), $selesai->copy()->endOfDay());
+
+        if ($todayInRange) {
+            $checkinRelevan = $p->checkIns->first(fn ($c) => Carbon::parse($c->tanggal)->isSameDay(today()));
+        } else {
+            $checkinRelevan = $p->checkIns->sortByDesc('id')->first();
+        }
 
         return [
             'id' => $p->id,
@@ -78,8 +84,14 @@ class KonfirmasiKunciController extends Controller
                 ? Carbon::parse($checkinRelevan->kunci_dikembalikan_pamdal_at)->format('H:i')
                 : null,
             'foto_ktp_url' => $checkinRelevan && $checkinRelevan->foto_ktp
-                ? Storage::url($checkinRelevan->foto_ktp)
+                ? route('pamdal.foto-identitas.show', $checkinRelevan->id)
                 : null,
+
+            'status_verifikasi' => $checkinRelevan?->status_verifikasi,
+            'alasan_verifikasi_ditolak' => $checkinRelevan?->alasan_verifikasi_ditolak,
+
+            'status_checkout' => $checkinRelevan?->status_checkout,
+            'alasan_checkout_ditolak' => $checkinRelevan?->alasan_checkout_ditolak,
         ];
     }
 
@@ -103,13 +115,15 @@ class KonfirmasiKunciController extends Controller
     {
         $peminjaman = PeminjamanRuangan::findOrFail($id);
 
-        // Cari check-in mana pun milik peminjaman ini yang kuncinya belum diambil.
-        // Tidak dibatasi tanggal hari ini, supaya check-in lama (mis. saat peminjam
-        // upload KTP di hari-H) tetap dipakai dan fotonya tidak hilang.
         $checkin = $peminjaman->checkIns()
+            ->whereDate('tanggal', today())
             ->whereNull('kunci_diambil_pamdal_at')
             ->latest('id')
             ->first();
+
+        if ($checkin && $checkin->status_verifikasi === 'ditolak') {
+            return back()->with('error', 'Verifikasi data diri peminjam ini masih ditolak. Minta peminjam upload ulang foto KTP terlebih dahulu.');
+        }
 
         if ($checkin) {
             $checkin->update([
@@ -117,18 +131,15 @@ class KonfirmasiKunciController extends Controller
                 'status_kunci' => 'diambil',
             ]);
         } else {
-            // Tidak ada check-in yang menunggu diambil.
-            // Cek dulu, jangan-jangan kuncinya memang sudah pernah dikonfirmasi diambil.
             $sudahDiambil = $peminjaman->checkIns()
+                ->whereDate('tanggal', today())
                 ->whereNotNull('kunci_diambil_pamdal_at')
                 ->exists();
 
             if ($sudahDiambil) {
-                return back()->with('error', 'Kunci untuk peminjaman ini sudah dikonfirmasi diambil.');
+                return back()->with('error', 'Kunci untuk peminjaman ini sudah dikonfirmasi diambil hari ini.');
             }
 
-            // Belum pernah ada check-in sama sekali (mis. Pamdal serahkan kunci
-            // duluan sebelum peminjam sempat check-in via app) -> buat row baru.
             CheckIn::create([
                 'peminjaman_id' => $peminjaman->id,
                 'tanggal'       => today(),
@@ -151,18 +162,20 @@ class KonfirmasiKunciController extends Controller
         $peminjaman = PeminjamanRuangan::findOrFail($id);
 
         $checkinBelumKembaliKunci = $peminjaman->checkIns()
+            ->whereDate('tanggal', today())
             ->whereNotNull('kunci_diambil_pamdal_at')
             ->whereNull('kunci_dikembalikan_pamdal_at')
             ->latest('id')
             ->first();
 
         if (!$checkinBelumKembaliKunci) {
-            return back()->with('error', 'Tidak ada kunci yang menunggu pengembalian pada peminjaman ini. Pastikan kunci sudah dikonfirmasi diambil terlebih dahulu.');
+            return back()->with('error', 'Tidak ada kunci yang menunggu pengembalian hari ini pada peminjaman ini. Pastikan kunci sudah dikonfirmasi diambil terlebih dahulu.');
         }
 
         $checkinBelumKembaliKunci->update([
             'kunci_dikembalikan_pamdal_at' => now(),
             'status_kunci'   => 'dikembalikan',
+            'status_checkout' => $checkinBelumKembaliKunci->waktu_checkout ? 'diterima' : $checkinBelumKembaliKunci->status_checkout,
         ]);
 
         $sudahLewatTanggalSelesai = now()->greaterThanOrEqualTo(
@@ -178,5 +191,66 @@ class KonfirmasiKunciController extends Controller
             . ($sudahLewatTanggalSelesai
                 ? ' Peminjaman ditandai selesai.'
                 : ' Peminjaman masih berjalan untuk hari berikutnya.'));
+    }
+
+    public function tolakVerifikasi(Request $request, $id)
+    {
+        $request->validate([
+            'alasan' => 'required|string|max:255',
+        ]);
+
+        $peminjaman = PeminjamanRuangan::findOrFail($id);
+
+        $checkin = $peminjaman->checkIns()
+            ->whereDate('tanggal', today())
+            ->whereNotNull('foto_ktp')
+            ->latest('id')
+            ->first();
+
+        if (!$checkin) {
+            return back()->with('error', 'Tidak ada foto KTP hari ini yang bisa ditolak untuk peminjaman ini.');
+        }
+
+        $checkin->update([
+            'status_verifikasi'         => 'ditolak',
+            'alasan_verifikasi_ditolak' => $request->alasan,
+        ]);
+
+        return back()->with('success', 'Verifikasi data diri ditolak. Peminjam akan diminta upload ulang foto KTP.');
+    }
+
+    public function tolakCheckout(Request $request, $id)
+    {
+        $request->validate([
+            'alasan' => 'required|string|max:255',
+        ]);
+
+        $peminjaman = PeminjamanRuangan::findOrFail($id);
+
+        $checkin = $peminjaman->checkIns()
+            ->whereDate('tanggal', today())
+            ->whereNotNull('waktu_checkout')
+            ->whereNull('kunci_dikembalikan_pamdal_at')
+            ->latest('id')
+            ->first();
+
+        if (!$checkin) {
+            return back()->with('error', 'Tidak ada klaim checkout hari ini yang bisa ditolak untuk peminjaman ini.');
+        }
+
+        $checkin->update([
+            'waktu_checkout'          => null,
+            'status_checkout'         => 'ditolak',
+            'alasan_checkout_ditolak' => $request->alasan,
+        ]);
+
+        return back()->with('success', 'Klaim checkout ditolak. Peminjam akan diminta checkout ulang setelah benar-benar mengembalikan kunci.');
+    }
+
+    public function showKtp($filename)
+    {
+        $path = storage_path('app/public/ktp/' . $filename);
+        abort_unless(file_exists($path), 404);
+        return response()->file($path);
     }
 }

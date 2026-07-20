@@ -256,9 +256,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/daftar-ruangan', [DaftarRuanganController::class, 'index'])->name('daftar-ruangan');
         Route::get('/daftar-barang',  [DaftarBarangController::class, 'index'])->name('daftar-barang');
 
-        Route::get('/daftar-peminjaman',     [KonfirmasiKunciController::class, 'index'])->name('daftar-peminjaman');
-        Route::post('/kunci/{id}/ambil',     [KonfirmasiKunciController::class, 'konfirmasiAmbil'])->name('kunci.ambil');
-        Route::post('/kunci/{id}/kembalikan',[KonfirmasiKunciController::class, 'konfirmasiKembali'])->name('kunci.kembalikan');
-    });
 
+    Route::get('/daftar-peminjaman',       [KonfirmasiKunciController::class, 'index'])->name('daftar-peminjaman');
+    Route::post('/kunci/{id}/ambil',       [KonfirmasiKunciController::class, 'konfirmasiAmbil'])->name('kunci.ambil');
+    Route::post('/kunci/{id}/kembalikan',  [KonfirmasiKunciController::class, 'konfirmasiKembali'])->name('kunci.kembalikan');
+    Route::post('/verifikasi/{id}/tolak',  [KonfirmasiKunciController::class, 'tolakVerifikasi'])->name('verifikasi.tolak');
+    Route::post('/checkout/{id}/tolak',    [KonfirmasiKunciController::class, 'tolakCheckout'])->name('checkout.tolak');
+    Route::get('/foto-identitas/{checkIn}', [\App\Http\Controllers\FotoIdentitasController::class, 'show'])->name('foto-identitas.show');
+    });
 }); 

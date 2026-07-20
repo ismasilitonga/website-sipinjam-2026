@@ -66,7 +66,7 @@
                     <th style="width:190px;">Ruangan</th>
                     <th style="width:130px;">Tanggal</th>
                     <th style="width:140px;">Waktu</th>
-                    <th style="width:130px;">Status</th>
+                    <th style="width:150px;">Status</th>
                     <th style="width:220px;">Alasan Tolak</th>
                     <th style="width:150px;">Aksi</th>
                 </tr>
@@ -101,6 +101,27 @@
                         'sistem' => 'Sistem (otomatis)',
                         default  => ucfirst($p->ditolak_oleh),
                     } : null;
+                    
+                    $subLabelHarian = null;
+                    if ($p->status === 'berjalan') {
+                        $today = \Carbon\Carbon::today();
+                        $tglMulaiHari   = $tglMulai->copy()->startOfDay();
+                        $tglSelesaiHari = $tglSelesai->copy()->startOfDay();
+                        $dalamPeriode   = $today->between($tglMulaiHari, $tglSelesaiHari);
+
+                        if ($dalamPeriode) {
+                            $checkinHariIni = $p->checkInHariIni;
+                            if ($checkinHariIni && $checkinHariIni->waktu_checkout) {
+                                $subLabelHarian = $today->lt($tglSelesaiHari)
+                                    ? 'Selesai hari ini · lanjut besok'
+                                    : 'Selesai hari ini';
+                            } elseif ($checkinHariIni && !$checkinHariIni->waktu_checkout) {
+                                $subLabelHarian = 'Sedang berlangsung hari ini';
+                            } else {
+                                $subLabelHarian = 'Belum check-in hari ini';
+                            }
+                        }
+                    }
                 @endphp
                 <tr>
                     <td style="color:var(--text-muted);font-size:12px;">
@@ -131,6 +152,24 @@
                     </td>
                     <td>
                         <span class="badge {{ $cls }}">{{ $lbl }}</span>
+
+                        @if($subLabelHarian)
+                            <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">
+                                {{ $subLabelHarian }}
+                            </div>
+                            @if($subLabelHarian === 'Belum check-in hari ini')
+                                <a href="{{ route('anggota.checkin') }}"
+                                   style="display:block;margin-top:2px;font-size:11.5px;color:var(--accent);font-weight:600;text-decoration:none;">
+                                    → Check-in hari ini
+                                </a>
+                            @elseif($subLabelHarian === 'Sedang berlangsung hari ini')
+                                <a href="{{ route('anggota.checkout') }}"
+                                   style="display:block;margin-top:2px;font-size:11.5px;color:var(--accent);font-weight:600;text-decoration:none;">
+                                    → Check-out hari ini
+                                </a>
+                            @endif
+                        @endif
+
                         @if($p->status === 'disetujui' && ($p->status_pemakaian ?? '') === 'booked' && $tglMulai->isToday())
                             <a href="{{ route('anggota.checkin') }}"
                                style="display:block;margin-top:4px;font-size:11.5px;color:var(--accent);font-weight:600;text-decoration:none;">

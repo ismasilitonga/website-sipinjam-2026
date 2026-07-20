@@ -30,9 +30,6 @@ class DashboardPicController extends Controller
             ->take(5)
             ->get();
 
-        // FIX: sama seperti Ketua — pakai relasi standar 'checkInHariIni'
-        // dan HAPUS blok ->each(...) manual di bawah, karena status
-        // sekarang dihitung konsisten lewat accessor $p->status_hari_ini.
         $ruanganAktifHariIni = PeminjamanRuangan::with(['ruangan', 'user', 'checkInHariIni'])
             ->whereIn('status', ['disetujui', 'berjalan', 'selesai'])
             ->whereDate('tanggal_mulai', '<=', today())
