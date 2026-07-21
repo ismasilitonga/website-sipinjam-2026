@@ -6,6 +6,8 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
+use App\Models\User;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 use Symfony\Component\Mailer\Transport\Smtp\Stream\SocketStream;
 
@@ -18,10 +20,17 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         if (app()->environment('production')) {
-        URL::forceScheme('https');
-    }
+            URL::forceScheme('https');
+        }
 
         Paginator::useBootstrapFive();
+        View::composer('layouts.admin', function ($view) {
+            $view->with('pendaftarPendingCount',
+                User::where('status', 'pending')
+                    ->whereIn('role', ['anggota', 'ketua'])
+                    ->count()
+            );
+        });
 
         Mail::extend('smtp', function () {
             $transport = new EsmtpTransport(

@@ -19,7 +19,7 @@ class RiwayatRuanganAdminController extends Controller
             ->get();
 
         $query = PeminjamanRuangan::with(['user', 'ruangan'])
-            ->whereIn('status', ['disetujui', 'selesai']);
+            ->whereIn('status', ['disetujui', 'berjalan', 'selesai']);
 
         if ($request->filled('ruangan_id')) {
             $query->where('ruangan_id', $request->ruangan_id);
@@ -58,11 +58,16 @@ class RiwayatRuanganAdminController extends Controller
             ->where('status', 'disetujui')
             ->count();
 
+        $totalBerjalan = (clone $query)
+            ->where('status', 'berjalan')
+            ->count();
+
         return view('shared.riwayat-ruangan', compact(
             'riwayat',
             'ruangans',
             'totalSelesai',
-            'totalDisetujui'
+            'totalDisetujui',
+            'totalBerjalan'
         ));
     }
 
@@ -79,7 +84,7 @@ class RiwayatRuanganAdminController extends Controller
         $ruangans = Ruangan::orderBy('lantai')->orderBy('nama_ruangan')->get();
 
         $query = PeminjamanRuangan::with(['user', 'ruangan'])
-            ->whereIn('status', ['disetujui', 'selesai']);
+            ->whereIn('status', ['disetujui', 'berjalan', 'selesai']);
 
         if ($request->filled('ruangan_id')) {
             $query->where('ruangan_id', $request->ruangan_id);

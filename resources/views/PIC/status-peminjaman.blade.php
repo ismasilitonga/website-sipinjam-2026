@@ -56,6 +56,7 @@
                                     'menunggu_ketua' => ['badge-yellow', 'Menunggu Ketua'],
                                     'menunggu_pic'   => ['badge-purple', 'Menunggu PIC'],
                                     'ditolak'      => ['badge-red',    'Ditolak'],
+                                    'berjalan'       => ['badge-blue',   'Berjalan'],
                                     default        => ['badge-gray',   ucfirst($p->status)],
                                 };
                             @endphp

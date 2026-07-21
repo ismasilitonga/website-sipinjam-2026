@@ -56,6 +56,16 @@ class KonfirmasiKunciController extends Controller
             $checkinRelevan = $p->checkIns->sortByDesc('id')->first();
         }
 
+        // Cek apakah ada kunci dari HARI SEBELUMNYA (bukan hari ini) yang sudah diambil
+        // tapi belum dikonfirmasi kembali oleh Pamdal. Ini penting untuk peminjaman
+        // multi-hari agar Pamdal tidak memberi kunci baru padahal kunci lama masih menggantung.
+        $kunciLamaBelumKembali = $p->checkIns
+            ->filter(fn ($c) => !Carbon::parse($c->tanggal)->isSameDay(today())
+                && $c->kunci_diambil_pamdal_at
+                && !$c->kunci_dikembalikan_pamdal_at)
+            ->sortByDesc('tanggal')
+            ->first();
+
         return [
             'id' => $p->id,
             'user_nama' => $p->user->nama ?? '-',
@@ -92,6 +102,11 @@ class KonfirmasiKunciController extends Controller
 
             'status_checkout' => $checkinRelevan?->status_checkout,
             'alasan_checkout_ditolak' => $checkinRelevan?->alasan_checkout_ditolak,
+
+            'kunci_lama_belum_kembali' => (bool) $kunciLamaBelumKembali,
+            'tanggal_kunci_lama' => $kunciLamaBelumKembali
+                ? Carbon::parse($kunciLamaBelumKembali->tanggal)->format('d M Y')
+                : null,
         ];
     }
 
@@ -115,39 +130,43 @@ class KonfirmasiKunciController extends Controller
     {
         $peminjaman = PeminjamanRuangan::findOrFail($id);
 
+        // KEAMANAN: cegah pemberian kunci baru jika ada kunci dari hari
+        // sebelumnya (peminjaman multi-hari yang sama) yang belum dikonfirmasi
+        // kembali oleh Pamdal. Mencegah kunci "hilang jejak" saat tanggal berganti.
+        $kunciLamaBelumKembali = $peminjaman->checkIns()
+            ->whereDate('tanggal', '<', today())
+            ->whereNotNull('kunci_diambil_pamdal_at')
+            ->whereNull('kunci_dikembalikan_pamdal_at')
+            ->latest('tanggal')
+            ->first();
+
+        if ($kunciLamaBelumKembali) {
+            $tgl = Carbon::parse($kunciLamaBelumKembali->tanggal)->format('d M Y');
+            return back()->with('error',
+                "Kunci dari tanggal {$tgl} untuk peminjaman ini belum dikonfirmasi kembali. " .
+                "Konfirmasikan dulu pengembalian kunci sebelumnya sebelum memberikan kunci baru.");
+        }
+
         $checkin = $peminjaman->checkIns()
             ->whereDate('tanggal', today())
             ->whereNull('kunci_diambil_pamdal_at')
             ->latest('id')
             ->first();
 
-        if ($checkin && $checkin->status_verifikasi === 'ditolak') {
+        if (!$checkin) {
+            return back()->with('error',
+                'Anggota belum check-in untuk hari ini. Kunci tidak dapat diberikan sebelum ' .
+                'anggota check-in & upload foto KTP/KTM melalui aplikasi.');
+        }
+
+        if ($checkin->status_verifikasi === 'ditolak') {
             return back()->with('error', 'Verifikasi data diri peminjam ini masih ditolak. Minta peminjam upload ulang foto KTP terlebih dahulu.');
         }
 
-        if ($checkin) {
-            $checkin->update([
-                'kunci_diambil_pamdal_at' => now(),
-                'status_kunci' => 'diambil',
-            ]);
-        } else {
-            $sudahDiambil = $peminjaman->checkIns()
-                ->whereDate('tanggal', today())
-                ->whereNotNull('kunci_diambil_pamdal_at')
-                ->exists();
-
-            if ($sudahDiambil) {
-                return back()->with('error', 'Kunci untuk peminjaman ini sudah dikonfirmasi diambil hari ini.');
-            }
-
-            CheckIn::create([
-                'peminjaman_id' => $peminjaman->id,
-                'tanggal'       => today(),
-                'foto_ktp'      => null,
-                'kunci_diambil_pamdal_at' => now(),
-                'status_kunci'  => 'diambil',
-            ]);
-        }
+        $checkin->update([
+            'kunci_diambil_pamdal_at' => now(),
+            'status_kunci' => 'diambil',
+        ]);
 
         $peminjaman->update([
             'status'              => 'berjalan',
@@ -162,14 +181,13 @@ class KonfirmasiKunciController extends Controller
         $peminjaman = PeminjamanRuangan::findOrFail($id);
 
         $checkinBelumKembaliKunci = $peminjaman->checkIns()
-            ->whereDate('tanggal', today())
             ->whereNotNull('kunci_diambil_pamdal_at')
             ->whereNull('kunci_dikembalikan_pamdal_at')
-            ->latest('id')
+            ->latest('tanggal')
             ->first();
 
         if (!$checkinBelumKembaliKunci) {
-            return back()->with('error', 'Tidak ada kunci yang menunggu pengembalian hari ini pada peminjaman ini. Pastikan kunci sudah dikonfirmasi diambil terlebih dahulu.');
+            return back()->with('error', 'Tidak ada kunci yang menunggu pengembalian pada peminjaman ini. Pastikan kunci sudah dikonfirmasi diambil terlebih dahulu.');
         }
 
         $checkinBelumKembaliKunci->update([
@@ -187,7 +205,7 @@ class KonfirmasiKunciController extends Controller
             'waktu_kunci_dikembalikan'  => now(),
         ]);
 
-        return back()->with('success', 'Pengembalian kunci berhasil dikonfirmasi oleh Pamdal.'
+        return back()->with('success', 'Pengembalian kunci berhasil dikonfirmasi.'
             . ($sudahLewatTanggalSelesai
                 ? ' Peminjaman ditandai selesai.'
                 : ' Peminjaman masih berjalan untuk hari berikutnya.'));

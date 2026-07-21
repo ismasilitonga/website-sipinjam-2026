@@ -12,6 +12,39 @@
     </a>
 @endsection
 
+@push('styles')
+<style>
+    .tabel-riwayat td {
+        padding: 14px 10px;
+        line-height: 1.5;
+        vertical-align: top;
+    }
+    .tabel-riwayat td:first-child {
+        padding-left: 20px;
+    }
+    .tabel-riwayat th:first-child {
+        padding-left: 20px;
+    }
+    .tabel-riwayat tr {
+        border-bottom: 1px solid var(--border);
+    }
+    .tabel-riwayat tbody tr:hover td {
+        background: #f8fafc;
+    }
+    .tabel-riwayat .cell-sub {
+        font-size: 11px;
+        color: var(--text-muted);
+        line-height: 1.4;
+    }
+    .tabel-riwayat .cell-link {
+        font-size: 11.5px;
+        color: var(--accent);
+        font-weight: 600;
+        text-decoration: none;
+    }
+</style>
+@endpush
+
 @section('content')
 
 <div id="modalBatal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
@@ -59,174 +92,172 @@
     </div>
 
     <div class="table-wrap">
-        <table style="table-layout: fixed; width: 100%;">
-            <thead>
-                <tr>
-                    <th style="width:40px;">No</th>
-                    <th style="width:190px;">Ruangan</th>
-                    <th style="width:130px;">Tanggal</th>
-                    <th style="width:140px;">Waktu</th>
-                    <th style="width:150px;">Status</th>
-                    <th style="width:220px;">Alasan Tolak</th>
-                    <th style="width:150px;">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($riwayat as $p)
-                @php
-                    $tglMulai   = \Carbon\Carbon::parse($p->tanggal_mulai)->locale('id');
-                    $tglSelesai = \Carbon\Carbon::parse($p->tanggal_selesai)->locale('id');
-                    $satuHari   = $tglMulai->isSameDay($tglSelesai);
+    <table class="tabel-riwayat" style="table-layout: fixed; width: 100%; border-collapse: separate; border-spacing: 0;">
+       <thead>
+    <tr>
+        <th style="width:5%;">No</th>
+        <th style="width:17%;">Ruangan</th>
+        <th style="width:12%;">Tanggal</th>
+        <th style="width:13%;">Waktu</th>
+        <th style="width:14%;">Status</th>
+        <th style="width:29%;">Alasan Tolak</th>
+        <th style="width:10%;">Aksi</th>
+    </tr>
+</thead>
+        <tbody>
+            @forelse($riwayat as $p)
+            @php
+                $tglMulai   = \Carbon\Carbon::parse($p->tanggal_mulai)->locale('id');
+                $tglSelesai = \Carbon\Carbon::parse($p->tanggal_selesai)->locale('id');
+                $satuHari   = $tglMulai->isSameDay($tglSelesai);
 
-                    $labelDitolak = match($p->ditolak_oleh) {
-                        'ketua'  => 'Ditolak Ketua',
-                        'pic'    => 'Ditolak PIC',
-                        'sistem' => 'Ditolak Sistem',
-                        default  => 'Ditolak',
-                    };
+                $labelDitolak = match($p->ditolak_oleh) {
+                    'ketua'  => 'Ditolak Ketua',
+                    'pic'    => 'Ditolak PIC',
+                    'sistem' => 'Ditolak Sistem',
+                    default  => 'Ditolak',
+                };
 
-                    [$cls, $lbl] = match($p->status) {
-                        'menunggu_ketua' => ['badge-orange', 'Menunggu Ketua'],
-                        'menunggu_pic'   => ['badge-blue',   'Menunggu PIC'],
-                        'disetujui'      => ['badge-green',  'Disetujui'],
-                        'ditolak'        => ['badge-red',    $labelDitolak],
-                        'selesai'        => ['badge-gray',   'Selesai'],
-                        'berjalan'       => ['badge-cyan',   'Berjalan'],
-                        default          => ['badge-gray',   ucfirst($p->status)],
-                    };
+                [$cls, $lbl] = match($p->status) {
+                    'menunggu_ketua' => ['badge-orange', 'Menunggu Ketua'],
+                    'menunggu_pic'   => ['badge-blue',   'Menunggu PIC'],
+                    'disetujui'      => ['badge-green',  'Disetujui'],
+                    'ditolak'        => ['badge-red',    $labelDitolak],
+                    'selesai'        => ['badge-gray',   'Selesai'],
+                    'berjalan'       => ['badge-blue',   'Berjalan'],
+                    default          => ['badge-gray',   ucfirst($p->status)],
+                };
 
-                    $ditolakOlehLabel = $p->ditolak_oleh ? match($p->ditolak_oleh) {
-                        'ketua'  => 'Ketua Ormawa',
-                        'pic'    => 'PIC',
-                        'sistem' => 'Sistem (otomatis)',
-                        default  => ucfirst($p->ditolak_oleh),
-                    } : null;
-                    
-                    $subLabelHarian = null;
-                    if ($p->status === 'berjalan') {
-                        $today = \Carbon\Carbon::today();
-                        $tglMulaiHari   = $tglMulai->copy()->startOfDay();
-                        $tglSelesaiHari = $tglSelesai->copy()->startOfDay();
-                        $dalamPeriode   = $today->between($tglMulaiHari, $tglSelesaiHari);
+                $ditolakOlehLabel = $p->ditolak_oleh ? match($p->ditolak_oleh) {
+                    'ketua'  => 'Ketua Ormawa',
+                    'pic'    => 'PIC',
+                    'sistem' => 'Sistem (otomatis)',
+                    default  => ucfirst($p->ditolak_oleh),
+                } : null;
 
-                        if ($dalamPeriode) {
-                            $checkinHariIni = $p->checkInHariIni;
-                            if ($checkinHariIni && $checkinHariIni->waktu_checkout) {
-                                $subLabelHarian = $today->lt($tglSelesaiHari)
-                                    ? 'Selesai hari ini · lanjut besok'
-                                    : 'Selesai hari ini';
-                            } elseif ($checkinHariIni && !$checkinHariIni->waktu_checkout) {
-                                $subLabelHarian = 'Sedang berlangsung hari ini';
-                            } else {
-                                $subLabelHarian = 'Belum check-in hari ini';
-                            }
+                $subLabelHarian = null;
+                if ($p->status === 'berjalan') {
+                    $today = \Carbon\Carbon::today();
+                    $tglMulaiHari   = $tglMulai->copy()->startOfDay();
+                    $tglSelesaiHari = $tglSelesai->copy()->startOfDay();
+                    $dalamPeriode   = $today->between($tglMulaiHari, $tglSelesaiHari);
+
+                    if ($dalamPeriode) {
+                        $checkinHariIni = $p->checkInHariIni;
+                        if ($checkinHariIni && $checkinHariIni->waktu_checkout) {
+                            $subLabelHarian = $today->lt($tglSelesaiHari)
+                                ? 'Selesai hari ini · lanjut besok'
+                                : 'Selesai hari ini';
+                        } elseif ($checkinHariIni && !$checkinHariIni->waktu_checkout) {
+                            $subLabelHarian = 'Sedang berlangsung hari ini';
+                        } else {
+                            $subLabelHarian = 'Belum check-in hari ini';
                         }
                     }
-                @endphp
-                <tr>
-                    <td style="color:var(--text-muted);font-size:12px;">
-                        {{ ($riwayat->currentPage() - 1) * $riwayat->perPage() + $loop->iteration }}
-                    </td>
-                    <td>
-                        <div style="font-weight:600;font-size:13px;">{{ $p->ruangan->nama_ruangan ?? '-' }}</div>
-                        <div style="font-size:11.5px;color:var(--text-muted);">
-                            {{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->lantai) ? ' · Lt.'.$p->ruangan->lantai : '' }}
+                }
+            @endphp
+            <tr style="background: {{ $loop->even ? '#fafbfc' : '#ffffff' }};">
+                <td style="color:var(--text-muted);font-size:12px;">
+                    {{ ($riwayat->currentPage() - 1) * $riwayat->perPage() + $loop->iteration }}
+                </td>
+                <td>
+                    <div style="font-weight:600;font-size:13px;">{{ $p->ruangan->nama_ruangan ?? '-' }}</div>
+                    <div class="cell-sub" style="margin-top:2px;">
+                        {{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->lantai) ? ' · Lt.'.$p->ruangan->lantai : '' }}
+                    </div>
+                </td>
+                <td style="font-size:12.5px;">
+                    @if($satuHari)
+                        {{ $tglMulai->translatedFormat('d F Y') }}
+                    @else
+                        <div>{{ $tglMulai->translatedFormat('d F Y') }}</div>
+                        <div class="cell-sub" style="margin-top:2px;">s/d {{ $tglSelesai->translatedFormat('d F Y') }}</div>
+                    @endif
+                </td>
+                <td style="font-size:12.5px;">
+                    {{ $tglMulai->format('H:i') }} –
+                    {{ $tglSelesai->format('H:i') }}
+                    @unless($satuHari)
+                        <div class="cell-sub" style="margin-top:2px;">
+                            (setiap hari)
                         </div>
-                    </td>
-                    <td style="font-size:12.5px;">
-                        @if($satuHari)
-                            {{ $tglMulai->translatedFormat('d F Y') }}
-                        @else
-                            <div>{{ $tglMulai->translatedFormat('d F Y') }}</div>
-                            <div style="font-size:11px;color:var(--text-muted);">s/d {{ $tglSelesai->translatedFormat('d F Y') }}</div>
-                        @endif
-                    </td>
-                    <td style="font-size:12.5px;">
-                        {{ $tglMulai->format('H:i') }} –
-                        {{ $tglSelesai->format('H:i') }}
-                        @unless($satuHari)
-                            <div style="font-size:11px;color:var(--text-muted);">
-                                (setiap hari)
-                            </div>
-                        @endunless
-                    </td>
-                    <td>
-                        <span class="badge {{ $cls }}">{{ $lbl }}</span>
+                    @endunless
+                </td>
+                <td>
+                    <span class="badge {{ $cls }}">{{ $lbl }}</span>
 
-                        @if($subLabelHarian)
-                            <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">
-                                {{ $subLabelHarian }}
-                            </div>
-                            @if($subLabelHarian === 'Belum check-in hari ini')
-                                <a href="{{ route('anggota.checkin') }}"
-                                   style="display:block;margin-top:2px;font-size:11.5px;color:var(--accent);font-weight:600;text-decoration:none;">
-                                    → Check-in hari ini
-                                </a>
-                            @elseif($subLabelHarian === 'Sedang berlangsung hari ini')
-                                <a href="{{ route('anggota.checkout') }}"
-                                   style="display:block;margin-top:2px;font-size:11.5px;color:var(--accent);font-weight:600;text-decoration:none;">
-                                    → Check-out hari ini
-                                </a>
-                            @endif
-                        @endif
-
-                        @if($p->status === 'disetujui' && ($p->status_pemakaian ?? '') === 'booked' && $tglMulai->isToday())
-                            <a href="{{ route('anggota.checkin') }}"
-                               style="display:block;margin-top:4px;font-size:11.5px;color:var(--accent);font-weight:600;text-decoration:none;">
+                    @if($subLabelHarian)
+                        <div class="cell-sub" style="margin-top:6px;">
+                            {{ $subLabelHarian }}
+                        </div>
+                        @if($subLabelHarian === 'Belum check-in hari ini')
+                            <a href="{{ route('anggota.checkin') }}" class="cell-link" style="display:block;margin-top:6px;">
                                 → Check-in hari ini
                             </a>
-                        @endif
-                    </td>
-                    <td style="font-size:12px;color:var(--text-muted);">
-                        @if($p->alasan_tolak)
-                            <div style="white-space:normal;word-break:break-word;overflow-wrap:break-word;line-height:1.4;">
-                                {{ $p->alasan_tolak }}
-                            </div>
-                            @if($ditolakOlehLabel)
-                                <div style="font-size:10.5px;color:#94a3b8;margin-top:2px;">
-                                    oleh {{ $ditolakOlehLabel }}
-                                </div>
-                            @endif
-                        @else —
-                        @endif
-                    </td>
-                    <td style="white-space:nowrap;">
-                        @if($p->status === 'menunggu_ketua')
-                            <a href="{{ route('anggota.riwayat-ruangan.edit', $p->id) }}"
-                                class="btn btn-outline"
-                                style="font-size:12px;padding:4px 10px;margin-right:6px;display:inline-block;">
-                                Edit
-                            </a>
-                            <button onclick="bukaMModal('{{ route('anggota.pengajuan-ruangan.cancel', $p->id) }}')"
-                                class="btn btn-outline"
-                                style="font-size:12px;padding:4px 10px;color:var(--danger);border-color:var(--danger);">
-                                Batalkan
-                            </button>
-                        @else
-                            <a href="{{ route('anggota.riwayat-ruangan.show', $p->id) }}"
-                                class="btn btn-outline"
-                                style="font-size:12px;padding:4px 10px;display:inline-block;">
-                                Detail
+                        @elseif($subLabelHarian === 'Sedang berlangsung hari ini')
+                            <a href="{{ route('anggota.checkout') }}" class="cell-link" style="display:block;margin-top:6px;">
+                                → Check-out hari ini
                             </a>
                         @endif
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="7">
-                        <div class="empty-state">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <p>Belum ada riwayat peminjaman ruangan.</p>
+                    @endif
+
+                    @if($p->status === 'disetujui' && ($p->status_pemakaian ?? '') === 'booked' && $tglMulai->isToday())
+                        <a href="{{ route('anggota.checkin') }}" class="cell-link" style="display:block;margin-top:6px;">
+                            → Check-in hari ini
+                        </a>
+                    @endif
+                </td>
+                <td style="font-size:12px;color:var(--text-muted);">
+                    @if($p->alasan_tolak)
+                        <div style="white-space:normal;word-break:break-word;overflow-wrap:break-word;">
+                            {{ $p->alasan_tolak }}
                         </div>
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+                        @if($ditolakOlehLabel)
+                            <div style="font-size:10.5px;color:#94a3b8;margin-top:4px;">
+                                oleh {{ $ditolakOlehLabel }}
+                            </div>
+                        @endif
+                    @else —
+                    @endif
+                </td>
+                <td style="white-space:nowrap;">
+                    @if($p->status === 'menunggu_ketua')
+                        <a href="{{ route('anggota.riwayat-ruangan.edit', $p->id) }}"
+                            class="btn btn-outline"
+                            style="font-size:12px;padding:4px 10px;margin-right:6px;display:inline-block;">
+                            Edit
+                        </a>
+                        <button onclick="bukaMModal('{{ route('anggota.pengajuan-ruangan.cancel', $p->id) }}')"
+                            class="btn btn-outline"
+                            style="font-size:12px;padding:4px 10px;color:var(--danger);border-color:var(--danger);">
+                            Batalkan
+                        </button>
+                    @else
+                        <a href="{{ route('anggota.riwayat-ruangan.show', $p->id) }}"
+                            class="btn btn-outline"
+                            style="font-size:12px;padding:4px 10px;display:inline-block;">
+                            Detail
+                        </a>
+                    @endif
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="7">
+                    <div class="empty-state">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <p>Belum ada riwayat peminjaman ruangan.</p>
+                    </div>
+                </td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
+</div>
+
     @if($riwayat->hasPages())
     <div class="pagination-wrap">
         {{ $riwayat->links('layouts.pagination') }}

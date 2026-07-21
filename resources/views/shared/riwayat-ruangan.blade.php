@@ -11,7 +11,7 @@
 @extends($layout)
 
 @section('title', 'Riwayat Peminjaman Ruangan')
-@section('subtitle', 'Rekap peminjaman yang telah selesai dan disetujui')
+@section('subtitle', 'Rekap peminjaman yang disetujui, berjalan, dan selesai')
 
 @section('topbar-action')
     <a href="@if(auth()->user()->role === 'admin')
@@ -61,6 +61,22 @@
         <div>
             <div style="font-size: 11px; color: #2563eb; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Disetujui</div>
             <div style="font-size: 26px; font-weight: 700; color: #1d4ed8; line-height: 1.2;">{{ $totalDisetujui }}</div>
+        </div>
+    </div>
+
+    <div style="background: #eff6ff; border: 1px solid #bfdbfe;
+                border-radius: var(--border-radius-lg); padding: 16px 20px;
+                display: flex; align-items: center; gap: 14px;">
+        <div style="width: 42px; height: 42px; border-radius: 10px; background: #dbeafe;
+                    display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg fill="none" stroke="#2563eb" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </div>
+        <div>
+            <div style="font-size: 11px; color: #2563eb; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Berjalan</div>
+            <div style="font-size: 26px; font-weight: 700; color: #1d4ed8; line-height: 1.2;">{{ $totalBerjalan }}</div>
         </div>
     </div>
 </div>
@@ -227,9 +243,8 @@
                         <td>
                             @php
                                 [$cls, $lbl] = match($p->status) {
-                                    'menunggu_ketua' => ['badge-yellow', 'Menunggu Ketua'],
-                                     'menunggu_pic'   => ['badge-purple', 'Menunggu PIC'],  
                                     'disetujui' => ['badge-green', 'Disetujui'],
+                                    'berjalan'  => ['badge-blue',  'Berjalan'],
                                     'selesai'   => ['badge-gray',  'Selesai'],
                                     default     => ['badge-gray',  ucfirst($p->status)],
                                 };

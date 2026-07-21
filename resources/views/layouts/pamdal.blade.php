@@ -223,6 +223,8 @@
         td { padding: 9px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: #f8fafc; }
+        tr.row-warning td { background: #fffbeb; }
+        tr.row-warning:hover td { background: #fef3c7; }
 
         tr.row-waiting td { background: #fff7ed; }
         tr.row-waiting:hover td { background: #ffedd5; }

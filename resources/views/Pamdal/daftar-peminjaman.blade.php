@@ -34,7 +34,7 @@
         <tbody id="tableBody">
 
             @forelse($peminjaman_ruangans as $p)
-            <tr style="border-bottom:1px solid #f1f5f9;">
+            <tr class="{{ $p->kunci_lama_belum_kembali ? 'row-warning' : '' }}" style="border-bottom:1px solid #f1f5f9;">
                 <td style="padding:14px 15px;">
                     <div style="font-weight:450;">{{ $p->user_nama }}</div>
                     <div style="font-size:12px; color:#64748b;">{{ $p->nama_ormawa }}</div>
@@ -66,7 +66,13 @@
                     @endif
                 </td>
                 <td style="padding:14px 15px; text-align:center; white-space:nowrap;">
-                    @if($p->waktu_ambil_kunci)
+                    @if($p->kunci_lama_belum_kembali)
+                        <span style="color:#b45309; font-weight:600; font-size:12.5px;">
+                            <i class="fa-solid fa-key"></i>
+                            Diambil {{ $p->tanggal_kunci_lama }}
+                        </span>
+                        <div style="font-size:10.5px; color:#94a3b8; font-style:italic; margin-top:2px;">kunci sebelumnya</div>
+                    @elseif($p->waktu_ambil_kunci)
                         <span style="color:#16a34a; font-weight:600; font-size:13px;">
                             <i class="fa-solid fa-check-circle"></i>
                             Diambil {{ $p->waktu_ambil_kunci }}
@@ -76,7 +82,12 @@
                     @endif
                 </td>
                 <td style="padding:14px 15px; text-align:center; white-space:nowrap;">
-                    @if($p->waktu_kembali_kunci)
+                    @if($p->kunci_lama_belum_kembali)
+                        <div style="color:#b45309; font-weight:700; font-size:12px; max-width:170px; white-space:normal; margin:0 auto;">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            Menunggu peminjam mengembalikan kunci tgl {{ $p->tanggal_kunci_lama }}
+                        </div>
+                    @elseif($p->waktu_kembali_kunci)
                         <span style="color:#16a34a; font-weight:600; font-size:13px;">
                             <i class="fa-solid fa-check-circle"></i>
                             Kembali {{ $p->waktu_kembali_kunci }}
@@ -102,28 +113,41 @@
                     @endif
                 </td>
                 <td style="padding:14px 15px; text-align:center; white-space:nowrap;">
-                    @if($p->status_verifikasi === 'ditolak')
+                    @if($p->kunci_lama_belum_kembali)
+                        <button onclick="bukaModal('kembali', {{ $p->id }}, '{{ $p->user_nama }}', '{{ $p->ruangan_nama }} (kunci tgl {{ $p->tanggal_kunci_lama }})')"
+                            style="background:#dc2626; color:white; padding:7px 10px; border-radius:8px;
+                                   border:none; cursor:pointer; font-size:12px; font-weight:600; width:100%;
+                                   white-space:normal; line-height:1.3;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Konfirmasi Kunci Diterima
+                        </button>
+                    @elseif($p->status_verifikasi === 'ditolak')
                         <span style="color:#dc2626; font-size:12.5px; font-style:italic;">
                             Menunggu Upload Ulang
                         </span>
                     @elseif(!$p->sudah_ambil_kunci)
-                        <div style="display:flex; align-items:stretch; gap:5px;">
-                            <button onclick="bukaModal('ambil', {{ $p->id }}, '{{ $p->user_nama }}', '{{ $p->ruangan_nama }}')"
-                                style="background:#2f7ea1; color:white; padding:7px 8px; border-radius:8px;
-                                       border:none; cursor:pointer; font-size:12px; font-weight:600; flex:1;
-                                       white-space:nowrap;">
-                                <i class="fa-solid fa-key"></i> Ambil Kunci
-                            </button>
-                            @if($p->status_verifikasi === 'menunggu')
-                                <button onclick="bukaModalTolak({{ $p->id }}, '{{ $p->user_nama }}')"
-                                    style="background:#fef2f2; color:#dc2626; border:1px solid #fecaca;
-                                           padding:7px 10px; border-radius:8px; font-size:12px;
-                                           font-weight:600; cursor:pointer; white-space:nowrap;">
-                                    <i class="fa-solid fa-xmark"></i> Tolak
-                                </button>
-                            @endif
-                        </div>
-                    @elseif(!$p->sudah_kembali_kunci)
+                    @if(!$p->sudah_checkin)
+                    <span style="color:#94a3b8; font-size:12px; font-style:italic;">
+                    Menunggu check-in peminjam
+                </span>
+                @else
+                <div style="display:flex; align-items:stretch; gap:5px;">
+                <button onclick="bukaModal('ambil', {{ $p->id }}, '{{ $p->user_nama }}', '{{ $p->ruangan_nama }}')"
+                style="background:#2f7ea1; color:white; padding:7px 8px; border-radius:8px;
+                       border:none; cursor:pointer; font-size:12px; font-weight:600; flex:1;
+                       white-space:nowrap;">
+                <i class="fa-solid fa-key"></i> Ambil Kunci
+            </button>
+            @if($p->status_verifikasi === 'menunggu')
+                <button onclick="bukaModalTolak({{ $p->id }}, '{{ $p->user_nama }}')"
+                style="background:#fef2f2; color:#dc2626; border:1px solid #fecaca;
+                           padding:7px 10px; border-radius:8px; font-size:12px;
+                           font-weight:600; cursor:pointer; white-space:nowrap;">
+                    <i class="fa-solid fa-xmark"></i> Tolak
+                    </button>
+                @endif
+                </div>
+                @endif
+                        @elseif(!$p->sudah_kembali_kunci)
                         <button onclick="bukaModal('kembali', {{ $p->id }}, '{{ $p->user_nama }}', '{{ $p->ruangan_nama }}')"
                             style="background:#16a34a; color:white; padding:7px 14px; border-radius:8px;
                                    border:none; cursor:pointer; font-size:13px; font-weight:600; width:100%;">
@@ -400,12 +424,23 @@ document.addEventListener('DOMContentLoaded', function () {
                         verifikasiDataDiri = `<span style="color:#dc2626; font-size:12.5px; font-style:italic;">Belum check-in</span>`;
                     }
 
-                    const ambilKunci = p.waktu_ambil_kunci
-                        ? `<span style="color:#16a34a; font-weight:600; font-size:13px;"><i class="fa-solid fa-check-circle"></i> Diambil ${p.waktu_ambil_kunci}</span>`
-                        : `<span style="color:#94a3b8; font-size:13px; font-style:italic;">Belum</span>`;
+                    let ambilKunci = '';
+                    if (p.kunci_lama_belum_kembali) {
+                        ambilKunci = `<span style="color:#b45309; font-weight:600; font-size:12.5px;"><i class="fa-solid fa-key"></i> Diambil ${p.tanggal_kunci_lama}</span>
+                            <div style="font-size:10.5px; color:#94a3b8; font-style:italic; margin-top:2px;">kunci sebelumnya</div>`;
+                    } else if (p.waktu_ambil_kunci) {
+                        ambilKunci = `<span style="color:#16a34a; font-weight:600; font-size:13px;"><i class="fa-solid fa-check-circle"></i> Diambil ${p.waktu_ambil_kunci}</span>`;
+                    } else {
+                        ambilKunci = `<span style="color:#94a3b8; font-size:13px; font-style:italic;">Belum</span>`;
+                    }
 
                     let kembalikan = '';
-                    if (p.waktu_kembali_kunci) {
+                    if (p.kunci_lama_belum_kembali) {
+                        kembalikan = `<div style="color:#b45309; font-weight:700; font-size:12px; max-width:170px; white-space:normal; margin:0 auto;">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            Menunggu peminjam mengembalikan kunci tgl ${p.tanggal_kunci_lama}
+                        </div>`;
+                    } else if (p.waktu_kembali_kunci) {
                         kembalikan = `<span style="color:#16a34a; font-weight:600; font-size:13px;"><i class="fa-solid fa-check-circle"></i> Kembali ${p.waktu_kembali_kunci}</span>`;
                     } else if (p.status_checkout === 'menunggu' && p.waktu_checkout) {
                         kembalikan = `<div style="color:#d97706; font-weight:600; font-size:12.5px;"><i class="fa-solid fa-clock"></i> Klaim ${p.waktu_checkout}</div>
@@ -424,7 +459,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
 
                     let aksi = '';
-                    if (p.status_verifikasi === 'ditolak') {
+                    if (p.kunci_lama_belum_kembali) {
+                        aksi = `<button onclick="bukaModal('kembali', ${p.id}, '${p.user_nama}', '${p.ruangan_nama} (kunci tgl ${p.tanggal_kunci_lama})')"
+                            style="background:#dc2626; color:white; padding:7px 10px; border-radius:8px;
+                                   border:none; cursor:pointer; font-size:12px; font-weight:600; width:100%;
+                                   white-space:normal; line-height:1.3;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Konfirmasi Kunci Diterima
+                        </button>`;
+                    } else if (p.status_verifikasi === 'ditolak') {
                         aksi = `<span style="color:#dc2626; font-size:12.5px; font-style:italic;">Menunggu Upload Ulang</span>`;
                     } else if (!p.sudah_ambil_kunci) {
                         let tombolTolak = '';
@@ -456,7 +498,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
 
                     tableBody.innerHTML += `
-                        <tr style="border-bottom:1px solid #f1f5f9;">
+                        <tr style="border-bottom:1px solid #f1f5f9; ${p.kunci_lama_belum_kembali ? 'background:#fffbeb;' : ''}">
                             <td style="padding:14px 15px;">
                                 <div style="font-weight:600;">${p.user_nama}</div>
                                 <div style="font-size:12px; color:#64748b;">${p.nama_ormawa}</div>

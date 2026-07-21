@@ -18,7 +18,7 @@ class RiwayatRuanganPicController extends Controller
         $ruangans = Ruangan::orderBy('lantai')->orderBy('nama_ruangan')->get();
 
         $query = PeminjamanRuangan::with(['user', 'ruangan'])
-            ->whereIn('status', ['disetujui', 'selesai'])
+            ->whereIn('status', ['disetujui', 'berjalan', 'selesai'])
             ->whereHas('ruangan', fn($q) => $q->where('lantai', $lantai));
 
         if ($request->filled('ruangan_id')) {
@@ -46,13 +46,14 @@ class RiwayatRuanganPicController extends Controller
                   ->whereMonth('tanggal_mulai', substr($request->bulan, 5, 2));
         }
 
-        $riwayat = $query->latest('tanggal_mulai')->paginate(15)->withQueryString();
+        $riwayat        = $query->latest('tanggal_mulai')->paginate(15)->withQueryString();
         $totalSelesai   = (clone $query)->where('status', 'selesai')->count();
         $totalDisetujui = (clone $query)->where('status', 'disetujui')->count();
+        $totalBerjalan  = (clone $query)->where('status', 'berjalan')->count();
 
         return view('shared.riwayat-ruangan', compact(
             'riwayat', 'ruangans',
-            'totalSelesai', 'totalDisetujui',
+            'totalSelesai', 'totalDisetujui', 'totalBerjalan',
         ));
     }
 
@@ -66,13 +67,14 @@ class RiwayatRuanganPicController extends Controller
 
         return view('PIC.detail-peminjaman', compact('p'));
     }
+
     public function export(Request $request)
     {
         $lantai   = (string) auth()->user()->lantai_pic;
         $ruangans = Ruangan::orderBy('lantai')->orderBy('nama_ruangan')->get();
 
         $query = PeminjamanRuangan::with(['user', 'ruangan'])
-            ->whereIn('status', ['disetujui', 'selesai'])
+            ->whereIn('status', ['disetujui', 'berjalan', 'selesai'])
             ->whereHas('ruangan', fn($q) => $q->where('lantai', $lantai));
 
         if ($request->filled('ruangan_id')) {

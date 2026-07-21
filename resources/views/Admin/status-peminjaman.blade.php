@@ -4,7 +4,11 @@
 @section('subtitle', 'Daftar peminjaman yang menunggu validasi atau ditolak')
 
 @section('topbar-action')
-    <a href="{{ route('admin.laporan.unduh') }}" class="btn btn-outline">
+    <a href="{{ route('admin.laporan.unduh') }}" class="btn btn-outline" style="display: flex; align-items: center; gap: 6px;">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 15px; height: 15px;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/>
+        </svg>
         Unduh Laporan
     </a>
 @endsection
