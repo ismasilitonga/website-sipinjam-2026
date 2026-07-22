@@ -48,33 +48,36 @@ class KelolaUserController extends Controller
     }
 
     public function create()
-    {
-        return view('admin.pengguna.create');
-    }
+{
+    $ormawas = \App\Models\Ormawa::where('status', 'aktif')->orderBy('nama_organisasi')->get();
+    return view('admin.pengguna.create', compact('ormawas'));
+}
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nama'       => 'required|string|max:255',
-            'email'      => 'required|email|unique:users,email',
-            'nim'        => 'required|string|unique:users,nim',
-            'password'   => 'required|min:8',
-            'role'       => 'required|in:anggota,ketua,pic,admin,pamdal',
-            'organisasi' => 'required|string|max:255',
-        ]);
+public function store(Request $request)
+{
+    $request->validate([
+        'nama'       => 'required|string|max:255',
+        'email'      => 'required|email|unique:users,email',
+        'nim'        => 'required|string|unique:users,nim',
+        'password'   => 'required|min:8',
+        'role'       => 'required|in:anggota,ketua,pic,admin,pamdal',
+        'organisasi' => 'required_if:role,anggota,ketua|nullable|string|exists:ormawa,singkatan',
+        'lantai_pic' => 'required_if:role,pic|nullable|integer|min:1|max:20',
+    ]);
 
-        User::create([
-            'nama'       => $request->nama,
-            'email'      => $request->email,
-            'nim'        => $request->nim,
-            'password'   => Hash::make($request->password),
-            'role'       => $request->role,
-            'organisasi' => $request->organisasi,
-            'status'     => 'aktif',
-        ]);
+    User::create([
+        'nama'       => $request->nama,
+        'email'      => $request->email,
+        'nim'        => $request->nim,
+        'password'   => Hash::make($request->password),
+        'role'       => $request->role,
+        'organisasi' => in_array($request->role, ['anggota', 'ketua']) ? $request->organisasi : null,
+        'lantai_pic' => $request->role === 'pic' ? $request->lantai_pic : null,
+        'status'     => 'aktif',
+    ]);
 
-        return redirect()->route('admin.pengguna.index')->with('success', 'Pengguna berhasil ditambahkan.');
-    }
+    return redirect()->route('admin.pengguna.index')->with('success', 'Pengguna berhasil ditambahkan.');
+}
 
     public function show($id)
     {

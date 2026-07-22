@@ -25,14 +25,12 @@
         white-space: nowrap;
         vertical-align: middle;
     }
-    /* kolom nama organisasi: boleh wrap ke baris ke-2, jangan dipotong "..." */
     .ormawa-table td:nth-child(2) {
         white-space: normal;
         overflow: visible;
         text-overflow: clip;
     }
 
-    /* ===== RESPONSIVE: di bawah 760px, tabel berubah jadi kartu vertikal ===== */
     @media (max-width: 760px) {
         .ormawa-table thead { display: none; }
 
@@ -52,12 +50,11 @@
         .ormawa-table td {
             border-bottom: none;
             padding: 6px 0;
-            white-space: normal;        /* teks boleh wrap ke bawah, bukan kepotong */
+            white-space: normal;       
             overflow: visible;
             text-overflow: clip;
         }
 
-        /* label kecil muncul di atas tiap value, diambil dari atribut data-label */
         .ormawa-table td[data-label]::before {
             content: attr(data-label);
             display: block;
@@ -69,7 +66,7 @@
             margin-bottom: 2px;
         }
 
-        .ormawa-table td:first-child { display: none; } /* nomor urut tidak perlu di mode kartu */
+        .ormawa-table td:first-child { display: none; } 
 
         .ormawa-table .action-group,
         .ormawa-table td > div[style*="flex"] {

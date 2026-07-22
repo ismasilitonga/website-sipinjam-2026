@@ -26,13 +26,13 @@
                 <div class="form-group">
                     <label class="form-label">Nama Lengkap <span style="color:var(--danger)">*</span></label>
                     <input type="text" name="nama" class="form-control"
-                           value="{{ old('name') }}" placeholder="Nama lengkap pengguna" required>
+                           value="{{ old('nama') }}" placeholder="Nama lengkap pengguna" required>
                     @error('nama') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">NIM <span style="color:var(--danger)">*</span></label>
-                    <input type="text" name="nim" class="form-control"
+                    <label class="form-label" id="label-nim">NIM <span style="color:var(--danger)">*</span></label>
+                    <input type="text" name="nim" id="input-nim" class="form-control"
                            value="{{ old('nim') }}" placeholder="Nomor Induk Mahasiswa" required>
                     @error('nim') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
@@ -48,22 +48,35 @@
             <div class="form-grid-2">
                 <div class="form-group">
                     <label class="form-label">Role <span style="color:var(--danger)">*</span></label>
-                    <select name="role" class="form-select" required>
+                    <select name="role" id="role" class="form-select" required>
                         <option value="">-- Pilih Role --</option>
-                        <option value="anggota"  {{ old('role') === 'anggota'  ? 'selected' : '' }}>Anggota</option>
-                        <option value="ketua"    {{ old('role') === 'ketua'    ? 'selected' : '' }}>Ketua</option>
-                        <option value="pic"      {{ old('role') === 'pic'      ? 'selected' : '' }}>PIC</option>
-                        <option value="pamdal"   {{ old('role') === 'pamdal'   ? 'selected' : '' }}>Pamdal</option>
-                        <option value="admin"    {{ old('role') === 'admin'    ? 'selected' : '' }}>Admin</option>
+                        <option value="anggota" {{ old('role') === 'anggota' ? 'selected' : '' }}>Anggota Ormawa</option>
+                        <option value="ketua"   {{ old('role') === 'ketua'   ? 'selected' : '' }}>Ketua Ormawa</option>
+                        <option value="pic"     {{ old('role') === 'pic'     ? 'selected' : '' }}>PIC</option>
+                        <option value="pamdal"  {{ old('role') === 'pamdal'  ? 'selected' : '' }}>Pamdal</option>
+                        <option value="admin"   {{ old('role') === 'admin'   ? 'selected' : '' }}>Admin</option>
                     </select>
                     @error('role') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" id="wrap-organisasi" style="display:none;">
                     <label class="form-label">Organisasi <span style="color:var(--danger)">*</span></label>
-                    <input type="text" name="organisasi" class="form-control"
-                           value="{{ old('organisasi') }}" placeholder="Nama ormawa / unit" required>
+                    <select name="organisasi" class="form-select">
+                        <option value="">-- Pilih Ormawa --</option>
+                        @foreach($ormawas as $o)
+                            <option value="{{ $o->singkatan }}" {{ old('organisasi') === $o->singkatan ? 'selected' : '' }}>
+                                {{ $o->singkatan }} - {{ $o->nama_organisasi }}
+                            </option>
+                        @endforeach
+                    </select>
                     @error('organisasi') <div class="form-error">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="form-group" id="wrap-lantai" style="display:none;">
+                    <label class="form-label">Lantai yang Dikelola <span style="color:var(--danger)">*</span></label>
+                    <input type="number" name="lantai_pic" class="form-control" min="1" max="20"
+                           value="{{ old('lantai_pic') }}" placeholder="Contoh: 2">
+                    @error('lantai_pic') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
             </div>
 
@@ -87,5 +100,24 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const roleSelect = document.getElementById('role');
+    const wrapOrganisasi = document.getElementById('wrap-organisasi');
+    const wrapLantai = document.getElementById('wrap-lantai');
+
+    function toggleFields() {
+        const role = roleSelect.value;
+        wrapOrganisasi.style.display = ['anggota', 'ketua'].includes(role) ? 'block' : 'none';
+        wrapLantai.style.display = role === 'pic' ? 'block' : 'none';
+    }
+
+    roleSelect.addEventListener('change', toggleFields);
+    toggleFields();
+});
+</script>
+@endpush
 
 @endsection
