@@ -29,6 +29,46 @@ class ValidasiPengajuanController extends Controller
         return view('PIC.daftar-pengajuan', compact('peminjaman_ruangans'));
     }
 
+    private function cariBentrok(PeminjamanRuangan $peminjaman): ?PeminjamanRuangan
+    {
+        $mulai   = Carbon::parse($peminjaman->tanggal_mulai);
+        $selesai = Carbon::parse($peminjaman->tanggal_selesai);
+
+        $tglMulai   = $mulai->copy()->toDateString();
+        $tglSelesai = $selesai->copy()->toDateString();
+
+        $kandidat = PeminjamanRuangan::where('ruangan_id', $peminjaman->ruangan_id)
+            ->where('id', '!=', $peminjaman->id)
+            ->whereIn('status', ['disetujui', 'berjalan'])
+            ->whereDate('tanggal_mulai', '<=', $tglSelesai)
+            ->whereDate('tanggal_selesai', '>=', $tglMulai)
+            ->orderBy('tanggal_mulai')
+            ->get();
+
+        $menitMulaiBaru   = $mulai->hour * 60 + $mulai->minute;
+        $menitSelesaiBaru = $selesai->hour * 60 + $selesai->minute;
+
+        $mulaiBaruDenganJeda   = $menitMulaiBaru - self::JEDA_MENIT;
+        $selesaiBaruDenganJeda = $menitSelesaiBaru + self::JEDA_MENIT;
+
+        foreach ($kandidat as $existing) {
+            $existingMulai   = Carbon::parse($existing->tanggal_mulai);
+            $existingSelesai = Carbon::parse($existing->tanggal_selesai);
+
+            $menitMulaiExisting   = $existingMulai->hour * 60 + $existingMulai->minute;
+            $menitSelesaiExisting = $existingSelesai->hour * 60 + $existingSelesai->minute;
+
+            $tumpangTindihJam = $mulaiBaruDenganJeda < $menitSelesaiExisting
+                              && $selesaiBaruDenganJeda > $menitMulaiExisting;
+
+            if ($tumpangTindihJam) {
+                return $existing;
+            }
+        }
+
+        return null;
+    }
+
     public function setujui($id)
     {
         $lantai = (string) auth()->user()->lantai_pic;
@@ -36,20 +76,21 @@ class ValidasiPengajuanController extends Controller
         $peminjaman = PeminjamanRuangan::whereHas('ruangan', fn($q) => $q->where('lantai', $lantai))
         ->findOrFail($id);
 
-        $mulaiDenganJeda   = Carbon::parse($peminjaman->tanggal_mulai)->subMinutes(self::JEDA_MENIT);
-        $selesaiDenganJeda = Carbon::parse($peminjaman->tanggal_selesai)->addMinutes(self::JEDA_MENIT);
+        $bentrokDengan = $this->cariBentrok($peminjaman);
 
-        $bentrok = PeminjamanRuangan::where('ruangan_id', $peminjaman->ruangan_id)
-            ->where('id', '!=', $peminjaman->id)
-            ->whereIn('status', ['disetujui', 'berjalan']) 
-            ->where('tanggal_mulai', '<', $selesaiDenganJeda)
-            ->where('tanggal_selesai', '>', $mulaiDenganJeda)
-            ->exists();
+        if ($bentrokDengan) {
+            $bentrokMulai   = Carbon::parse($bentrokDengan->tanggal_mulai);
+            $bentrokSelesai = Carbon::parse($bentrokDengan->tanggal_selesai);
+            $bedaHari       = !$bentrokMulai->isSameDay($bentrokSelesai);
 
-        if ($bentrok) {
+            $keteranganJadwal = $bedaHari
+                ? 'setiap hari jam ' . $bentrokMulai->format('H:i') . '–' . $bentrokSelesai->format('H:i') .
+                  ' pada rentang ' . $bentrokMulai->format('d/m/Y') . ' – ' . $bentrokSelesai->format('d/m/Y')
+                : 'pada ' . $bentrokMulai->format('d/m/Y H:i') . '–' . $bentrokSelesai->format('H:i');
+
             $peminjaman->update([
                 'status'       => 'ditolak',
-                'alasan_tolak' => 'Ruangan sudah terisi oleh pengajuan lain yang lebih dulu disetujui pada rentang waktu yang bentrok (termasuk jeda ' . self::JEDA_MENIT . ' menit).',
+                'alasan_tolak' => "Ruangan sudah terisi oleh pengajuan lain yang lebih dulu disetujui ({$keteranganJadwal}), termasuk jeda " . self::JEDA_MENIT . ' menit.',
                 'ditolak_oleh' => 'sistem',
             ]);
             $peminjaman->user->notify(new PengajuanDitolakPicNotification($peminjaman));

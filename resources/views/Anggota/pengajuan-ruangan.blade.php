@@ -354,7 +354,7 @@
 
             const d1 = new Date(tglMulai.value);
             const d2 = new Date(tglSelesai.value);
-            const selisihHari = Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1; 
+            const selisihHari = Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
 
             if (d2 < d1) {
                 durasiError.textContent = 'Tanggal selesai tidak boleh sebelum tanggal mulai.';
@@ -407,36 +407,31 @@
 
             if (!mulaiTime || !selesaiTime || !tglMulai.value || !tglSelesai.value) return;
 
-            const mulaiFull   = new Date(tglMulai.value + 'T' + toHHMM(mulaiTime) + ':00');
-            const selesaiFull = new Date(tglSelesai.value + 'T' + toHHMM(selesaiTime) + ':00');
+            const menitMulai   = mulaiTime.getHours() * 60 + mulaiTime.getMinutes();
+            const menitSelesai = selesaiTime.getHours() * 60 + selesaiTime.getMinutes();
+            const menitPerHari = menitSelesai - menitMulai;
 
-            if (selesaiFull <= mulaiFull) {
-                jamError.textContent = isSatuHari()
-                    ? 'Jam selesai harus setelah jam mulai.'
-                    : 'Tanggal & jam selesai harus setelah tanggal & jam mulai.';
+            if (menitPerHari <= 0) {
+                jamError.textContent = 'Jam selesai harus setelah jam mulai.';
                 jamError.style.display = 'block';
                 submitBtn.disabled = true;
                 return;
             }
 
-            const menitDurasiCek = Math.round((selesaiFull - mulaiFull) / 60000);
-            if (menitDurasiCek < MIN_DURASI_MENIT) {
-                jamError.textContent = `Minimal durasi peminjaman ${MIN_DURASI_MENIT} menit.`;
+            if (menitPerHari < MIN_DURASI_MENIT) {
+                jamError.textContent = `Minimal durasi peminjaman ${MIN_DURASI_MENIT} menit per hari.`;
                 jamError.style.display = 'block';
                 submitBtn.disabled = true;
                 return;
             }
 
-            const menitDurasi = Math.round((selesaiFull - mulaiFull) / 60000);
-            const hariDurasi  = Math.floor(menitDurasi / (60 * 24));
-            const jam         = Math.floor((menitDurasi % (60 * 24)) / 60);
-            const menit       = menitDurasi % 60;
+            const jamPerHari   = Math.floor(menitPerHari / 60);
+            const menitSisa    = menitPerHari % 60;
+            const jamPerHariTeks = `${jamPerHari} jam${menitSisa ? ' ' + menitSisa + ' menit' : ''}`;
 
-            let teks = 'Durasi penggunaan: ';
-            if (hariDurasi > 0) teks += `${hariDurasi} hari `;
-            teks += `${jam} jam${menit ? ' ' + menit + ' menit' : ''}.`;
-
-            jamInfo.textContent = teks;
+            jamInfo.textContent = isSatuHari()
+                ? `Durasi penggunaan: ${jamPerHariTeks}.`
+                : `Durasi penggunaan: ${jamPerHariTeks}/hari (${toHHMM(mulaiTime)}–${toHHMM(selesaiTime)}).`;
             jamInfo.style.display = 'block';
 
             if (durasiError.style.display === 'none') submitBtn.disabled = false;

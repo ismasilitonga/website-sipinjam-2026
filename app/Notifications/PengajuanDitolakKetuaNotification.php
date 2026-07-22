@@ -6,10 +6,11 @@ use App\Models\PeminjamanRuangan;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use App\Notifications\Concerns\FormatsTanggalPeminjaman;
 
 class PengajuanDitolakKetuaNotification extends Notification
 {
-    use Queueable;
+    use Queueable, FormatsTanggalPeminjaman;
 
     public function __construct(public PeminjamanRuangan $peminjaman) {}
 
@@ -25,7 +26,7 @@ class PengajuanDitolakKetuaNotification extends Notification
             ->greeting('Halo, ' . $notifiable->nama)
             ->line('Maaf, pengajuan ruangan kamu telah ditolak oleh ketua.')
             ->line('**Ruangan:** ' . $this->peminjaman->ruangan->nama_ruangan)
-            ->line('**Tanggal:** ' . \Carbon\Carbon::parse($this->peminjaman->tanggal_mulai)->translatedFormat('d F Y, H:i'))
+            ->line('**Tanggal:** ' . $this->formatTanggalPeminjaman($this->peminjaman))
             ->line('**Keperluan:** ' . $this->peminjaman->keperluan)
             ->when($this->peminjaman->alasan_tolak, fn($mail) =>
             $mail->line('**Alasan Penolakan:** ' . $this->peminjaman->alasan_tolak))

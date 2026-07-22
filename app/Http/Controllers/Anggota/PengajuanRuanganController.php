@@ -24,38 +24,61 @@ class PengajuanRuanganController extends Controller
         return view('anggota.pengajuan-ruangan', compact('ruangans'));
     }
 
-    /**
-     * Susun pesan bentrok berdasarkan data booking yang beririsan.
-     *
-     * PERBAIKAN: sebelumnya pesan hanya menampilkan jam selesai tanpa tanggal
-     * (format('H:i')), sehingga untuk booking multi-hari (mis. 19-21 Juli)
-     * notifikasi jadi membingungkan -> terkesan bentrok cuma di tanggal mulai
-     * (19 Juli) padahal booking itu memang berlangsung sampai 21 Juli.
-     * Sekarang tanggal akhir ikut ditampilkan kalau beda hari dengan tanggal mulai.
-     */
+    private function cariBentrok(int $ruanganId, Carbon $mulai, Carbon $selesai, ?int $kecualikanId = null): ?PeminjamanRuangan
+    {
+        $tglMulaiBaru   = $mulai->copy()->toDateString();
+        $tglSelesaiBaru = $selesai->copy()->toDateString();
+
+        $kandidat = PeminjamanRuangan::where('ruangan_id', $ruanganId)
+            ->whereIn('status', self::STATUS_MENGUNCI)
+            ->when($kecualikanId, fn ($q) => $q->where('id', '!=', $kecualikanId))
+            ->whereDate('tanggal_mulai', '<=', $tglSelesaiBaru)
+            ->whereDate('tanggal_selesai', '>=', $tglMulaiBaru)
+            ->orderBy('tanggal_mulai')
+            ->get();
+
+        $menitMulaiBaru   = $mulai->hour * 60 + $mulai->minute;
+        $menitSelesaiBaru = $selesai->hour * 60 + $selesai->minute;
+
+        $mulaiBaruDenganJeda   = $menitMulaiBaru - self::JEDA_MENIT;
+        $selesaiBaruDenganJeda = $menitSelesaiBaru + self::JEDA_MENIT;
+
+        foreach ($kandidat as $existing) {
+            $existingMulai   = Carbon::parse($existing->tanggal_mulai);
+            $existingSelesai = Carbon::parse($existing->tanggal_selesai);
+
+            $menitMulaiExisting   = $existingMulai->hour * 60 + $existingMulai->minute;
+            $menitSelesaiExisting = $existingSelesai->hour * 60 + $existingSelesai->minute;
+
+            $tumpangTindihJam = $mulaiBaruDenganJeda < $menitSelesaiExisting
+                              && $selesaiBaruDenganJeda > $menitMulaiExisting;
+
+            if ($tumpangTindihJam) {
+                return $existing;
+            }
+        }
+
+        return null;
+    }
+
     private function buatPesanBentrok(Carbon $mulai, Carbon $selesai, PeminjamanRuangan $bentrokDengan): string
     {
         $bentrokMulai   = Carbon::parse($bentrokDengan->tanggal_mulai);
         $bentrokSelesai = Carbon::parse($bentrokDengan->tanggal_selesai);
-        $jamTersediaMulai = $bentrokSelesai->copy()->addMinutes(self::JEDA_MENIT);
 
         $bedaHari = !$bentrokMulai->isSameDay($bentrokSelesai);
 
-        // Kalau booking yang bentrok berlangsung lebih dari 1 hari,
-        // tampilkan tanggal selesai juga, bukan cuma jamnya.
-        $labelSelesai = $bedaHari
-            ? $bentrokSelesai->format('d/m/Y H:i')
-            : $bentrokSelesai->format('H:i');
-
-        if ($mulai->lt($bentrokSelesai) && $selesai->gt($bentrokMulai)) {
-            return "Ruangan sudah dipesan pada waktu tersebut (" .
-                $bentrokMulai->format('d/m/Y H:i') . ' – ' . $labelSelesai .
-                "). Silakan pilih jam lain.";
+        if ($bedaHari) {
+            return "Ruangan ini sudah dipakai tiap hari jam " .
+                $bentrokMulai->format('H:i') . '–' . $bentrokSelesai->format('H:i') .
+                ' pada rentang ' . $bentrokMulai->format('d/m/Y') . ' – ' . $bentrokSelesai->format('d/m/Y') .
+                ". Jam yang kamu pilih tumpang tindih (perlu jeda min. " . self::JEDA_MENIT .
+                " menit). Silakan pilih jam lain.";
         }
 
-        return "Ruangan sudah digunakan pada jam ini. Minimal jeda " . self::JEDA_MENIT .
-            " menit dari peminjaman sebelumnya (selesai " . $bentrokSelesai->format('d/m/Y H:i') .
-            ", tersedia mulai " . $jamTersediaMulai->format('d/m/Y H:i') . ").";
+        return "Ruangan sudah digunakan pada jam ini (" .
+            $bentrokMulai->format('d/m/Y H:i') . ' – ' . $bentrokSelesai->format('H:i') .
+            "). Minimal jeda " . self::JEDA_MENIT . " menit dari peminjaman sebelumnya.";
     }
 
     public function store(Request $request)
@@ -91,15 +114,7 @@ class PengajuanRuanganController extends Controller
                 'Minimal durasi peminjaman ' . self::MIN_DURASI_MENIT . ' menit.');
         }
 
-        $mulaiDenganJeda   = $mulai->copy()->subMinutes(self::JEDA_MENIT);
-        $selesaiDenganJeda = $selesai->copy()->addMinutes(self::JEDA_MENIT);
-
-        $bentrokQuery = PeminjamanRuangan::where('ruangan_id', $request->ruangan_id)
-            ->whereIn('status', self::STATUS_MENGUNCI)
-            ->where('tanggal_mulai', '<', $selesaiDenganJeda)
-            ->where('tanggal_selesai', '>', $mulaiDenganJeda);
-
-        $bentrokDengan = $bentrokQuery->orderBy('tanggal_mulai')->first();
+        $bentrokDengan = $this->cariBentrok($request->ruangan_id, $mulai, $selesai);
 
         if ($bentrokDengan) {
             $pesan = $this->buatPesanBentrok($mulai, $selesai, $bentrokDengan);
@@ -153,15 +168,7 @@ class PengajuanRuanganController extends Controller
             return response()->json(['bentrok' => false]);
         }
 
-        $mulaiDenganJeda   = $mulai->copy()->subMinutes(self::JEDA_MENIT);
-        $selesaiDenganJeda = $selesai->copy()->addMinutes(self::JEDA_MENIT);
-
-        $bentrokDengan = PeminjamanRuangan::where('ruangan_id', $request->ruangan_id)
-            ->whereIn('status', self::STATUS_MENGUNCI)
-            ->where('tanggal_mulai', '<', $selesaiDenganJeda)
-            ->where('tanggal_selesai', '>', $mulaiDenganJeda)
-            ->orderBy('tanggal_mulai')
-            ->first();
+        $bentrokDengan = $this->cariBentrok($request->ruangan_id, $mulai, $selesai);
 
         if (!$bentrokDengan) {
             return response()->json(['bentrok' => false]);

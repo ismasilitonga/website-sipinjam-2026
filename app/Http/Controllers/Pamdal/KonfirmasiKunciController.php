@@ -56,9 +56,6 @@ class KonfirmasiKunciController extends Controller
             $checkinRelevan = $p->checkIns->sortByDesc('id')->first();
         }
 
-        // Cek apakah ada kunci dari HARI SEBELUMNYA (bukan hari ini) yang sudah diambil
-        // tapi belum dikonfirmasi kembali oleh Pamdal. Ini penting untuk peminjaman
-        // multi-hari agar Pamdal tidak memberi kunci baru padahal kunci lama masih menggantung.
         $kunciLamaBelumKembali = $p->checkIns
             ->filter(fn ($c) => !Carbon::parse($c->tanggal)->isSameDay(today())
                 && $c->kunci_diambil_pamdal_at
@@ -130,9 +127,6 @@ class KonfirmasiKunciController extends Controller
     {
         $peminjaman = PeminjamanRuangan::findOrFail($id);
 
-        // KEAMANAN: cegah pemberian kunci baru jika ada kunci dari hari
-        // sebelumnya (peminjaman multi-hari yang sama) yang belum dikonfirmasi
-        // kembali oleh Pamdal. Mencegah kunci "hilang jejak" saat tanggal berganti.
         $kunciLamaBelumKembali = $peminjaman->checkIns()
             ->whereDate('tanggal', '<', today())
             ->whereNotNull('kunci_diambil_pamdal_at')
@@ -177,39 +171,45 @@ class KonfirmasiKunciController extends Controller
     }
 
     public function konfirmasiKembali($id)
-    {
-        $peminjaman = PeminjamanRuangan::findOrFail($id);
+{
+    $peminjaman = PeminjamanRuangan::findOrFail($id);
 
-        $checkinBelumKembaliKunci = $peminjaman->checkIns()
-            ->whereNotNull('kunci_diambil_pamdal_at')
-            ->whereNull('kunci_dikembalikan_pamdal_at')
-            ->latest('tanggal')
-            ->first();
+    $checkinBelumKembaliKunci = $peminjaman->checkIns()
+        ->whereNotNull('kunci_diambil_pamdal_at')
+        ->whereNull('kunci_dikembalikan_pamdal_at')
+        ->latest('tanggal')
+        ->first();
 
-        if (!$checkinBelumKembaliKunci) {
-            return back()->with('error', 'Tidak ada kunci yang menunggu pengembalian pada peminjaman ini. Pastikan kunci sudah dikonfirmasi diambil terlebih dahulu.');
-        }
-
-        $checkinBelumKembaliKunci->update([
-            'kunci_dikembalikan_pamdal_at' => now(),
-            'status_kunci'   => 'dikembalikan',
-            'status_checkout' => $checkinBelumKembaliKunci->waktu_checkout ? 'diterima' : $checkinBelumKembaliKunci->status_checkout,
-        ]);
-
-        $sudahLewatTanggalSelesai = now()->greaterThanOrEqualTo(
-            Carbon::parse($peminjaman->tanggal_selesai)
-        );
-
-        $peminjaman->update([
-            'status'                    => $sudahLewatTanggalSelesai ? 'selesai' : 'berjalan',
-            'waktu_kunci_dikembalikan'  => now(),
-        ]);
-
-        return back()->with('success', 'Pengembalian kunci berhasil dikonfirmasi.'
-            . ($sudahLewatTanggalSelesai
-                ? ' Peminjaman ditandai selesai.'
-                : ' Peminjaman masih berjalan untuk hari berikutnya.'));
+    if (!$checkinBelumKembaliKunci) {
+        return back()->with('error', 'Tidak ada kunci yang menunggu pengembalian pada peminjaman ini. Pastikan kunci sudah dikonfirmasi diambil terlebih dahulu.');
     }
+
+    if (is_null($checkinBelumKembaliKunci->waktu_checkout)) {
+        return back()->with('error',
+            'Anggota belum melakukan check-out melalui aplikasi. Minta anggota check-out terlebih dahulu ' .
+            'sebelum kunci dikonfirmasi kembali, supaya data tercatat konsisten.');
+    }
+
+    $checkinBelumKembaliKunci->update([
+        'kunci_dikembalikan_pamdal_at' => now(),
+        'status_kunci'   => 'dikembalikan',
+        'status_checkout' => $checkinBelumKembaliKunci->waktu_checkout ? 'diterima' : $checkinBelumKembaliKunci->status_checkout,
+    ]);
+
+    $tanggalCheckinIni     = Carbon::parse($checkinBelumKembaliKunci->tanggal)->toDateString();
+    $tanggalSelesaiBooking = Carbon::parse($peminjaman->tanggal_selesai)->toDateString();
+    $iniHariTerakhir       = $tanggalCheckinIni === $tanggalSelesaiBooking;
+
+    $peminjaman->update([
+        'status'                    => $iniHariTerakhir ? 'selesai' : 'berjalan',
+        'waktu_kunci_dikembalikan'  => now(),
+    ]);
+
+    return back()->with('success', 'Pengembalian kunci berhasil dikonfirmasi.'
+        . ($iniHariTerakhir
+            ? ' Peminjaman ditandai selesai.'
+            : ' Peminjaman masih berjalan untuk hari berikutnya.'));
+}
 
     public function tolakVerifikasi(Request $request, $id)
     {

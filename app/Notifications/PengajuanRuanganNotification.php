@@ -6,10 +6,11 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Models\PeminjamanRuangan;
+use App\Notifications\Concerns\FormatsTanggalPeminjaman;
 
 class PengajuanRuanganNotification extends Notification
 {
-    use Queueable;
+    use Queueable, FormatsTanggalPeminjaman;
 
     public function __construct(public PeminjamanRuangan $peminjaman_ruangans) {}
 
@@ -30,7 +31,7 @@ class PengajuanRuanganNotification extends Notification
             ->line('Pengaju: ' . $peminjaman->user->nama)
             ->line('Ormawa: ' . $peminjaman->nama_ormawa)
             ->line('Ruangan: ' . $namaRuangan)
-            ->line('Tanggal: ' . $peminjaman->tanggal_mulai)
+            ->line('Tanggal: ' . $this->formatTanggalPeminjaman($peminjaman))
             ->line('Keperluan: ' . $peminjaman->keperluan)
             ->action('Lihat Pengajuan', url('/ketua/pengajuan-ruangan'))
             ->line('Segera proses pengajuan ini.')

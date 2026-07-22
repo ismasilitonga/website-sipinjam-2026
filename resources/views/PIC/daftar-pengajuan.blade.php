@@ -75,7 +75,6 @@
                             {{ $p->keperluan }}
                         </div>
                     </td>
-                    {{-- === BARU: kolom dokumen pendukung, biar PIC bisa nilai prioritas/urgensi pengajuan === --}}
                     <td style="font-size:12px;">
                         @if($p->dokumen_pendukung)
                             <a href="{{ asset('storage/' . $p->dokumen_pendukung) }}" target="_blank"
@@ -139,7 +138,6 @@
     @endif
 </div>
 
-{{-- Modal Konfirmasi Setujui --}}
 <div id="setujuiModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);
      z-index:9999;align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:12px;padding:32px 28px;width:100%;max-width:400px;
@@ -179,7 +177,6 @@
     @csrf
 </form>
 
-{{-- Modal Tolak (sudah ada, tetap dipertahankan) --}}
 <div class="modal-overlay" id="tolakModal">
     <div class="modal-box">
         <div class="modal-title">Tolak Pengajuan</div>
@@ -203,7 +200,6 @@
 
 @push('scripts')
 <script>
-    // ── Setujui ──────────────────────────────────────────
     function openSetujuiModal(id, nama) {
         document.getElementById('namaSetujui').textContent = nama;
         document.getElementById('formSetujui').action = '/pic/daftar-pengajuan/' + id + '/setujui';
@@ -216,7 +212,6 @@
         if (e.target === this) closeSetujuiModal();
     });
 
-    // ── Tolak ────────────────────────────────────────────
     function openTolakModal(id, nama) {
         document.getElementById('tolakForm').action = '/pic/daftar-pengajuan/' + id + '/tolak';
         document.getElementById('namaPeminjam').textContent = nama;

@@ -5,7 +5,7 @@
 
 @section('content')
 
-@if($peminjaman_ruangan->isEmpty())
+@if($sesi_list->isEmpty())
 <div class="card">
     <div class="empty-state" style="padding:64px 20px;">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -16,7 +16,8 @@
             Tidak ada ruangan yang sedang digunakan
         </p>
         <p style="font-size:13.5px;">
-            Halaman ini hanya menampilkan peminjaman yang sudah check-in (<em>ongoing</em>) untuk hari ini.
+            Halaman ini menampilkan peminjaman yang sudah check-in dan belum check-out,
+            termasuk sesi yang telat di-checkout dari tanggal sebelumnya.
         </p>
         <div style="margin-top:20px;">
             <a href="{{ route('anggota.checkin') }}" class="btn btn-primary">Ke Halaman Check-in</a>
@@ -27,25 +28,29 @@
 @else
 
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;">
-    @foreach($peminjaman_ruangan as $p)
+    @foreach($sesi_list as $checkin)
     @php
-  
-        $jamSelesai   = \Carbon\Carbon::parse($p->tanggal_selesai)->format('H:i:s');
-        $selesaiHariIni = \Carbon\Carbon::parse(today()->toDateString() . ' ' . $jamSelesai);
-        $waktuCheckin = $p->checkInHariIni->waktu_checkin ?? $p->tanggal_mulai;
+        $p = $checkin->peminjamanRef;
+        $waktuCheckin = $checkin->waktu_checkin ?? $checkin->tanggal;
+        $bolehKlik = $checkin->boleh_checkout && !$checkin->harus_checkout_dulu;
     @endphp
-    <div class="card" style="border-left:4px solid #06b6d4;">
+    <div class="card" style="border-left:4px solid {{ $checkin->checkout_telat ? '#dc2626' : '#06b6d4' }};">
         <div class="card-body">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
                 <div>
                     <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:700;">
-                        {{ $p->ruangan->nama_ruangan?? '-' }}
+                        {{ $p->ruangan->nama_ruangan ?? '-' }}
                     </div>
                     <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">
                         {{ $p->ruangan->gedung ?? '' }}{{ isset($p->ruangan->lantai) ? ' · Lantai '.$p->ruangan->lantai : '' }}
+                        · Sesi {{ \Carbon\Carbon::parse($checkin->tanggal)->translatedFormat('d F Y') }}
                     </div>
                 </div>
-                <span class="badge badge-cyan">Sedang Dipakai</span>
+                @if($checkin->checkout_telat)
+                    <span class="badge" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;">Terlambat</span>
+                @else
+                    <span class="badge badge-cyan">Sedang Dipakai</span>
+                @endif
             </div>
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
@@ -56,10 +61,12 @@
                     </div>
                 </div>
                 <div style="background:#f8fafc;border-radius:8px;padding:10px 12px;">
-                    <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">SELESAI</div>
+                    <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">
+                        {{ $checkin->checkout_telat ? 'SEHARUSNYA SELESAI' : 'SELESAI' }}
+                    </div>
                     <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:700;
-                                color:{{ now()->gt($selesaiHariIni) ? '#dc2626' : 'var(--text)' }};">
-                        {{ $selesaiHariIni->format('H:i') }}
+                                color:{{ now()->gt($checkin->batas_checkout) ? '#dc2626' : 'var(--text)' }};">
+                        {{ $checkin->checkout_telat ? $checkin->batas_checkout->format('d M, H:i') : $checkin->batas_checkout->format('H:i') }}
                     </div>
                 </div>
             </div>
@@ -74,17 +81,36 @@
                 </span>
             </div>
 
-            <div id="checkoutWarning-{{ $p->id }}"
+            @if($checkin->harus_checkout_dulu)
+            <div class="form-error" style="margin-bottom:12px;background:#fef2f2;border:1px solid #fecaca;
+                        padding:10px 12px;border-radius:8px;">
+                Ada sesi dari tanggal yang lebih lama pada peminjaman ini yang belum di-checkout.
+                Selesaikan sesi yang lebih lama terlebih dahulu sebelum bisa checkout sesi ini.
+            </div>
+            @elseif(!$checkin->boleh_checkout)
+            <div id="checkoutWarning-{{ $checkin->id }}"
                  class="form-error"
-                 style="{{ $p->boleh_checkout ? 'display:none;' : 'display:block;' }}
-                        margin-bottom:12px;background:#fef2f2;border:1px solid #fecaca;
+                 style="display:block;margin-bottom:12px;background:#fef2f2;border:1px solid #fecaca;
                         padding:10px 12px;border-radius:8px;">
                 Belum waktunya check-out. Ruangan wajib digunakan sampai jam
-                <strong>{{ $selesaiHariIni->format('H:i') }}</strong> sesuai jadwal peminjaman
+                <strong>{{ $checkin->batas_checkout->format('H:i') }}</strong> sesuai jadwal peminjaman
                 sebelum bisa check-out.
             </div>
+            @else
+            <div id="checkoutWarning-{{ $checkin->id }}" class="form-error" style="display:none;margin-bottom:12px;"></div>
+            @endif
 
-            @if(now()->gt($selesaiHariIni))
+            @if($checkin->checkout_telat)
+            <div class="alert alert-warning" style="margin-bottom:12px;padding:10px 12px;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;flex-shrink:0;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                Sesi ini seharusnya sudah check-out pada
+                <strong>{{ $checkin->batas_checkout->translatedFormat('d F Y, H:i') }}</strong>.
+                Segera lakukan check-out sekarang.
+            </div>
+            @elseif(now()->gt($checkin->batas_checkout))
             <div class="alert alert-warning" style="margin-bottom:12px;padding:10px 12px;">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;flex-shrink:0;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -95,23 +121,24 @@
             @endif
 
             <button type="button"
-                id="btnCheckout-{{ $p->id }}"
+                id="btnCheckout-{{ $checkin->id }}"
                 class="btn btn-primary"
                 style="width:100%;justify-content:center;"
-                {{ $p->boleh_checkout ? '' : 'disabled' }}
-                onclick="bukaModalCheckout('{{ $p->id }}', '{{ addslashes($p->ruangan->nama_ruangan ?? '') }}')">
+                {{ $bolehKlik ? '' : 'disabled' }}
+                onclick="bukaModalCheckout('{{ $checkin->id }}', '{{ addslashes($p->ruangan->nama_ruangan ?? '') }}')">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 16l4-4m0 0l-4-4m4 4H7"/>
                 </svg>
-                <span id="btnCheckoutLabel-{{ $p->id }}">
-                    {{ $p->boleh_checkout ? 'Check-out Sekarang' : 'Belum Bisa Check-out' }}
+                <span id="btnCheckoutLabel-{{ $checkin->id }}">
+                    {{ $checkin->harus_checkout_dulu ? 'Selesaikan Sesi Lama Dulu' : ($bolehKlik ? 'Check-out Sekarang' : 'Belum Bisa Check-out') }}
                 </span>
             </button>
 
             <span class="checkout-time-data"
-                  data-id="{{ $p->id }}"
-                  data-batas-checkout="{{ $p->batas_checkout->toIso8601String() }}"
+                  data-id="{{ $checkin->id }}"
+                  data-batas-checkout="{{ $checkin->batas_checkout->toIso8601String() }}"
+                  data-harus-checkout-dulu="{{ $checkin->harus_checkout_dulu ? '1' : '0' }}"
                   style="display:none;"></span>
         </div>
     </div>
@@ -161,7 +188,7 @@
 
         <form id="formCheckout" method="POST" action="{{ route('anggota.checkout.store') }}">
             @csrf
-            <input type="hidden" id="inputPeminjamanId" name="peminjaman_id" value="">
+            <input type="hidden" id="inputCheckinId" name="checkin_id" value="">
         </form>
 
         <div style="display:flex;gap:10px;justify-content:flex-end;">
@@ -183,8 +210,8 @@
 </div>
 
 <script>
-    function bukaModalCheckout(id, namaRuangan) {
-        document.getElementById('inputPeminjamanId').value = id;
+    function bukaModalCheckout(checkinId, namaRuangan) {
+        document.getElementById('inputCheckinId').value = checkinId;
         document.getElementById('modalNamaRuangan').textContent = namaRuangan;
         const modal = document.getElementById('modalCheckout');
         modal.style.display = 'flex';
@@ -222,17 +249,22 @@
         document.querySelectorAll('.checkout-time-data').forEach(el => {
             const id = el.dataset.id;
             const batasCheckout = new Date(el.dataset.batasCheckout);
+            const harusCheckoutDulu = el.dataset.harusCheckoutDulu === '1';
             const now = new Date();
-            const boleh = now >= batasCheckout;
+            const boleh = now >= batasCheckout && !harusCheckoutDulu;
 
             const btn   = document.getElementById('btnCheckout-' + id);
             const label = document.getElementById('btnCheckoutLabel-' + id);
             const warn  = document.getElementById('checkoutWarning-' + id);
             if (!btn) return;
 
+            // Kalau harus menyelesaikan sesi lama dulu, jangan diubah oleh timer ini —
+            // biarkan tetap disabled dengan label yang sudah di-render server.
+            if (harusCheckoutDulu) return;
+
             btn.disabled = !boleh;
             label.textContent = boleh ? 'Check-out Sekarang' : 'Belum Bisa Check-out';
-            warn.style.display = boleh ? 'none' : 'block';
+            if (warn) warn.style.display = boleh ? 'none' : 'block';
         });
     }
 
