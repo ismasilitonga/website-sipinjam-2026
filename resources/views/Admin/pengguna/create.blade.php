@@ -19,7 +19,7 @@
         <span class="card-title">Form Pengguna Baru</span>
     </div>
     <div class="card-body">
-        <form method="POST" action="{{ route('admin.pengguna.store') }}">
+        <form method="POST" action="{{ route('admin.pengguna.store') }}" enctype="multipart/form-data">
             @csrf
 
             <div class="form-grid-2">
@@ -37,6 +37,21 @@
                     @error('nim') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
             </div>
+            <div class="form-group" id="wrap-dokumen" style="display:none;">
+    <div class="form-grid-2">
+        <div>
+            <label class="form-label">Bukti KTM <span style="color:var(--danger)">*</span></label>
+            <input type="file" name="bukti_ktm" class="form-control" accept=".jpg,.jpeg,.png,.pdf">
+            @error('bukti_ktm') <div class="form-error">{{ $message }}</div> @enderror
+        </div>
+        <div>
+            <label class="form-label">Bukti SK Organisasi <span style="color:var(--danger)">*</span></label>
+            <input type="file" name="bukti_sk" class="form-control" accept=".jpg,.jpeg,.png,.pdf">
+            @error('bukti_sk') <div class="form-error">{{ $message }}</div> @enderror
+        </div>
+    </div>
+    <div class="form-hint">Format JPG, PNG, atau PDF. Maksimal 5MB per file.</div>
+</div>
 
             <div class="form-group">
                 <label class="form-label">Email <span style="color:var(--danger)">*</span></label>
@@ -61,10 +76,12 @@
 
                 <div class="form-group" id="wrap-organisasi" style="display:none;">
                     <label class="form-label">Organisasi <span style="color:var(--danger)">*</span></label>
-                    <select name="organisasi" class="form-select">
-                        <option value="">-- Pilih Ormawa --</option>
+                    <select name="organisasi" id="select-organisasi" class="form-select">
+                        <option value="">-- Pilih Organisasi --</option>
                         @foreach($ormawas as $o)
-                            <option value="{{ $o->singkatan }}" {{ old('organisasi') === $o->singkatan ? 'selected' : '' }}>
+                            <option value="{{ $o->singkatan }}"
+                                data-punya-pic="{{ $o->punya_pic ? '1' : '0' }}"
+                                {{ old('organisasi') === $o->singkatan ? 'selected' : '' }}>
                                 {{ $o->singkatan }} - {{ $o->nama_organisasi }}
                             </option>
                         @endforeach
@@ -104,15 +121,37 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const roleSelect = document.getElementById('role');
-    const wrapOrganisasi = document.getElementById('wrap-organisasi');
-    const wrapLantai = document.getElementById('wrap-lantai');
+    const roleSelect        = document.getElementById('role');
+    const wrapOrganisasi    = document.getElementById('wrap-organisasi');
+    const wrapLantai        = document.getElementById('wrap-lantai');
+    const selectOrganisasi  = document.getElementById('select-organisasi');
+    const orgOptions        = [...selectOrganisasi.options].filter(o => o.value !== '');
 
     function toggleFields() {
-        const role = roleSelect.value;
-        wrapOrganisasi.style.display = ['anggota', 'ketua'].includes(role) ? 'block' : 'none';
-        wrapLantai.style.display = role === 'pic' ? 'block' : 'none';
+    const role = roleSelect.value;
+    const wrapDokumen = document.getElementById('wrap-dokumen');
+
+    if (role === 'anggota' || role === 'ketua') {
+        wrapOrganisasi.style.display = 'block';
+        wrapLantai.style.display = 'none';
+        wrapDokumen.style.display = 'block';
+        orgOptions.forEach(o => o.hidden = false);
+        selectOrganisasi.value = '';
+
+    } else if (role === 'pic') {
+        wrapOrganisasi.style.display = 'block';
+        wrapLantai.style.display = 'block';
+        wrapDokumen.style.display = 'none';
+        orgOptions.forEach(o => o.hidden = false);
+        selectOrganisasi.value = '';
+
+    } else {
+        wrapOrganisasi.style.display = 'none';
+        wrapLantai.style.display = 'none';
+        wrapDokumen.style.display = 'none';
+        selectOrganisasi.value = '';
     }
+}
 
     roleSelect.addEventListener('change', toggleFields);
     toggleFields();

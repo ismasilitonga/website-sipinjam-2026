@@ -35,14 +35,15 @@ class KelolaOrmawaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'singkatan'     => 'required|string|max:20|unique:ormawa,singkatan',
-            'nama_organisasi' => 'nullable|string|max:255',
-            'kontak'          => 'nullable|string|max:20',
-            'deskripsi'       => 'nullable|string|max:500',
-            'status'          => 'required|in:aktif,nonaktif',
+            'singkatan'        => 'required|string|max:20|unique:ormawa,singkatan',
+            'nama_organisasi'  => 'nullable|string|max:255',
+            'kategori'         => 'required|in:ormawa,unit',
+            'kontak'           => 'nullable|string|max:20',
+            'deskripsi'        => 'nullable|string|max:500',
+            'status'           => 'required|in:aktif,nonaktif',
         ]);
 
-        Ormawa::create($request->only('singkatan', 'nama_organisasi', 'kontak', 'deskripsi', 'status'));
+        Ormawa::create($request->only('singkatan', 'nama_organisasi', 'kategori', 'kontak', 'deskripsi', 'status'));
 
         return redirect()->route('admin.ormawa.index')
             ->with('success', 'Ormawa berhasil ditambahkan.');
@@ -76,14 +77,15 @@ class KelolaOrmawaController extends Controller
         $ormawa = Ormawa::findOrFail($id);
 
         $request->validate([
-            'singkatan'     => 'required|string|max:20|unique:ormawa,singkatan,' . $id,
-            'nama_organisasi' => 'nullable|string|max:255',
-            'kontak'          => 'nullable|string|max:20',
-            'deskripsi'       => 'nullable|string|max:500',
-            'status'          => 'required|in:aktif,nonaktif',
+            'singkatan'        => 'required|string|max:20|unique:ormawa,singkatan,' . $id,
+            'nama_organisasi'  => 'nullable|string|max:255',
+            'kategori'         => 'required|in:ormawa,unit',
+            'kontak'           => 'nullable|string|max:20',
+            'deskripsi'        => 'nullable|string|max:500',
+            'status'           => 'required|in:aktif,nonaktif',
         ]);
 
-        $ormawa->update($request->only('singkatan', 'nama_organisasi', 'kontak', 'deskripsi', 'status'));
+        $ormawa->update($request->only('singkatan', 'nama_organisasi', 'kategori', 'kontak', 'deskripsi', 'status'));
 
         return redirect()->route('admin.ormawa.index')
             ->with('success', 'Data ormawa berhasil diperbarui.');

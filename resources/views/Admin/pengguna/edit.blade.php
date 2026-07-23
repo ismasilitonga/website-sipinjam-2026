@@ -19,7 +19,7 @@
         <span class="card-title">Edit Data Pengguna</span>
     </div>
     <div class="card-body">
-        <form method="POST" action="{{ route('admin.pengguna.update', $user->id) }}">
+        <form method="POST" action="{{ route('admin.pengguna.update', $user->id) }}" enctype="multipart/form-data">
             @csrf @method('PUT')
 
             <div class="form-grid-2">
@@ -48,7 +48,7 @@
             <div class="form-grid-2">
                 <div class="form-group">
                     <label class="form-label">Role <span style="color:var(--danger)">*</span></label>
-                    <select name="role" class="form-select" required>
+                    <select name="role" id="role" class="form-select" required>
                         <option value="anggota"  {{ old('role', $user->role) === 'anggota'  ? 'selected' : '' }}>Anggota</option>
                         <option value="ketua"    {{ old('role', $user->role) === 'ketua'    ? 'selected' : '' }}>Ketua</option>
                         <option value="pic"      {{ old('role', $user->role) === 'pic'      ? 'selected' : '' }}>PIC</option>
@@ -58,12 +58,58 @@
                     @error('role') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" id="wrap-organisasi">
                     <label class="form-label">Organisasi <span style="color:var(--danger)">*</span></label>
-                    <input type="text" name="organisasi" class="form-control"
-                           value="{{ old('organisasi', $user->organisasi) }}" required>
+                    <select name="organisasi" id="select-organisasi" class="form-select">
+                        <option value="">-- Pilih Organisasi --</option>
+                        @foreach($ormawas as $o)
+                            <option value="{{ $o->singkatan }}"
+                                data-punya-pic="{{ $o->punya_pic ? '1' : '0' }}"
+                                {{ old('organisasi', $user->organisasi) === $o->singkatan ? 'selected' : '' }}>
+                                {{ $o->singkatan }} - {{ $o->nama_organisasi }}
+                            </option>
+                        @endforeach
+                    </select>
                     @error('organisasi') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
+
+                <div class="form-group" id="wrap-lantai">
+                    <label class="form-label">Lantai yang Dikelola <span style="color:var(--danger)">*</span></label>
+                    <input type="number" name="lantai_pic" class="form-control" min="1" max="20"
+                           value="{{ old('lantai_pic', $user->lantai_pic) }}" placeholder="Contoh: 2">
+                    @error('lantai_pic') <div class="form-error">{{ $message }}</div> @enderror
+                </div>
+            </div>
+
+            <div class="form-group" id="wrap-dokumen">
+                <label class="form-label">Dokumen Pendaftaran</label>
+                <div class="form-grid-2">
+                    <div>
+                        <div class="form-hint" style="margin-bottom:4px;">
+                            KTM saat ini:
+                            @if($user->bukti_ktm)
+                                <a href="{{ asset('storage/' . $user->bukti_ktm) }}" target="_blank">Lihat file</a>
+                            @else
+                                <span>belum ada</span>
+                            @endif
+                        </div>
+                        <input type="file" name="bukti_ktm" class="form-control" accept=".jpg,.jpeg,.png,.pdf">
+                        @error('bukti_ktm') <div class="form-error">{{ $message }}</div> @enderror
+                    </div>
+                    <div>
+                        <div class="form-hint" style="margin-bottom:4px;">
+                            SK saat ini:
+                            @if($user->bukti_sk)
+                                <a href="{{ asset('storage/' . $user->bukti_sk) }}" target="_blank">Lihat file</a>
+                            @else
+                                <span>belum ada</span>
+                            @endif
+                        </div>
+                        <input type="file" name="bukti_sk" class="form-control" accept=".jpg,.jpeg,.png,.pdf">
+                        @error('bukti_sk') <div class="form-error">{{ $message }}</div> @enderror
+                    </div>
+                </div>
+                <div class="form-hint">Unggah file baru hanya jika ingin mengganti dokumen yang sudah ada. Format JPG, PNG, atau PDF, maksimal 5MB.</div>
             </div>
 
             @php
@@ -134,5 +180,43 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const roleSelect       = document.getElementById('role');
+    const wrapOrganisasi   = document.getElementById('wrap-organisasi');
+    const wrapLantai       = document.getElementById('wrap-lantai');
+    const wrapDokumen      = document.getElementById('wrap-dokumen');
+    const selectOrganisasi = document.getElementById('select-organisasi');
+    const orgOptions       = [...selectOrganisasi.options].filter(o => o.value !== '');
+
+    function toggleFields() {
+        const role = roleSelect.value;
+
+        if (role === 'anggota' || role === 'ketua') {
+            wrapOrganisasi.style.display = 'block';
+            wrapLantai.style.display = 'none';
+            wrapDokumen.style.display = 'block';
+            orgOptions.forEach(o => o.hidden = false);
+
+        } else if (role === 'pic') {
+            wrapOrganisasi.style.display = 'block';
+            wrapLantai.style.display = 'block';
+            wrapDokumen.style.display = 'none';
+            orgOptions.forEach(o => o.hidden = false);
+
+        } else {
+            wrapOrganisasi.style.display = 'none';
+            wrapLantai.style.display = 'none';
+            wrapDokumen.style.display = 'none';
+        }
+    }
+
+    roleSelect.addEventListener('change', toggleFields);
+    toggleFields();
+});
+</script>
+@endpush
 
 @endsection

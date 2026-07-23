@@ -7,13 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Ormawa extends Model
 {
     protected $table = 'ormawa';
-    protected $fillable = [
-        'singkatan',
-        'nama_organisasi',
-        'kontak',
-        'deskripsi',
-        'status',
-    ];
+protected $fillable = [
+    'singkatan',
+    'nama_organisasi',
+    'kategori',
+    'punya_pic',
+    'kontak',
+    'deskripsi',
+    'status',
+];
 
     public function users()
     {

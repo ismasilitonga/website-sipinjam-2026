@@ -96,17 +96,18 @@
                     </td>
                     <td style="font-size:13px;font-family:monospace;">{{ $user->nim }}</td>
                     <td style="font-size:13px;">{{ $user->email }}</td>
-                    <td style="font-size:13px;">{{ $user->organisasi ?? '-' }}</td>
+                    <td style="font-size:13px;">{{ $user->organisasi ? strtoupper($user->organisasi) : '-' }}</td>
                     <td>
-                        @php
-                            $roleClass = match($user->role) {
-                                'admin'  => 'badge-red',
-                                'ketua'  => 'badge-blue',
-                                'pic'    => 'badge-purple',
-                                'pamdal' => 'badge-orange',
-                                default  => 'badge-gray',
-                            };
-                        @endphp
+        @php
+        $roleClass = match($user->role) {
+        'admin'   => 'badge-red',
+        'ketua'   => 'badge-green',
+        'anggota' => 'badge-blue',
+        'pic'     => 'badge-purple',
+        'pamdal'  => 'badge-orange',
+        default   => 'badge-gray',
+        };
+        @endphp
                         <span class="badge {{ $roleClass }}">{{ ucfirst($user->role) }}</span>
                     </td>
                     <td>
@@ -242,11 +243,12 @@ document.addEventListener('DOMContentLoaded', function () {
     let timeout = null;
 
     const roleClass = {
-        'admin'  : 'badge-red',
-        'ketua'  : 'badge-blue',
-        'pic'    : 'badge-purple',
-        'pamdal' : 'badge-orange',
-    };
+    'admin'   : 'badge-red',
+    'ketua'   : 'badge-green',
+    'anggota' : 'badge-blue',
+    'pic'     : 'badge-purple',
+    'pamdal'  : 'badge-orange',
+};
 
     const statusClass = {
         'aktif'    : 'badge-green',
@@ -324,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             </td>
                             <td style="font-size:13px;font-family:monospace;">${u.nim}</td>
                             <td style="font-size:13px;">${u.email}</td>
-                            <td style="font-size:13px;">${u.organisasi}</td>
+                            <td style="font-size:13px;">${u.organisasi ? u.organisasi.toUpperCase() : '-'}</td>
                             <td><span class="badge ${badge}">${u.role.charAt(0).toUpperCase() + u.role.slice(1)}</span></td>
                             <td><span class="badge ${sBadge}">${sLabel}</span></td>
                             <td>
