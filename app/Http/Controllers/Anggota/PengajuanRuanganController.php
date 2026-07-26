@@ -85,19 +85,25 @@ class PengajuanRuanganController extends Controller
     {
 
         $request->validate([
-            'ruangan_id'         => 'required|exists:ruangan,id',
-            'tanggal_mulai'      => 'required|date|after_or_equal:today',
-            'tanggal_selesai'    => 'required|date|after_or_equal:tanggal_mulai',
-            'jam_mulai'          => 'required',
-            'jam_selesai'        => 'required',
-            'keperluan'          => 'required|string|max:500',
-            'dokumen_pendukung'  => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
-        ], [
-            'tanggal_selesai.after_or_equal' => 'Tanggal selesai tidak boleh sebelum tanggal mulai.',
-            'dokumen_pendukung.required'     => 'Dokumen pendukung wajib diunggah sebagai bukti kegiatan.',
-            'dokumen_pendukung.mimes'        => 'Dokumen harus berformat PDF, JPG, atau PNG.',
-            'dokumen_pendukung.max'          => 'Ukuran dokumen maksimal 5MB.',
-        ]);
+    'ruangan_id'         => 'required|exists:ruangan,id',
+    'tanggal_mulai'      => 'required|date|after_or_equal:today',
+    'tanggal_selesai'    => 'required|date|after_or_equal:tanggal_mulai',
+    'jam_mulai'          => 'required|date_format:H:i|after_or_equal:07:50|before_or_equal:23:00',
+    'jam_selesai'        => 'required|date_format:H:i|after_or_equal:08:50|before_or_equal:23:00',
+    'keperluan'          => 'required|string|max:500',
+    'dokumen_pendukung'  => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+], [
+    'tanggal_selesai.after_or_equal' => 'Tanggal selesai tidak boleh sebelum tanggal mulai.',
+    'jam_mulai.date_format'          => 'Format jam mulai tidak valid.',
+    'jam_mulai.after_or_equal'       => 'Jam mulai peminjaman paling awal adalah 07:50.',
+    'jam_mulai.before_or_equal'      => 'Jam mulai peminjaman paling akhir adalah 23:00.',
+    'jam_selesai.date_format'        => 'Format jam selesai tidak valid.',
+    'jam_selesai.after_or_equal'     => 'Jam selesai peminjaman paling awal adalah 08:50.',
+    'jam_selesai.before_or_equal'    => 'Jam selesai peminjaman paling akhir adalah 23:00.',
+    'dokumen_pendukung.required'     => 'Dokumen pendukung wajib diunggah sebagai bukti kegiatan.',
+    'dokumen_pendukung.mimes'        => 'Dokumen harus berformat PDF, JPG, atau PNG.',
+    'dokumen_pendukung.max'          => 'Ukuran dokumen maksimal 5MB.',
+]);
 
         $mulai   = Carbon::parse($request->tanggal_mulai . ' ' . $request->jam_mulai);
         $selesai = Carbon::parse($request->tanggal_selesai . ' ' . $request->jam_selesai);

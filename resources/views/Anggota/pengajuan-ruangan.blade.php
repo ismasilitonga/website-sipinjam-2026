@@ -119,7 +119,7 @@
                                placeholder="Pilih jam selesai" autocomplete="off" readonly
                                value="{{ old('jam_selesai') }}" required>
                         <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">
-                            Durasi peminjaman minimal 1 jam.
+                            Jam operasional: 07:50 – 23:00.
                         </div>
                         @error('jam_selesai') <div class="form-error">{{ $message }}</div> @enderror
                     </div>
@@ -481,45 +481,48 @@
             }, 400);
         }
 
-        const fpMulai = flatpickr('#jam_mulai', {
-            ...timeConfig,
-            onOpen(_, __, fp) {
-                if (!fp.selectedDates.length) {
-                    fp.hourElement.value   = String(wibNow.getHours()).padStart(2, '0');
-                    fp.minuteElement.value = String(wibNow.getMinutes()).padStart(2, '0');
-                }
-            },
-            onChange() { validasiJam(); cekBentrokSekarang(); },
-            onClose(selectedDates, dateStr, fp) {
-                if (!selectedDates.length) fp.clear();
-                validasiJam();
-                cekBentrokSekarang();
-            },
-        });
+    const fpMulai = flatpickr('#jam_mulai', {
+    ...timeConfig,
+    minTime: '07:50',
+    maxTime: '23:00',
+    onOpen(_, __, fp) {
+        if (!fp.selectedDates.length) {
+            fp.hourElement.value   = String(wibNow.getHours()).padStart(2, '0');
+            fp.minuteElement.value = String(wibNow.getMinutes()).padStart(2, '0');
+        }
+    },
+    onChange() { validasiJam(); cekBentrokSekarang(); },
+    onClose(selectedDates, dateStr, fp) {
+        if (!selectedDates.length) fp.clear();
+        validasiJam();
+        cekBentrokSekarang();
+    },
+});
 
-        const fpSelesai = flatpickr('#jam_selesai', {
-            ...timeConfig,
-
-            onOpen(_, __, fp) {
-                const mulaiDate = fpMulai?.selectedDates?.[0];
-                if (mulaiDate && isSatuHari()) {
-                    const minSelesai = new Date(mulaiDate.getTime() + MIN_DURASI_MENIT * 60 * 1000);
-                    fp.set('minTime', toHHMM(minSelesai));
-                    if (!fp.selectedDates.length) {
-                        fp.hourElement.value   = String(minSelesai.getHours()).padStart(2, '0');
-                        fp.minuteElement.value = String(minSelesai.getMinutes()).padStart(2, '0');
-                    }
-                } else {
-                    fp.set('minTime', null);
-                }
-            },
-            onChange() { validasiJam(); cekBentrokSekarang(); },
-            onClose(selectedDates, _, fp) {
-                if (!selectedDates.length) fp.clear();
-                validasiJam();
-                cekBentrokSekarang();
-            },
-        });
+    const fpSelesai = flatpickr('#jam_selesai', {
+    ...timeConfig,
+    minTime: '08:50',
+    maxTime: '23:00',
+    onOpen(_, __, fp) {
+        const mulaiDate = fpMulai?.selectedDates?.[0];
+        if (mulaiDate && isSatuHari()) {
+            const minSelesai = new Date(mulaiDate.getTime() + MIN_DURASI_MENIT * 60 * 1000);
+            fp.set('minTime', toHHMM(minSelesai));
+            if (!fp.selectedDates.length) {
+                fp.hourElement.value   = String(minSelesai.getHours()).padStart(2, '0');
+                fp.minuteElement.value = String(minSelesai.getMinutes()).padStart(2, '0');
+            }
+        } else {
+            fp.set('minTime', '08:50');
+        }
+    },
+    onChange() { validasiJam(); cekBentrokSekarang(); },
+    onClose(selectedDates, _, fp) {
+        if (!selectedDates.length) fp.clear();
+        validasiJam();
+        cekBentrokSekarang();
+    },
+});
 
         tglMulai.addEventListener('change', validasiJam);
         tglSelesai.addEventListener('change', validasiJam);
