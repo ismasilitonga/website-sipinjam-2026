@@ -15,6 +15,7 @@ class PeminjamanBarang extends Model
         'user_id', 'barang_id', 'nama_ormawa', 'jumlah',
         'tanggal_pinjam', 'tanggal_kembali_rencana', 'keperluan',
         'status', 'alasan_tolak',
+        'dokumen_pendukung', 
         'waktu_diserahkan', 'diserahkan_oleh',
         'waktu_diterima_kembali', 'diterima_oleh',
         'foto_serah', 'foto_kembali',
