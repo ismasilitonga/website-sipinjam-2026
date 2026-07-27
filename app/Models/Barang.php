@@ -10,20 +10,26 @@ class Barang extends Model
     use HasFactory;
     protected $table = 'barang';
     protected $fillable = [
-    'nama',
-    'kode',
-    'kategori',
-    'stok',
-    'satuan',
-    'kondisi',
-    'foto',
-    'deskripsi',
-    'organisasi',
-    'jenis_barang',
-];
+        'nama',
+        'kode',
+        'kategori',
+        'stok',
+        'satuan',
+        'kondisi',
+        'foto',
+        'deskripsi',
+        'organisasi',
+        'jenis_barang',
+        'ruangan_id',
+    ];
 
     public function peminjamanBarangs()
     {
         return $this->hasMany(PeminjamanBarang::class);
+    }
+
+    public function ruangan()
+    {
+        return $this->belongsTo(Ruangan::class);
     }
 }

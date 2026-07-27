@@ -19,7 +19,7 @@ class PengajuanBarangController extends Controller
             ->get()
             ->map(function ($b) {
                 $sudahDipinjam = PeminjamanBarang::where('barang_id', $b->id)
-                    ->whereIn('status', ['menunggu_pic', 'disetujui'])
+                    ->where('status', 'disetujui')
                     ->where('tanggal_pinjam', '<=', now())
                     ->where('tanggal_kembali_rencana', '>=', now())
                     ->sum('jumlah');
@@ -60,10 +60,10 @@ class PengajuanBarangController extends Controller
             'dokumen_pendukung.max'                   => 'Ukuran dokumen pendukung maksimal 5MB.',
         ]);
 
-        $barang = Barang::findOrFail($request->barang_id);
+        $barang = Barang::with('ruangan')->findOrFail($request->barang_id);
 
         $sudahDipinjam = PeminjamanBarang::where('barang_id', $request->barang_id)
-            ->whereIn('status', ['menunggu_pic', 'disetujui'])
+            ->where('status', 'disetujui')
             ->where('tanggal_pinjam', '<=', $request->tanggal_kembali_rencana)
             ->where('tanggal_kembali_rencana', '>=', $request->tanggal_pinjam)
             ->sum('jumlah');
@@ -73,7 +73,7 @@ class PengajuanBarangController extends Controller
         if ($request->jumlah > $stokTersedia) {
             return back()->withInput()->with('error',
                 'Stok tidak mencukupi pada tanggal yang kamu pilih. ' .
-                'Tersedia: ' . max(0, $stokTersedia) . ' ' . $barang->satuan . 
+                'Tersedia: ' . max(0, $stokTersedia) . ' ' . $barang->satuan .
                 ' (dari total ' . $barang->stok . ' ' . $barang->satuan . ').'
             );
         }
@@ -92,8 +92,14 @@ class PengajuanBarangController extends Controller
             'status'                  => 'menunggu_pic',
         ]);
 
-        // Kirim notifikasi ke semua PIC
-        $pics = User::where('role', 'pic')->get();
+        if ($barang->ruangan) {
+            $pics = User::where('role', 'pic')
+                ->where('lantai_pic', $barang->ruangan->lantai)
+                ->get();
+        } else {
+            $pics = User::where('role', 'pic')->get();
+        }
+
         foreach ($pics as $pic) {
             $pic->notify(new PengajuanBarangNotification($peminjaman));
         }
@@ -113,7 +119,7 @@ class PengajuanBarangController extends Controller
         $barang = Barang::findOrFail($request->barang_id);
 
         $sudahDipinjam = PeminjamanBarang::where('barang_id', $request->barang_id)
-            ->whereIn('status', ['menunggu_pic', 'disetujui'])
+            ->where('status', 'disetujui')
             ->where('tanggal_pinjam', '<=', $request->tanggal_kembali_rencana)
             ->where('tanggal_kembali_rencana', '>=', $request->tanggal_pinjam)
             ->sum('jumlah');

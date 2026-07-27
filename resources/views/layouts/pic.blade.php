@@ -394,7 +394,12 @@
                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
             </svg>
             <span class="nav-text">Validasi Peminjaman Barang</span>
-            @php $pendingBarang = \App\Models\PeminjamanBarang::where('status', 'menunggu_pic')->count(); @endphp
+@php
+    $lantaiPicBarang = (string) auth()->user()->lantai_pic;
+    $pendingBarang = \App\Models\PeminjamanBarang::where('status', 'menunggu_pic')
+        ->whereHas('barang.ruangan', fn($q) => $q->where('lantai', $lantaiPicBarang))
+        ->count();
+@endphp
             @if($pendingBarang > 0)
                 <span class="nav-badge">{{ $pendingBarang }}</span>
             @endif

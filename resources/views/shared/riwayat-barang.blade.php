@@ -37,6 +37,24 @@
 .pagination-wrap span.disabled span { opacity: 0.4; }
 
 .pagination-wrap p { display: none; }
+
+/* ==== Perataan & jarak tabel Validasi Peminjaman Barang ==== */
+.tabel-validasi th,
+.tabel-validasi td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 14px 12px;
+}
+.tabel-validasi thead th {
+    padding: 14px 12px;
+    white-space: nowrap;
+}
+.tabel-validasi tbody tr {
+    border-bottom: 1px solid #f1f1f4;
+}
+.tabel-validasi tbody tr:hover {
+    background: #fafafa;
+}
 </style>
 @endpush
 
@@ -70,18 +88,18 @@
     </div>
 
     <div class="table-wrap" style="overflow-x:auto;">
-    <table style="width:100%;">
+    <table class="tabel-validasi" style="width:100%; border-collapse:collapse;">
         <thead>
     <tr>
-        <th style="width:40px;">No</th>
-        <th style="width:130px;">Peminjam</th>
-        <th style="width:120px;">Ormawa</th>
-        <th style="width:100px;">Barang</th>
-        <th style="width:100px;">Dokumen</th>
-        <th style="width:80px;">Jumlah</th>
-        <th style="width:110px;">Tgl Pinjam</th>
-        <th style="width:130px;">Status</th>
-        <th style="width:200px;">Aksi</th>
+        <th style="width:4%;">No</th>
+        <th style="width:13%;">Peminjam</th>
+        <th style="width:12%;">Ormawa</th>
+        <th style="width:10%;">Barang</th>
+        <th style="width:10%;">Dokumen</th>
+        <th style="width:8%;">Jumlah</th>
+        <th style="width:11%;">Tgl Pinjam</th>
+        <th style="width:13%;">Status</th>
+        <th style="width:19%;">Aksi</th>
     </tr>
 </thead>
 <tbody>
@@ -123,9 +141,9 @@
             <span class="badge {{ $cls }}" style="white-space:nowrap;">{{ $lbl }}</span>
         </td>
         <td>
-            <div style="display:flex;gap:6px;align-items:center;">
+            <div style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
                 <a href="{{ route($routePrefix . '.barang.detail', $p->id) }}"
-                   class="btn btn-outline btn-sm" style="font-size:12px;padding:4px 12px;">
+                   class="btn btn-outline btn-sm" style="font-size:12px;padding:4px 12px;white-space:nowrap;">
                     Detail
                 </a>
 
@@ -133,8 +151,8 @@
                     <form method="POST" action="{{ route('pic.barang.setujui', $p->id) }}">
                         @csrf
                         <button type="submit" class="btn btn-success btn-sm"
-                                style="display:flex;align-items:center;gap:4px;">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:13px;height:13px;">
+                                style="display:flex;align-items:center;gap:4px;white-space:nowrap;">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:13px;height:13px;flex-shrink:0;">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
                             Setujui
@@ -142,8 +160,8 @@
                     </form>
                     <button type="button" class="btn btn-danger btn-sm"
                             onclick="bukaModalTolakBarang('{{ $p->id }}')"
-                            style="display:flex;align-items:center;gap:4px;">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:13px;height:13px;">
+                            style="display:flex;align-items:center;gap:4px;white-space:nowrap;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:13px;height:13px;flex-shrink:0;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                         Tolak
@@ -177,18 +195,18 @@
 
 <div id="modalTolakBarang" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);
      z-index:9999;align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:12px;padding:32px 28px;width:100%;max-width:400px;
+    <div style="background:#fff;border-radius:12px;padding:32px 28px;width:100%;max-width:420px;
                 box-shadow:0 10px 40px rgba(0,0,0,0.18);margin:16px;">
 
-            <div style="width:52px;height:52px;border-radius:50%;background:#fee2e2;
+        <div style="width:52px;height:52px;border-radius:50%;background:#fee2e2;
                     display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
             <svg width="26" height="26" fill="none" stroke="#dc2626" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round"
                     d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </div>
+            </svg>
+        </div>
 
-        <div style="text-align:center;margin-bottom:24px;">
+        <div style="text-align:center;margin-bottom:20px;">
             <div style="font-size:17px;font-weight:700;margin-bottom:6px;">Tolak Pengajuan?</div>
             <div style="font-size:14px;color:var(--text-muted);line-height:1.5;">
                 Anda akan menolak pengajuan peminjaman barang ini.
@@ -196,38 +214,45 @@
             </div>
         </div>
 
+        <form id="formTolakBarang" method="POST">
+            @csrf
+            <div class="form-group" style="margin-bottom:20px;">
+                <label class="form-label">Alasan Penolakan <span style="color:var(--danger)">*</span></label>
+                <textarea name="alasan_tolak" id="alasanTolakInput" class="form-control" rows="3"
+                          placeholder="Contoh: Stok sedang dipakai kegiatan lain, dokumen tidak sesuai, dll."
+                          required></textarea>
+            </div>
+
             <div style="display:flex;gap:10px;">
-            <button type="button" onclick="tutupModalTolakBarang()"
-            style="flex:1;padding:10px;border:1.5px solid #e5e7eb;border-radius:8px;
-                       background:#fff;font-size:14px;font-weight:500;cursor:pointer;">
-                   Batal
+                <button type="button" onclick="tutupModalTolakBarang()"
+                    style="flex:1;padding:10px;border:1.5px solid #e5e7eb;border-radius:8px;
+                           background:#fff;font-size:14px;font-weight:500;cursor:pointer;">
+                    Batal
                 </button>
-                <button type="button" onclick="document.getElementById('formTolakBarang').submit()"
-                style="flex:1;padding:10px;border:none;border-radius:8px;
-                       background:#dc2626;color:#fff;font-size:14px;font-weight:600;cursor:pointer;">
-                Ya, Tolak
-            </button>
-        </div>
+                <button type="submit"
+                    style="flex:1;padding:10px;border:none;border-radius:8px;
+                           background:#dc2626;color:#fff;font-size:14px;font-weight:600;cursor:pointer;">
+                    Ya, Tolak
+                </button>
+            </div>
+        </form>
     </div>
-  </div>
+</div>
 
-    <form id="formTolakBarang" method="POST" style="display:none;">
-    @csrf
-    </form>
-
-  <script>
+<script>
     const baseUrlTolakBarang = "{{ url($routePrefix . '/barang') }}";
 
     function bukaModalTolakBarang(id) {
-    document.getElementById('formTolakBarang').action = `${baseUrlTolakBarang}/${id}/tolak`;
-    document.getElementById('modalTolakBarang').style.display = 'flex';
-  }
+        document.getElementById('formTolakBarang').action = `${baseUrlTolakBarang}/${id}/tolak`;
+        document.getElementById('alasanTolakInput').value = '';
+        document.getElementById('modalTolakBarang').style.display = 'flex';
+    }
     function tutupModalTolakBarang() {
-    document.getElementById('modalTolakBarang').style.display = 'none';
- }
-   document.getElementById('modalTolakBarang').addEventListener('click', function(e) {
-    if (e.target === this) tutupModalTolakBarang();
- });
+        document.getElementById('modalTolakBarang').style.display = 'none';
+    }
+    document.getElementById('modalTolakBarang').addEventListener('click', function(e) {
+        if (e.target === this) tutupModalTolakBarang();
+    });
 </script>
 
 @endsection

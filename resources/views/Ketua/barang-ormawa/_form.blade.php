@@ -64,6 +64,19 @@
 </div>
 
 <div class="form-group" style="margin-top:20px;">
+    <label class="form-label">Ruangan <span style="color:var(--danger)">*</span></label>
+    <select name="ruangan_id" class="form-select" required>
+        <option value="">-- Pilih Ruangan --</option>
+        @foreach($ruangans as $r)
+            <option value="{{ $r->id }}" {{ old('ruangan_id', $barang->ruangan_id ?? '') == $r->id ? 'selected' : '' }}>
+                {{ $r->nama_ruangan }} ({{ $r->gedung }} · Lt. {{ $r->lantai }})
+            </option>
+        @endforeach
+    </select>
+    @error('ruangan_id') <div class="form-error">{{ $message }}</div> @enderror
+</div>
+
+<div class="form-group" style="margin-top:20px;">
     <label class="form-label">Deskripsi</label>
     <textarea name="deskripsi" class="form-control" rows="3">{{ old('deskripsi', $barang->deskripsi ?? '') }}</textarea>
     @error('deskripsi') <div class="form-error">{{ $message }}</div> @enderror

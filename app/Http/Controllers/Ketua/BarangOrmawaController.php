@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Ketua;
 
 use App\Http\Controllers\Controller;
 use App\Models\Barang;
+use App\Models\Ruangan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -20,143 +21,150 @@ class BarangOrmawaController extends Controller
     }
 
     public function index(Request $request)
-{
-    $search = $request->input('search');
-    $sumber = $request->input('sumber');
-    $jenis  = $request->input('jenis');
-    $organisasiSaya = auth()->user()->organisasi;
-    $query = Barang::query()
-        ->where(function ($q) use ($organisasiSaya) {
-            $q->where('organisasi', $organisasiSaya) 
-              ->orWhereNull('organisasi');             
-        });
+    {
+        $search = $request->input('search');
+        $sumber = $request->input('sumber');
+        $jenis  = $request->input('jenis');
+        $organisasiSaya = auth()->user()->organisasi;
+        $query = Barang::query()
+            ->where(function ($q) use ($organisasiSaya) {
+                $q->where('organisasi', $organisasiSaya)
+                  ->orWhereNull('organisasi');
+            });
 
-    if ($search) {
-        $query->where(function ($q) use ($search) {
-            $q->where('nama', 'like', "%{$search}%")
-              ->orWhere('kode', 'like', "%{$search}%")
-              ->orWhere('kategori', 'like', "%{$search}%");
-        });
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('kode', 'like', "%{$search}%")
+                  ->orWhere('kategori', 'like', "%{$search}%");
+            });
+        }
+
+        if ($sumber == 'ormawa') $query->whereNotNull('organisasi');
+        if ($sumber == 'pic')    $query->whereNull('organisasi');
+
+        if ($jenis == 'bisa_dipinjam') $query->where('jenis_barang', 'bisa_dipinjam');
+        if ($jenis == 'arsip')         $query->where('jenis_barang', 'arsip');
+
+        $barang = $query->latest()->paginate(10)->withQueryString();
+        return view('ketua.barang-ormawa.index', compact('barang', 'search', 'sumber', 'jenis'));
     }
 
-    if ($sumber == 'ormawa') $query->whereNotNull('organisasi');
-    if ($sumber == 'pic')    $query->whereNull('organisasi');
-
-    if ($jenis == 'bisa_dipinjam') $query->where('jenis_barang', 'bisa_dipinjam');
-    if ($jenis == 'arsip')         $query->where('jenis_barang', 'arsip');
-
-    $barang = $query->latest()->paginate(10)->withQueryString();
-    return view('ketua.barang-ormawa.index', compact('barang', 'search', 'sumber', 'jenis'));
-    }
     public function create(Request $request)
     {
         $kategoris = $this->getKategoris();
         $jenis = $request->input('jenis', 'pinjam');
-        $barang = null;
-        return view('ketua.barang-ormawa.create', compact('kategoris', 'jenis'));
+        $ruangans = Ruangan::orderBy('lantai')->orderBy('nama_ruangan')->get();
+        return view('ketua.barang-ormawa.create', compact('kategoris', 'jenis', 'ruangans'));
     }
 
-public function store(Request $request)
-{
-    $data = $request->validate([
-        'nama'         => 'required|string|max:255',
-        'kategori'     => 'required|string|max:100',
-        'stok'         => 'required|integer|min:0',
-        'satuan'       => 'required|string|max:50',
-        'kondisi'      => 'required|in:baik,rusak_ringan,rusak_berat',
-        'foto'         => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        'deskripsi'    => 'nullable|string|max:500',
-        'jenis_barang' => 'nullable|in:bisa_dipinjam,arsip',
-    ]);
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'nama'         => 'required|string|max:255',
+            'kategori'     => 'required|string|max:100',
+            'stok'         => 'required|integer|min:0',
+            'satuan'       => 'required|string|max:50',
+            'kondisi'      => 'required|in:baik,rusak_ringan,rusak_berat',
+            'foto'         => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'deskripsi'    => 'nullable|string|max:500',
+            'jenis_barang' => 'nullable|in:bisa_dipinjam,arsip',
+            'ruangan_id'   => 'required|exists:ruangan,id',
+        ]);
 
-    $singkatan = auth()->user()->organisasi;
-    abort_if(empty($singkatan), 422, 'Organisasi pengguna tidak ditemukan, tidak dapat membuat kode barang.');
-    $last = Barang::where('organisasi', $singkatan)
-        ->where('kode', 'like', $singkatan . '-%')
-        ->orderByRaw('CAST(SUBSTRING(kode, ?) AS UNSIGNED) DESC', [strlen($singkatan) + 2])
-        ->first();
+        $singkatan = auth()->user()->organisasi;
+        abort_if(empty($singkatan), 422, 'Organisasi pengguna tidak ditemukan, tidak dapat membuat kode barang.');
+        $last = Barang::where('organisasi', $singkatan)
+            ->where('kode', 'like', $singkatan . '-%')
+            ->orderByRaw('CAST(SUBSTRING(kode, ?) AS UNSIGNED) DESC', [strlen($singkatan) + 2])
+            ->first();
 
-    $num = $last ? ((int) substr($last->kode, strlen($singkatan) + 1)) + 1 : 1;
-    $data['kode'] = $singkatan . '-' . str_pad($num, 2, '0', STR_PAD_LEFT);
+        $num = $last ? ((int) substr($last->kode, strlen($singkatan) + 1)) + 1 : 1;
+        $data['kode'] = $singkatan . '-' . str_pad($num, 2, '0', STR_PAD_LEFT);
 
-    if ($request->hasFile('foto')) {
-        $data['foto'] = $request->file('foto')->store('barang', 'public');
-    }
+        if ($request->hasFile('foto')) {
+            $data['foto'] = $request->file('foto')->store('barang', 'public');
+        }
 
-    $data['organisasi']   = $singkatan;
-    $data['jenis_barang'] = $request->input('jenis_barang') === 'arsip' ? 'arsip' : 'bisa_dipinjam';
-    Barang::create($data);
+        $data['organisasi']   = $singkatan;
+        $data['jenis_barang'] = $request->input('jenis_barang') === 'arsip' ? 'arsip' : 'bisa_dipinjam';
+        Barang::create($data);
 
-    return redirect()
-        ->route('ketua.barang-ormawa.index')
-        ->with('success', 'Barang berhasil ditambahkan.');
-}
-
-   public function edit(Barang $barang_ormawa)
-{
-    if (empty($barang_ormawa->organisasi)) {
         return redirect()
             ->route('ketua.barang-ormawa.index')
-            ->with('error', 'Barang dari PIC tidak dapat diedit di sini.');
+            ->with('success', 'Barang berhasil ditambahkan.');
     }
-    abort_if(
-        $barang_ormawa->organisasi !== auth()->user()->organisasi,
-        403,
-        'Kamu tidak berhak mengedit barang milik ormawa lain.'
-    );
 
-    $kategoris = $this->getKategoris();
-    return view('ketua.barang-ormawa.edit', [
-        'barang'    => $barang_ormawa,
-        'kategoris' => $kategoris,
-    ]);
-}
+    public function edit(Barang $barang_ormawa)
+    {
+        if (empty($barang_ormawa->organisasi)) {
+            return redirect()
+                ->route('ketua.barang-ormawa.index')
+                ->with('error', 'Barang dari PIC tidak dapat diedit di sini.');
+        }
+        abort_if(
+            $barang_ormawa->organisasi !== auth()->user()->organisasi,
+            403,
+            'Kamu tidak berhak mengedit barang milik ormawa lain.'
+        );
+
+        $kategoris = $this->getKategoris();
+        $ruangans = Ruangan::orderBy('lantai')->orderBy('nama_ruangan')->get();
+        return view('ketua.barang-ormawa.edit', [
+            'barang'    => $barang_ormawa,
+            'kategoris' => $kategoris,
+            'ruangans'  => $ruangans,
+        ]);
+    }
+
     public function update(Request $request, Barang $barang_ormawa)
-{
-    abort_if(empty($barang_ormawa->organisasi), 403, 'Barang dari PIC tidak dapat diubah.');
-    abort_if(
-        $barang_ormawa->organisasi !== auth()->user()->organisasi,
-        403,
-        'Kamu tidak berhak mengubah barang milik ormawa lain.'
-    );
-    $data = $request->validate([
-        'nama'         => 'required|string|max:255',
-        'kategori'     => 'required|string|max:100',
-        'stok'         => 'required|integer|min:0',
-        'satuan'       => 'required|string|max:50',
-        'kondisi'      => 'required|in:baik,rusak_ringan,rusak_berat',
-        'foto'         => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        'deskripsi'    => 'nullable|string|max:500',
-        'jenis_barang' => 'nullable|in:bisa_dipinjam,arsip',
-    ]);
+    {
+        abort_if(empty($barang_ormawa->organisasi), 403, 'Barang dari PIC tidak dapat diubah.');
+        abort_if(
+            $barang_ormawa->organisasi !== auth()->user()->organisasi,
+            403,
+            'Kamu tidak berhak mengubah barang milik ormawa lain.'
+        );
+        $data = $request->validate([
+            'nama'         => 'required|string|max:255',
+            'kategori'     => 'required|string|max:100',
+            'stok'         => 'required|integer|min:0',
+            'satuan'       => 'required|string|max:50',
+            'kondisi'      => 'required|in:baik,rusak_ringan,rusak_berat',
+            'foto'         => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'deskripsi'    => 'nullable|string|max:500',
+            'jenis_barang' => 'nullable|in:bisa_dipinjam,arsip',
+            'ruangan_id'   => 'required|exists:ruangan,id',
+        ]);
 
-    if ($request->hasFile('foto')) {
+        if ($request->hasFile('foto')) {
+            if ($barang_ormawa->foto) {
+                Storage::disk('public')->delete($barang_ormawa->foto);
+            }
+            $data['foto'] = $request->file('foto')->store('barang', 'public');
+        }
+        $barang_ormawa->update($data);
+
+        return redirect()
+            ->route('ketua.barang-ormawa.index')
+            ->with('success', 'Barang berhasil diperbarui.');
+    }
+
+    public function destroy(Barang $barang_ormawa)
+    {
+        abort_if(empty($barang_ormawa->organisasi), 403, 'Barang dari PIC tidak dapat dihapus.');
+        abort_if(
+            $barang_ormawa->organisasi !== auth()->user()->organisasi,
+            403,
+            'Kamu tidak berhak menghapus barang milik ormawa lain.'
+        );
+
         if ($barang_ormawa->foto) {
             Storage::disk('public')->delete($barang_ormawa->foto);
         }
-        $data['foto'] = $request->file('foto')->store('barang', 'public');
+        $barang_ormawa->delete();
+        return redirect()
+            ->route('ketua.barang-ormawa.index')
+            ->with('success', 'Barang berhasil dihapus.');
     }
-    $barang_ormawa->update($data);
-
-    return redirect()
-        ->route('ketua.barang-ormawa.index')
-        ->with('success', 'Barang berhasil diperbarui.');
-}
-    public function destroy(Barang $barang_ormawa)
-{
-    abort_if(empty($barang_ormawa->organisasi), 403, 'Barang dari PIC tidak dapat dihapus.');
-    abort_if(
-        $barang_ormawa->organisasi !== auth()->user()->organisasi,
-        403,
-        'Kamu tidak berhak menghapus barang milik ormawa lain.'
-    );
-
-    if ($barang_ormawa->foto) {
-        Storage::disk('public')->delete($barang_ormawa->foto);
-    }
-    $barang_ormawa->delete();
-    return redirect()
-        ->route('ketua.barang-ormawa.index')
-        ->with('success', 'Barang berhasil dihapus.');
-}
 }

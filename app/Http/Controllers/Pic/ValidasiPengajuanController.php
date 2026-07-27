@@ -224,44 +224,57 @@ class ValidasiPengajuanController extends Controller
     }
 
     public function setujuiBarang($id)
-    {
-        $peminjaman = PeminjamanBarang::with('barang')->findOrFail($id);
+{
+    $lantai = (string) auth()->user()->lantai_pic;
 
-        if ($peminjaman->status !== 'menunggu_pic') {
-            return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya.');
-        }
-        $sudahDipinjam = PeminjamanBarang::where('barang_id', $peminjaman->barang_id)
-            ->where('id', '!=', $peminjaman->id)
-            ->where('status', 'disetujui')
-            ->where('tanggal_pinjam', '<=', $peminjaman->tanggal_kembali_rencana)
-            ->where('tanggal_kembali_rencana', '>=', $peminjaman->tanggal_pinjam)
-            ->sum('jumlah');
+    $peminjaman = PeminjamanBarang::with('barang')
+        ->whereHas('barang', function ($q) use ($lantai) {
+            $q->whereHas('ruangan', fn($qr) => $qr->where('lantai', $lantai))
+              ->orWhereNull('ruangan_id');
+        })
+        ->findOrFail($id);
 
-        $stokTersedia = $peminjaman->barang->stok - $sudahDipinjam;
+    if ($peminjaman->status !== 'menunggu_pic') {
+        return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya.');
+    }
+    $sudahDipinjam = PeminjamanBarang::where('barang_id', $peminjaman->barang_id)
+        ->where('id', '!=', $peminjaman->id)
+        ->where('status', 'disetujui')
+        ->where('tanggal_pinjam', '<=', $peminjaman->tanggal_kembali_rencana)
+        ->where('tanggal_kembali_rencana', '>=', $peminjaman->tanggal_pinjam)
+        ->sum('jumlah');
 
-        if ($peminjaman->jumlah > $stokTersedia) {
-            $peminjaman->update([
-                'status'       => 'ditolak',
-                'alasan_tolak' => 'Stok tidak mencukupi pada tanggal yang kamu pilih. Barang sudah dipinjam oleh peminjam lain pada tanggal yang sama.',
-            ]);
-            $peminjaman->user->notify(new PengajuanBarangDitolakNotification($peminjaman));
+    $stokTersedia = $peminjaman->barang->stok - $sudahDipinjam;
 
-            return back()->with('error',
-                'Gagal menyetujui: stok ' . $peminjaman->barang->nama . 
-                ' tidak mencukupi (tersedia ' . max(0, $stokTersedia) . ' dari ' . 
-                $peminjaman->barang->stok . '). Pengajuan otomatis ditolak.'
-            );
-        }
+    if ($peminjaman->jumlah > $stokTersedia) {
+        $peminjaman->update([
+            'status'       => 'ditolak',
+            'alasan_tolak' => 'Stok tidak mencukupi pada tanggal yang kamu pilih. Barang sudah dipinjam oleh peminjam lain pada tanggal yang sama.',
+        ]);
+        $peminjaman->user->notify(new PengajuanBarangDitolakNotification($peminjaman));
 
-        $peminjaman->update(['status' => 'disetujui']);
-        $peminjaman->user->notify(new PengajuanBarangDisetujuiNotification($peminjaman));
-
-        return back()->with('success', 'Peminjaman barang berhasil disetujui.');
+        return back()->with('error',
+            'Gagal menyetujui: stok ' . $peminjaman->barang->nama .
+            ' tidak mencukupi (tersedia ' . max(0, $stokTersedia) . ' dari ' .
+            $peminjaman->barang->stok . '). Pengajuan otomatis ditolak.'
+        );
     }
 
+    $peminjaman->update(['status' => 'disetujui']);
+    $peminjaman->user->notify(new PengajuanBarangDisetujuiNotification($peminjaman));
+
+    return back()->with('success', 'Peminjaman barang berhasil disetujui.');
+}
+
     public function tolakBarang(Request $request, $id)
-    {
-        $peminjaman_barang = PeminjamanBarang::findOrFail($id);
+{
+    $lantai = (string) auth()->user()->lantai_pic;
+
+    $peminjaman_barang = PeminjamanBarang::whereHas('barang', function ($q) use ($lantai) {
+            $q->whereHas('ruangan', fn($qr) => $qr->where('lantai', $lantai))
+              ->orWhereNull('ruangan_id');
+        })
+        ->findOrFail($id);
 
         $peminjaman_barang->update([
             'status'       => 'ditolak',

@@ -62,6 +62,42 @@
                 </div>
             </div>
 
+            <div class="form-group">
+                <label class="form-label">Ruangan / Lokasi <span style="color:var(--danger)">*</span></label>
+                <select name="ruangan_id" class="form-select" required>
+                    <option value="" disabled
+                        {{ old('ruangan_id', $barang->ruangan_id ?? '') === '' ? 'selected' : '' }}>
+                        -- Pilih Ruangan --
+                    </option>
+                    @foreach($ruangans as $r)
+                        <option value="{{ $r->id }}"
+                            {{ (string) old('ruangan_id', $barang->ruangan_id ?? '') === (string) $r->id ? 'selected' : '' }}>
+                            {{ $r->nama_ruangan }} (Gedung {{ $r->gedung ?? '-' }} · Lt. {{ $r->lantai }})
+                        </option>
+                    @endforeach
+                </select>
+                @error('ruangan_id') <div class="form-error">{{ $message }}</div> @enderror
+                <div class="form-hint">Barang akan tampil di daftar sesuai ruangan/lantai yang dipilih di sini.</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Jenis Barang <span style="color:var(--danger)">*</span></label>
+                <div style="display:flex; gap:16px;">
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;">
+                        <input type="radio" name="jenis_barang" value="bisa_dipinjam"
+                            {{ old('jenis_barang', $barang->jenis_barang ?? 'bisa_dipinjam') === 'bisa_dipinjam' ? 'checked' : '' }}>
+                        Bisa Dipinjam
+                    </label>
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;">
+                        <input type="radio" name="jenis_barang" value="arsip"
+                            {{ old('jenis_barang', $barang->jenis_barang ?? 'bisa_dipinjam') === 'arsip' ? 'checked' : '' }}>
+                        Arsip Inventaris
+                    </label>
+                </div>
+                <div class="form-hint">Bisa Dipinjam: muncul di katalog & dapat dipinjam ketua/anggota. Arsip: hanya terlihat oleh PIC.</div>
+                @error('jenis_barang') <div class="form-error">{{ $message }}</div> @enderror
+            </div>
+            
             <div class="form-grid-2">
                 <div class="form-group">
                     <label class="form-label">Stok <span style="color:var(--danger)">*</span></label>
