@@ -40,7 +40,6 @@
         Kelola inventaris barang ormawa kamu di sini. Barang <strong>Bisa Dipinjam</strong>
         akan muncul di katalog dan dapat diajukan pinjam oleh anggota.
         Barang <strong>Arsip</strong> hanya tercatat sebagai inventaris internal dan tidak terlihat oleh anggota.
-        Barang dari PIC hanya bisa dilihat, tidak bisa diedit.
     </span>
 </div>
 
@@ -56,58 +55,57 @@
 <div class="card">
     <div class="card-header" style="padding-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
         <span class="card-title">Inventaris Barang Ormawa</span>
-        <div style="display:flex;gap:6px;align-items:center;">
-            <span style="font-size:11px;padding:3px 9px;border-radius:12px;background:#eeedfe;color:#534ab7;font-weight:500;">Milik Ormawa</span>
-            <span style="font-size:11px;padding:3px 9px;border-radius:12px;background:#e6f1fb;color:#185fa5;font-weight:500;">Dari PIC</span>
-        </div>
+        <span style="font-size:11px;padding:3px 9px;border-radius:12px;background:#eeedfe;color:#534ab7;font-weight:500;">Milik Ormawa</span>
     </div>
 
     <form method="GET" action="{{ route('ketua.barang-ormawa.index') }}"
         style="padding:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;">
+
         <input type="text" name="search" value="{{ request('search') }}"
-            placeholder="Cari nama barang, kode, kategori..."
-            style="flex:1;min-width:220px;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;">
-        <select name="sumber" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;">
-            <option value="">Semua Sumber</option>
-            <option value="ormawa" {{ request('sumber') == 'ormawa' ? 'selected' : '' }}>Ormawa</option>
-            <option value="pic"    {{ request('sumber') == 'pic'    ? 'selected' : '' }}>PIC</option>
-        </select>
-        <select name="jenis" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;">
+            placeholder="Cari nama barang, kode, atau kategori..."
+            style="flex:1;min-width:240px;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;">
+
+        <select name="jenis" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;min-width:160px;">
             <option value="">Semua Jenis</option>
             <option value="bisa_dipinjam" {{ request('jenis') == 'bisa_dipinjam' ? 'selected' : '' }}>Bisa Dipinjam</option>
             <option value="arsip"         {{ request('jenis') == 'arsip'         ? 'selected' : '' }}>Arsip</option>
         </select>
-        <button type="submit" class="btn btn-primary">Cari</button>
-        @if(request('search') || request('sumber') || request('jenis'))
+
+        <button type="submit" class="btn btn-primary">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;margin-right:4px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            Cari
+        </button>
+
+        @if(request('search') || request('jenis'))
             <a href="{{ route('ketua.barang-ormawa.index') }}" class="btn btn-outline">Reset</a>
         @endif
     </form>
 
     <div class="table-wrap" style="overflow-x:auto;">
-        <table style="width:100%;">
+        <table>
             <thead>
                 <tr>
-                    <th style="width:40px;">No</th>
-                    <th style="width:60px;">Foto</th>
-                    <th style="width:160px;">Nama Barang</th>
-                    <th style="width:110px;">Kode</th>
-                    <th style="width:120px;">Kategori</th>
-                    <th style="width:70px;">Stok</th>
-                    <th style="width:80px;">Satuan</th>
-                    <th style="width:120px;">Kondisi</th>
-                    <th style="width:90px;">Sumber</th>
-                    <th style="width:130px;">Aksi</th>
+                    <th>No</th>
+                    <th>Foto</th>
+                    <th>Nama Barang</th>
+                    <th>Kode</th>
+                    <th>Kategori</th>
+                    <th>Stok</th>
+                    <th>Satuan</th>
+                    <th>Kondisi</th>
+                    <th style="text-align:center;">Aksi</th>
                 </tr>
             </thead>
+
             <tbody>
                 @forelse($barang as $b)
-                @php
-                 $isOrmawa = !empty($b->organisasi);
-                @endphp
                 <tr>
                     <td style="color:var(--text-muted);font-size:12px;">
                         {{ ($barang->currentPage() - 1) * $barang->perPage() + $loop->iteration }}
                     </td>
+
                     <td>
                         @if($b->foto)
                             <img src="{{ asset('storage/' . $b->foto) }}" alt="{{ $b->nama }}"
@@ -120,8 +118,10 @@
                             </div>
                         @endif
                     </td>
-                    <td style="font-weight:600;font-size:13px;">{{ $b->nama }}</td>
+
+                    <td style="font-weight:600;font-size:13px;word-break:break-word;">{{ $b->nama }}</td>
                     <td style="font-family:monospace;font-size:12px;color:var(--text-muted);">{{ $b->kode }}</td>
+
                     <td>
                         @if($b->kategori)
                             <span style="display:inline-block;padding:3px 9px;border-radius:12px;font-size:11.5px;font-weight:500;background:#e0f2fe;color:#0369a1;">
@@ -131,13 +131,16 @@
                             <span style="color:var(--text-muted);font-size:12px;">—</span>
                         @endif
                     </td>
+
                     <td>
                         @php $stok = $b->stok ?? 0; @endphp
                         <span class="badge {{ $stok > 5 ? 'badge-green' : ($stok > 0 ? 'badge-orange' : 'badge-red') }}">
                             {{ $stok }}
                         </span>
                     </td>
+
                     <td style="font-size:12.5px;">{{ $b->satuan }}</td>
+
                     <td>
                         @php
                             $kCls = match($b->kondisi ?? 'baik') {
@@ -155,35 +158,25 @@
                         @endphp
                         <span class="badge {{ $kCls }}">{{ $kLbl }}</span>
                     </td>
-                    <td>
-                        @if($isOrmawa)
-                            <span style="font-size:11px;padding:3px 8px;border-radius:10px;background:#eeedfe;color:#534ab7;font-weight:500;">Ormawa</span>
-                        @else
-                            <span style="font-size:11px;padding:3px 8px;border-radius:10px;background:#e6f1fb;color:#185fa5;font-weight:500;">PIC</span>
-                        @endif
-                    </td>
-                    <td>
-                        <div style="display:flex;gap:6px;">
-                            @if($isOrmawa)
-                                <a href="{{ route('ketua.barang-ormawa.edit', $b->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                <button type="button" class="btn btn-danger btn-sm"
-                                    onclick="confirmHapus('{{ addslashes($b->nama) }}', {{ $b->id }})">
-                                    Hapus
-                                </button>
-                            @else
-                                <span style="font-size:11px;color:var(--text-muted);padding:4px 8px;font-style:italic;">Hanya lihat</span>
-                            @endif
+
+                    <td style="text-align:center;">
+                        <div style="display:flex;gap:6px;justify-content:center;">
+                            <a href="{{ route('ketua.barang-ormawa.edit', $b->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                            <button type="button" class="btn btn-danger btn-sm"
+                                onclick="confirmHapus('{{ addslashes($b->nama) }}', {{ $b->id }})">
+                                Hapus
+                            </button>
                         </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="10">
+                    <td colspan="9">
                         <div class="empty-state">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
                             </svg>
-                            @if($search || $sumber || $jenis)
+                            @if($search || $jenis)
                                 <p>Tidak ada barang yang cocok dengan pencarian.</p>
                                 <a href="{{ route('ketua.barang-ormawa.index') }}" style="color:var(--accent);">Tampilkan semua →</a>
                             @else
@@ -219,9 +212,9 @@
         </div>
         <form method="POST" id="form-hapus">
             @csrf @method('DELETE')
-            <div style="display:flex;gap:10px;justify-content:center;">
-            <button type="button" onclick="tutupModal()" class="btn btn-outline" style="min-width:100px;">Batal</button>
-            <button type="submit" class="btn btn-danger" style="min-width:100px;">Ya, Hapus</button>
+            <div style="display:flex;gap:10px;">
+                <button type="button" onclick="tutupModal()" class="btn btn-outline" style="flex:1;justify-content:center;">Batal</button>
+                <button type="submit" class="btn btn-danger" style="flex:1;justify-content:center;">Ya, Hapus</button>
             </div>
         </form>
     </div>

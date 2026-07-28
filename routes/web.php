@@ -43,6 +43,7 @@ use App\Http\Controllers\Admin\DashboardAdminController;
 use App\Http\Controllers\Admin\DetailAkunAdminController;
 use App\Http\Controllers\Admin\KelolaUserController;
 use App\Http\Controllers\Admin\KelolaOrmawaController;
+use App\Http\Controllers\Admin\KelolaBarangController;
 use App\Http\Controllers\Admin\RiwayatRuanganAdminController;
 use App\Http\Controllers\Admin\ValidasiPendaftarController;
 use App\Http\Controllers\Admin\KelolaRuanganController;
@@ -211,7 +212,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/profil/update', [DetailAkunAdminController::class, 'update'])->name('profil.update');
 
         Route::get('/daftar-ruangan', [TambahRuanganController::class, 'index'])->name('daftar-ruangan');
-        Route::get('/daftar-barang',  [DaftarBarangController::class, 'index'])->name('daftar-barang');
+        Route::get('/barang',            [KelolaBarangController::class, 'index'])->name('barang.index');
+        Route::get('/barang/tambah',     [KelolaBarangController::class, 'create'])->name('barang.create');
+        Route::post('/barang',           [KelolaBarangController::class, 'store'])->name('barang.store');
+        Route::get('/barang/{id}/edit',  [KelolaBarangController::class, 'edit'])->name('barang.edit');
+        Route::put('/barang/{id}',       [KelolaBarangController::class, 'update'])->name('barang.update');
+        Route::delete('/barang/{id}',    [KelolaBarangController::class, 'destroy'])->name('barang.destroy');
 
         Route::get('/ruangan',           [KelolaRuanganController::class, 'index'])->name('ruangan.index');
         Route::get('/ruangan/tambah',    [KelolaRuanganController::class, 'create'])->name('ruangan.create');

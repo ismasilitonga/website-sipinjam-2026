@@ -24,19 +24,22 @@
             Ajukan Peminjaman
         </a>
     @endif
-@endsection
+    @endsection
 
-@section('content')
-<div class="item-grid">
-    @forelse($ruangans as $ruangan)
-    <div class="item-card">
-        <div class="item-card-img">
-            @if($ruangan->foto)
-                <img src="{{ asset('storage/' . $ruangan->foto) }}" alt="{{ $ruangan->nama_ruangan }}"
-                     style="width:100%;height:100%;object-fit:cover;">
-            @else
+    @section('content')
+    <div class="item-grid">
+        @forelse($ruangans as $ruangan)
+        <div class="item-card">
+   
+    <div class="item-card-img" style="overflow:hidden;">
+        @if($ruangan->foto)
+        <img src="{{ asset('storage/' . $ruangan->foto) }}" alt="{{ $ruangan->nama_ruangan }}"
+             style="width:100%;height:100%;object-fit:cover;transition:transform .3s ease;"
+             onmouseover="this.style.transform='scale(1.15)'"
+             onmouseout="this.style.transform='scale(1)'">
+        @else
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                         d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                 </svg>
             @endif

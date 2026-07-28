@@ -23,14 +23,10 @@ class BarangOrmawaController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $sumber = $request->input('sumber');
         $jenis  = $request->input('jenis');
         $organisasiSaya = auth()->user()->organisasi;
-        $query = Barang::query()
-            ->where(function ($q) use ($organisasiSaya) {
-                $q->where('organisasi', $organisasiSaya)
-                  ->orWhereNull('organisasi');
-            });
+
+        $query = Barang::query()->where('organisasi', $organisasiSaya);
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -40,14 +36,12 @@ class BarangOrmawaController extends Controller
             });
         }
 
-        if ($sumber == 'ormawa') $query->whereNotNull('organisasi');
-        if ($sumber == 'pic')    $query->whereNull('organisasi');
-
         if ($jenis == 'bisa_dipinjam') $query->where('jenis_barang', 'bisa_dipinjam');
         if ($jenis == 'arsip')         $query->where('jenis_barang', 'arsip');
 
         $barang = $query->latest()->paginate(10)->withQueryString();
-        return view('ketua.barang-ormawa.index', compact('barang', 'search', 'sumber', 'jenis'));
+
+        return view('ketua.barang-ormawa.index', compact('barang', 'search', 'jenis'));
     }
 
     public function create(Request $request)

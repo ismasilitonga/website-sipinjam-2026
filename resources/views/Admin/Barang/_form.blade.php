@@ -80,6 +80,32 @@
                 </div>
             </div>
 
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label">Ruangan <span style="color:var(--danger)">*</span></label>
+                    <select name="ruangan_id" class="form-select" required>
+                        <option value="">-- Pilih Ruangan --</option>
+                        @foreach($ruangans as $r)
+                            <option value="{{ $r->id }}"
+                                {{ old('ruangan_id', $barang->ruangan_id ?? '') == $r->id ? 'selected' : '' }}>
+                                {{ $r->nama_ruangan }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('ruangan_id') <div class="form-error">{{ $message }}</div> @enderror
+                    <div class="form-hint">Admin dapat memilih ruangan di semua lantai.</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Jenis Barang <span style="color:var(--danger)">*</span></label>
+                    @php $jenisNow = old('jenis_barang', $barang->jenis_barang ?? 'bisa_dipinjam'); @endphp
+                    <select name="jenis_barang" class="form-select" required>
+                        <option value="bisa_dipinjam" {{ $jenisNow == 'bisa_dipinjam' ? 'selected' : '' }}>Bisa Dipinjam</option>
+                        <option value="arsip" {{ $jenisNow == 'arsip' ? 'selected' : '' }}>Arsip</option>
+                    </select>
+                    @error('jenis_barang') <div class="form-error">{{ $message }}</div> @enderror
+                </div>
+            </div>
+
             <div class="form-group">
                 <label class="form-label">Deskripsi</label>
                 <textarea name="deskripsi" class="form-control"
