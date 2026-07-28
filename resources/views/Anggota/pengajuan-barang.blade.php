@@ -101,15 +101,43 @@
                         @error('tanggal_pinjam') <div class="form-error">{{ $message }}</div> @enderror
                     </div>
                     <div class="form-group">
+                        <label class="form-label">Jam Pinjam <span style="color:var(--danger)">*</span></label>
+                        <input type="text" name="jam_pinjam" id="jam_pinjam" class="form-control"
+                               placeholder="Pilih jam pinjam" autocomplete="off" readonly
+                               value="{{ old('jam_pinjam') }}" required>
+                        @error('jam_pinjam') <div class="form-error">{{ $message }}</div> @enderror
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
                         <label class="form-label">Rencana Tanggal Kembali <span style="color:var(--danger)">*</span></label>
                         <input type="text" name="tanggal_kembali_rencana" id="tanggal_kembali_rencana"
                                class="form-control"
                                value="{{ old('tanggal_kembali_rencana') }}" autocomplete="off" required>
                         @error('tanggal_kembali_rencana') <div class="form-error">{{ $message }}</div> @enderror
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Jam Kembali <span style="color:var(--danger)">*</span></label>
+                        <input type="text" name="jam_kembali_rencana" id="jam_kembali_rencana" class="form-control"
+                               placeholder="Pilih jam kembali" autocomplete="off" readonly
+                               value="{{ old('jam_kembali_rencana') }}" required>
+                        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">
+                            Jam operasional: 07:50 – 23:00.
+                        </div>
+                        @error('jam_kembali_rencana') <div class="form-error">{{ $message }}</div> @enderror
+                    </div>
                 </div>
+
+                <div id="jamError" class="form-error" style="display:none;margin:-8px 0 16px;">
+                    Jam selesai harus setelah jam mulai.
+                </div>
+
                 <div id="durasiInfo" style="display:none;margin:-8px 0 16px;font-size:12.5px;color:var(--text-muted);"></div>
                 <div id="durasiError" class="form-error" style="display:none;margin:-8px 0 16px;"></div>
+
+                <div id="waktuInfo" style="display:none;margin:-8px 0 16px;font-size:12.5px;color:var(--text-muted);
+                     padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;"></div>
 
                 <div id="stokWarning" style="display:none;margin-top:-10px;margin-bottom:16px;
                      padding:12px 14px;border-radius:8px;font-size:13px;">
@@ -194,6 +222,7 @@ const CEK_STOK_URL = "{{ route('anggota.pengajuan-barang.cek-stok') }}";
 let cekStokTimeout = null;
 
 const MAKS_DURASI_HARI_BARANG = 7;
+const MIN_DURASI_MENIT_BARANG = 60;
 
 function updateBarangInfo(sel) {
     const opt  = sel.options[sel.selectedIndex];
@@ -234,7 +263,8 @@ function selectBarang(id) {
 function sembunyikanWarning() {
     const w = document.getElementById('stokWarning');
     w.style.display = 'none';
-    if (document.getElementById('durasiError').style.display !== 'block') {
+    if (document.getElementById('durasiError').style.display !== 'block' &&
+        document.getElementById('jamError').style.display !== 'block') {
         document.getElementById('submitBtn').disabled = false;
         document.getElementById('submitBtn').style.opacity = '1';
     }
@@ -255,9 +285,10 @@ function tampilkanWarning(tersedia, stokTersedia, stokTotal, satuan) {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <span>Stok tersedia pada tanggal ini: <strong>${stokTersedia} ${satuan}</strong> dari total ${stokTotal} ${satuan}.</span>
+                <span>Stok tersedia pada waktu ini: <strong>${stokTersedia} ${satuan}</strong> dari total ${stokTotal} ${satuan}.</span>
             </div>`;
-        if (document.getElementById('durasiError').style.display !== 'block') {
+        if (document.getElementById('durasiError').style.display !== 'block' &&
+            document.getElementById('jamError').style.display !== 'block') {
             btn.disabled = false;
             btn.style.opacity = '1';
         }
@@ -272,8 +303,8 @@ function tampilkanWarning(tersedia, stokTersedia, stokTotal, satuan) {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
                 </svg>
-                <span><strong>Stok tidak tersedia</strong> pada tanggal yang kamu pilih.<br>
-                Semua ${stokTotal} ${satuan} sudah dipinjam oleh peminjam lain. Silahkan pilih tanggal lain.</span>
+                <span><strong>Stok tidak tersedia</strong> pada waktu yang kamu pilih.<br>
+                Semua ${stokTotal} ${satuan}, sudah dipinjam oleh peminjam lain. Silahkan pilih waktu lain.</span>
             </div>`;
         btn.disabled = true;
         btn.style.opacity = '0.5';
@@ -281,16 +312,19 @@ function tampilkanWarning(tersedia, stokTersedia, stokTotal, satuan) {
 }
 
 function cekStokRealtime() {
-    const barangId  = document.getElementById('barangSelect').value;
-    const tglPinjam = document.getElementById('tanggal_pinjam').value;
+    const barangId   = document.getElementById('barangSelect').value;
+    const tglPinjam  = document.getElementById('tanggal_pinjam').value;
+    const jamPinjam  = document.getElementById('jam_pinjam').value;
     const tglKembali = document.getElementById('tanggal_kembali_rencana').value;
+    const jamKembali = document.getElementById('jam_kembali_rencana').value;
 
-    if (!barangId || !tglPinjam || !tglKembali) {
+    if (!barangId || !tglPinjam || !jamPinjam || !tglKembali || !jamKembali) {
         sembunyikanWarning();
         return;
     }
 
-    if (document.getElementById('durasiError').style.display === 'block') {
+    if (document.getElementById('durasiError').style.display === 'block' ||
+        document.getElementById('jamError').style.display === 'block') {
         return;
     }
 
@@ -309,7 +343,7 @@ function cekStokRealtime() {
             </svg>
             Mengecek ketersediaan stok...</div>`;
 
-        fetch(`${CEK_STOK_URL}?barang_id=${barangId}&tanggal_pinjam=${tglPinjam}&tanggal_kembali_rencana=${tglKembali}`)
+        fetch(`${CEK_STOK_URL}?barang_id=${barangId}&tanggal_pinjam=${tglPinjam}&jam_pinjam=${jamPinjam}&tanggal_kembali_rencana=${tglKembali}&jam_kembali_rencana=${jamKembali}`)
             .then(r => r.json())
             .then(data => {
                 tampilkanWarning(data.tersedia, data.stok_tersedia, data.stok_total, data.satuan);
@@ -320,6 +354,49 @@ function cekStokRealtime() {
             })
             .catch(() => sembunyikanWarning());
     }, 400);
+}
+
+function formatTanggalIndo(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli',
+                   'Agustus','September','Oktober','November','Desember'];
+    return `${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function tampilkanInfoWaktu() {
+    const info = document.getElementById('waktuInfo');
+
+    if (document.getElementById('durasiError').style.display === 'block' ||
+        document.getElementById('jamError').style.display === 'block') {
+        info.style.display = 'none';
+        return;
+    }
+
+    const tglPinjam  = document.getElementById('tanggal_pinjam').value;
+    const jamPinjam  = document.getElementById('jam_pinjam').value;
+    const tglKembali = document.getElementById('tanggal_kembali_rencana').value;
+    const jamKembali = document.getElementById('jam_kembali_rencana').value;
+
+    if (!tglPinjam || !jamPinjam || !tglKembali || !jamKembali) {
+        info.style.display = 'none';
+        return;
+    }
+
+    const labelPinjam  = `${formatTanggalIndo(tglPinjam)}, ${jamPinjam} WIB`;
+    const labelKembali = `${formatTanggalIndo(tglKembali)}, ${jamKembali} WIB`;
+
+    info.innerHTML = `
+        <div style="display:flex;align-items:center;gap:8px;">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                 style="width:15px;height:15px;flex-shrink:0;color:#64748b;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>Dipinjam mulai <strong style="color:var(--text);">${labelPinjam}</strong>
+            sampai <strong style="color:var(--text);">${labelKembali}</strong>.</span>
+        </div>`;
+    info.style.display = 'block';
 }
 
 function validasiDurasiBarang() {
@@ -336,7 +413,7 @@ function validasiDurasiBarang() {
 
     const d1 = new Date(tglPinjam.value);
     const d2 = new Date(tglKembali.value);
-    const selisihHari = Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
+    const selisihHari = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
 
     if (d2 < d1) {
         durasiError.textContent = 'Rencana tanggal kembali tidak boleh sebelum tanggal pinjam.';
@@ -347,17 +424,63 @@ function validasiDurasiBarang() {
     }
 
     if (selisihHari > MAKS_DURASI_HARI_BARANG) {
-        durasiError.textContent = `Peminjaman barang maksimal ${MAKS_DURASI_HARI_BARANG} hari. Rentang yang dipilih: ${selisihHari} hari.`;
+        durasiError.textContent = `Peminjaman barang maksimal ${MAKS_DURASI_HARI_BARANG} hari sejak tanggal pinjam. Rentang yang dipilih: ${selisihHari} hari.`;
         durasiError.style.display = 'block';
         submitBtn.disabled = true;
         submitBtn.style.opacity = '0.5';
         return;
     }
 
-    durasiInfo.textContent = `Durasi peminjaman: ${selisihHari} hari.`;
+    durasiInfo.textContent = selisihHari === 0
+        ? 'Peminjaman dan pengembalian pada hari yang sama.'
+        : `Durasi peminjaman: ${selisihHari} hari sejak tanggal pinjam.`;
     durasiInfo.style.display = 'block';
     submitBtn.disabled = false;
     submitBtn.style.opacity = '1';
+}
+
+function isSatuHariBarang() {
+    const tglPinjam  = document.getElementById('tanggal_pinjam').value;
+    const tglKembali = document.getElementById('tanggal_kembali_rencana').value;
+    return tglPinjam && tglKembali && tglPinjam === tglKembali;
+}
+
+function validasiJamBarang() {
+    const jamError = document.getElementById('jamError');
+    const submitBtn = document.getElementById('submitBtn');
+
+    jamError.style.display = 'none';
+
+    const mulaiTime   = window.fpJamPinjam?.selectedDates?.[0];
+    const selesaiTime = window.fpJamKembali?.selectedDates?.[0];
+
+    if (!mulaiTime || !selesaiTime) return;
+    if (!isSatuHariBarang()) return;
+
+    const menitMulai   = mulaiTime.getHours() * 60 + mulaiTime.getMinutes();
+    const menitSelesai = selesaiTime.getHours() * 60 + selesaiTime.getMinutes();
+    const selisihMenit = menitSelesai - menitMulai;
+
+    if (selisihMenit <= 0) {
+        jamError.textContent = 'Jam kembali harus setelah jam pinjam.';
+        jamError.style.display = 'block';
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        return;
+    }
+
+    if (selisihMenit < MIN_DURASI_MENIT_BARANG) {
+        jamError.textContent = `Minimal durasi peminjaman ${MIN_DURASI_MENIT_BARANG} menit.`;
+        jamError.style.display = 'block';
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        return;
+    }
+
+    if (document.getElementById('durasiError').style.display !== 'block') {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+    }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -405,7 +528,7 @@ window.addEventListener('DOMContentLoaded', () => {
         altInput: true,
         altFormat: 'd F Y',
         minDate: minDate,
-        onChange() { validasiDurasiBarang(); cekStokRealtime(); },
+        onChange() { validasiDurasiBarang(); validasiJamBarang(); cekStokRealtime(); tampilkanInfoWaktu(); },
     });
 
     function updateMaxTglKembali() {
@@ -427,8 +550,71 @@ window.addEventListener('DOMContentLoaded', () => {
         }
         updateMaxTglKembali();
         validasiDurasiBarang();
+        validasiJamBarang();
         cekStokRealtime();
+        tampilkanInfoWaktu();
     }
+
+    // --- Jam picker (disamakan dengan form pengajuan ruangan) ---
+    const wibNow = getNowWIB();
+
+    function toHHMM(date) {
+        return String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
+    }
+
+    const timeConfig = {
+        enableTime: true,
+        noCalendar: true,
+        time_24hr: true,
+        dateFormat: 'H:i',
+        minuteIncrement: 1,
+        disableMobile: true,
+    };
+
+    window.fpJamPinjam = flatpickr('#jam_pinjam', {
+        ...timeConfig,
+        minTime: '07:50',
+        maxTime: '23:00',
+        onOpen(_, __, fp) {
+            if (!fp.selectedDates.length) {
+                fp.hourElement.value   = String(wibNow.getHours()).padStart(2, '0');
+                fp.minuteElement.value = String(wibNow.getMinutes()).padStart(2, '0');
+            }
+        },
+        onChange() { validasiJamBarang(); cekStokRealtime(); tampilkanInfoWaktu(); },
+        onClose(selectedDates, _, fp) {
+            if (!selectedDates.length) fp.clear();
+            validasiJamBarang();
+            cekStokRealtime();
+            tampilkanInfoWaktu();
+        },
+    });
+
+    window.fpJamKembali = flatpickr('#jam_kembali_rencana', {
+        ...timeConfig,
+        minTime: '07:50',
+        maxTime: '23:00',
+        onOpen(_, __, fp) {
+            const mulaiTime = window.fpJamPinjam?.selectedDates?.[0];
+            if (mulaiTime && isSatuHariBarang()) {
+                const minKembali = new Date(mulaiTime.getTime() + MIN_DURASI_MENIT_BARANG * 60 * 1000);
+                fp.set('minTime', toHHMM(minKembali));
+                if (!fp.selectedDates.length) {
+                    fp.hourElement.value   = String(minKembali.getHours()).padStart(2, '0');
+                    fp.minuteElement.value = String(minKembali.getMinutes()).padStart(2, '0');
+                }
+            } else {
+                fp.set('minTime', '07:50');
+            }
+        },
+        onChange() { validasiJamBarang(); cekStokRealtime(); tampilkanInfoWaktu(); },
+        onClose(selectedDates, _, fp) {
+            if (!selectedDates.length) fp.clear();
+            validasiJamBarang();
+            cekStokRealtime();
+            tampilkanInfoWaktu();
+        },
+    });
 
     syncMinTglKembali();
 });

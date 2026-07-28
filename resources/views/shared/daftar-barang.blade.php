@@ -91,11 +91,11 @@
         @isset($barang->satuan) · {{ $barang->satuan }} @endisset
     </div>
 
-    @php
-        $stok = $barang->stok ?? 0;
-        $stokCls = $stok > 5 ? 'badge-green' : ($stok > 0 ? 'badge-orange' : 'badge-red');
-        $stokLbl = $stok > 0 ? 'Stok: '.$stok : 'Habis';
-    @endphp
+@php
+    $stok = $barang->stok_tersedia ?? $barang->stok ?? 0;
+    $stokCls = $stok > 5 ? 'badge-green' : ($stok > 0 ? 'badge-orange' : 'badge-red');
+    $stokLbl = $stok > 0 ? 'Stok: '.$stok : 'Habis';
+@endphp
 
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
         <span class="badge {{ $stokCls }}">{{ $stokLbl }}</span>

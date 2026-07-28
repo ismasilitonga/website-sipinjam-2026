@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Anggota;
 
 use App\Http\Controllers\Controller;
 use App\Models\Barang;
+use App\Models\PeminjamanBarang;
 use Illuminate\Http\Request;
 
 class DaftarBarangController extends Controller
@@ -25,6 +26,17 @@ class DaftarBarangController extends Controller
             ->latest()
             ->paginate(12)
             ->withQueryString();
+
+        $barangs->getCollection()->transform(function ($b) {
+            $sudahDipinjam = PeminjamanBarang::where('barang_id', $b->id)
+                ->where('status', 'disetujui')
+                ->where('tanggal_pinjam', '<=', now())
+                ->where('tanggal_kembali_rencana', '>=', now())
+                ->sum('jumlah');
+
+            $b->stok_tersedia = max(0, $b->stok - $sudahDipinjam);
+            return $b;
+        });
 
         return view('shared.daftar-barang', compact('barangs'));
     }

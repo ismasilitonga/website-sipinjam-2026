@@ -9,6 +9,7 @@ use App\Models\PeminjamanBarang;
 use App\Models\Barang;
 use App\Models\User;
 use App\Notifications\PengajuanBarangNotification;
+use Carbon\Carbon;
 
 class PengajuanBarangController extends Controller
 {
@@ -37,7 +38,9 @@ class PengajuanBarangController extends Controller
             'barang_id'               => 'required|exists:barang,id',
             'jumlah'                  => 'required|integer|min:1',
             'tanggal_pinjam'          => 'required|date|after_or_equal:today',
+            'jam_pinjam'              => 'required|date_format:H:i',
             'tanggal_kembali_rencana' => 'required|date|after_or_equal:tanggal_pinjam',
+            'jam_kembali_rencana'     => 'required|date_format:H:i',
             'keperluan'               => 'required|string|max:500',
             'dokumen_pendukung'       => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ], [
@@ -45,13 +48,17 @@ class PengajuanBarangController extends Controller
             'barang_id.exists'                       => 'Barang yang dipilih tidak valid.',
             'jumlah.required'                        => 'Jumlah harus diisi.',
             'jumlah.integer'                         => 'Jumlah harus berupa angka.',
-            'jumlah.min'                             => 'Jumlah minimal adalah 1.',
+            'jumlah.min'                              => 'Jumlah minimal adalah 1.',
             'tanggal_pinjam.required'                => 'Tanggal pinjam harus diisi.',
             'tanggal_pinjam.date'                    => 'Format tanggal pinjam tidak valid.',
             'tanggal_pinjam.after_or_equal'          => 'Tanggal pinjam tidak boleh sebelum hari ini.',
+            'jam_pinjam.required'                    => 'Jam pinjam harus diisi.',
+            'jam_pinjam.date_format'                 => 'Format jam pinjam tidak valid.',
             'tanggal_kembali_rencana.required'       => 'Rencana tanggal kembali harus diisi.',
             'tanggal_kembali_rencana.date'           => 'Format tanggal kembali tidak valid.',
             'tanggal_kembali_rencana.after_or_equal' => 'Tanggal kembali tidak boleh sebelum tanggal pinjam.',
+            'jam_kembali_rencana.required'            => 'Jam kembali harus diisi.',
+            'jam_kembali_rencana.date_format'         => 'Format jam kembali tidak valid.',
             'keperluan.required'                     => 'Keperluan harus diisi.',
             'keperluan.max'                          => 'Keperluan maksimal 500 karakter.',
             'dokumen_pendukung.required'             => 'Dokumen pendukung wajib diunggah.',
@@ -60,19 +67,26 @@ class PengajuanBarangController extends Controller
             'dokumen_pendukung.max'                   => 'Ukuran dokumen pendukung maksimal 5MB.',
         ]);
 
+        $tanggalPinjamFull  = Carbon::parse($request->tanggal_pinjam . ' ' . $request->jam_pinjam);
+        $tanggalKembaliFull = Carbon::parse($request->tanggal_kembali_rencana . ' ' . $request->jam_kembali_rencana);
+
+        if ($tanggalKembaliFull->lte($tanggalPinjamFull)) {
+            return back()->withInput()->with('error', 'Waktu kembali harus setelah waktu pinjam.');
+        }
+
         $barang = Barang::with('ruangan')->findOrFail($request->barang_id);
 
         $sudahDipinjam = PeminjamanBarang::where('barang_id', $request->barang_id)
             ->where('status', 'disetujui')
-            ->where('tanggal_pinjam', '<=', $request->tanggal_kembali_rencana)
-            ->where('tanggal_kembali_rencana', '>=', $request->tanggal_pinjam)
+            ->where('tanggal_pinjam', '<=', $tanggalKembaliFull)
+            ->where('tanggal_kembali_rencana', '>=', $tanggalPinjamFull)
             ->sum('jumlah');
 
         $stokTersedia = $barang->stok - $sudahDipinjam;
 
         if ($request->jumlah > $stokTersedia) {
             return back()->withInput()->with('error',
-                'Stok tidak mencukupi pada tanggal yang kamu pilih. ' .
+                'Stok tidak mencukupi pada waktu yang kamu pilih. ' .
                 'Tersedia: ' . max(0, $stokTersedia) . ' ' . $barang->satuan .
                 ' (dari total ' . $barang->stok . ' ' . $barang->satuan . ').'
             );
@@ -85,8 +99,8 @@ class PengajuanBarangController extends Controller
             'barang_id'               => $request->barang_id,
             'nama_ormawa'             => Auth::user()->organisasi,
             'jumlah'                  => $request->jumlah,
-            'tanggal_pinjam'          => $request->tanggal_pinjam,
-            'tanggal_kembali_rencana' => $request->tanggal_kembali_rencana,
+            'tanggal_pinjam'          => $tanggalPinjamFull,
+            'tanggal_kembali_rencana' => $tanggalKembaliFull,
             'keperluan'               => $request->keperluan,
             'dokumen_pendukung'       => $dokumenPath,
             'status'                  => 'menunggu_pic',
@@ -113,15 +127,23 @@ class PengajuanBarangController extends Controller
         $request->validate([
             'barang_id'               => 'required|exists:barang,id',
             'tanggal_pinjam'          => 'required|date',
+            'jam_pinjam'              => 'nullable|date_format:H:i',
             'tanggal_kembali_rencana' => 'required|date',
+            'jam_kembali_rencana'     => 'nullable|date_format:H:i',
         ]);
 
         $barang = Barang::findOrFail($request->barang_id);
 
+        $jamPinjam  = $request->jam_pinjam ?: '00:00';
+        $jamKembali = $request->jam_kembali_rencana ?: '23:59';
+
+        $tanggalPinjamFull  = Carbon::parse($request->tanggal_pinjam . ' ' . $jamPinjam);
+        $tanggalKembaliFull = Carbon::parse($request->tanggal_kembali_rencana . ' ' . $jamKembali);
+
         $sudahDipinjam = PeminjamanBarang::where('barang_id', $request->barang_id)
             ->where('status', 'disetujui')
-            ->where('tanggal_pinjam', '<=', $request->tanggal_kembali_rencana)
-            ->where('tanggal_kembali_rencana', '>=', $request->tanggal_pinjam)
+            ->where('tanggal_pinjam', '<=', $tanggalKembaliFull)
+            ->where('tanggal_kembali_rencana', '>=', $tanggalPinjamFull)
             ->sum('jumlah');
 
         $stokTersedia = max(0, $barang->stok - $sudahDipinjam);
