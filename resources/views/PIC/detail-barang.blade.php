@@ -30,8 +30,8 @@
                     ['Ormawa',          $peminjaman->nama_ormawa ?? '-'],
                     ['Barang',          ($peminjaman->barang->nama ?? '-') . ' · ' . ($peminjaman->barang->kode ?? '')],
                     ['Jumlah',          $peminjaman->jumlah . ' ' . ($peminjaman->barang->satuan ?? 'unit')],
-                    ['Tanggal Pinjam',  \Carbon\Carbon::parse($peminjaman->tanggal_pinjam)->format('d M Y')],
-                    ['Rencana Kembali', \Carbon\Carbon::parse($peminjaman->tanggal_kembali_rencana)->format('d M Y')],
+                    ['Tanggal Pinjam',  \Carbon\Carbon::parse($peminjaman->tanggal_pinjam)->locale('id')->translatedFormat('l, d F Y, H:i')],
+                    ['Rencana Kembali', \Carbon\Carbon::parse($peminjaman->tanggal_kembali_rencana)->locale('id')->translatedFormat('l, d F Y, H:i')],
                     ['Keperluan',       $peminjaman->keperluan ?? '-'],
                 ];
             @endphp
@@ -48,6 +48,27 @@
                     </div>
                 </div>
             @endforeach
+
+            @if($peminjaman->dokumen_pendukung)
+                <div style="display: flex; padding: 13px 0; border-bottom: 1px solid #f1f5f9;">
+                    <div style="width: 160px; flex-shrink: 0; font-size: 12px; font-weight: 600;
+                                color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px;
+                                padding-top: 1px;">
+                        Dokumen Pendukung
+                    </div>
+                    <div style="font-size: 13.5px; flex: 1;">
+                        <a href="{{ Storage::url($peminjaman->dokumen_pendukung) }}" target="_blank"
+                           style="display: inline-flex; align-items: center; gap: 6px; color: var(--primary, #7c3aed);
+                                  font-weight: 600; text-decoration: none;">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 15px; height: 15px; flex-shrink: 0;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Lihat Dokumen
+                        </a>
+                    </div>
+                </div>
+            @endif
 
             @if($peminjaman->status === 'ditolak' && $peminjaman->alasan_tolak)
                 <div style="display: flex; padding: 13px 0; border-bottom: 1px solid #f1f5f9;">
@@ -68,7 +89,7 @@
                         Diserahkan Pada
                     </div>
                     <div style="font-size: 13.5px; color: var(--text-primary); flex: 1;">
-                        {{ \Carbon\Carbon::parse($peminjaman->waktu_diserahkan)->format('d M Y, H:i') }}
+                        {{ \Carbon\Carbon::parse($peminjaman->waktu_diserahkan)->locale('id')->translatedFormat('l, d F Y, H:i') }}
                     </div>
                 </div>
             @endif
@@ -80,7 +101,7 @@
                         Dikembalikan Pada
                     </div>
                     <div style="font-size: 13.5px; color: var(--text-primary); flex: 1;">
-                        {{ \Carbon\Carbon::parse($peminjaman->waktu_diterima_kembali)->format('d M Y, H:i') }}
+                        {{ \Carbon\Carbon::parse($peminjaman->waktu_diterima_kembali)->locale('id')->translatedFormat('l, d F Y, H:i') }}
                     </div>
                 </div>
             @endif
@@ -125,7 +146,7 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 15px; height: 15px;">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
-            Kembali ke Validasi Peminjaman
+            Kembali 
         </a>
     </div>
 </div>

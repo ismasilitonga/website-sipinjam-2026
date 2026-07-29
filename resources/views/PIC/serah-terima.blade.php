@@ -42,10 +42,8 @@
                         </td>
                         <td style="font-size: 12.5px;">{{ \Carbon\Carbon::parse($pb->tanggal_pinjam)->format('d M Y') }}</td>
                         <td style="font-size: 12.5px;">{{ \Carbon\Carbon::parse($pb->tanggal_kembali_rencana)->format('d M Y') }}</td>
-                        <td style="font-size: 12.5px; max-width: 140px;">
-                            <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $pb->keperluan }}">
-                                {{ $pb->keperluan }}
-                            </div>
+                        <td style="font-size: 12.5px; max-width: 180px; white-space: normal; word-break: break-word;">
+                            {{ $pb->keperluan }}
                         </td>
                         <td>
                             <form id="serahForm{{ $pb->id }}" method="POST"
@@ -274,7 +272,7 @@
                                 <span style="font-size: 11px; color: var(--text-muted);">—</span>
                             @endif
                         </td>
-                        <td style="font-size: 12px; max-width: 150px;">{{ $pb->catatan_kondisi ?? '—' }}</td>
+                        <td style="font-size: 12px; max-width: 150px; white-space: normal; word-break: break-word;">{{ $pb->catatan_kondisi ?? '—' }}</td>
                     </tr>
                 @empty
                     <tr id="emptyRow">

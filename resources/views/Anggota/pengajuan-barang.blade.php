@@ -52,31 +52,34 @@
     <div class="card">
         <div class="card-header"><span class="card-title">Form Pengajuan Barang</span></div>
         <div class="card-body">
-            <form method="POST" action="{{ route('anggota.pengajuan-barang.store') }}" enctype="multipart/form-data">
+           
+            <form method="POST" action="{{ route('anggota.pengajuan-barang.store') }}"
+                  enctype="multipart/form-data" novalidate id="formPengajuanBarang">
                 @csrf
 
                 <div class="form-group">
                     <label class="form-label">Pilih Barang <span style="color:var(--danger)">*</span></label>
-                    <select name="barang_id" class="form-select" required id="barangSelect"
+                    <select name="barang_id" class="form-select" id="barangSelect"
                             onchange="updateBarangInfo(this)">
                         <option value="">-- Pilih barang --</option>
                         @foreach($barangs as $b)
                         <option value="{{ $b->id }}"
-                            data-stok="{{ $b->stok_tersedia }}"
+                            data-stok="{{ $b->stok }}"
                             data-satuan="{{ $b->satuan }}"
                             data-kondisi="{{ $b->kondisi ?? 'baik' }}"
                             data-kategori="{{ $b->kategori ?? '' }}"
                             {{ old('barang_id', request('barang_id')) == $b->id ? 'selected' : '' }}>
-                            {{ $b->nama }} — Stok: {{ $b->stok_tersedia }} {{ $b->satuan }}
+                            {{ $b->nama }} — Total: {{ $b->stok }} {{ $b->satuan }}
                         </option>
                         @endforeach
                     </select>
                     @error('barang_id') <div class="form-error">{{ $message }}</div> @enderror
+                    <div class="form-error" id="err-barang_id" style="display:none;"></div>
 
                     <div id="barangInfo" style="display:none;margin-top:10px;padding:12px 14px;
                          background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;font-size:13px;">
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;color:var(--text-muted);">
-                            <span>Stok Tersedia: <strong id="infoStok" style="color:#16a34a;">—</strong></span>
+                            <span>Total Stok: <strong id="infoStok" style="color:#16a34a;">—</strong></span>
                             <span>Satuan: <strong id="infoSatuan" style="color:var(--text);">—</strong></span>
                             <span>Kategori: <strong id="infoKategori" style="color:var(--text);">—</strong></span>
                             <span>Kondisi: <strong id="infoKondisi" style="color:var(--text);">—</strong></span>
@@ -88,8 +91,9 @@
                     <label class="form-label">Jumlah <span style="color:var(--danger)">*</span></label>
                     <input type="number" name="jumlah" class="form-control" min="1"
                            value="{{ old('jumlah', 1) }}"
-                           placeholder="1" required id="jumlahInput">
+                           placeholder="1" id="jumlahInput">
                     @error('jumlah') <div class="form-error">{{ $message }}</div> @enderror
+                    <div class="form-error" id="err-jumlah" style="display:none;"></div>
                     <div class="form-hint" id="stokHint"></div>
                 </div>
 
@@ -97,15 +101,17 @@
                     <div class="form-group">
                         <label class="form-label">Tanggal Pinjam <span style="color:var(--danger)">*</span></label>
                         <input type="text" name="tanggal_pinjam" id="tanggal_pinjam" class="form-control"
-                               value="{{ old('tanggal_pinjam') }}" autocomplete="off" required>
+                               value="{{ old('tanggal_pinjam') }}" autocomplete="off">
                         @error('tanggal_pinjam') <div class="form-error">{{ $message }}</div> @enderror
+                        <div class="form-error" id="err-tanggal_pinjam" style="display:none;"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Jam Pinjam <span style="color:var(--danger)">*</span></label>
                         <input type="text" name="jam_pinjam" id="jam_pinjam" class="form-control"
                                placeholder="Pilih jam pinjam" autocomplete="off" readonly
-                               value="{{ old('jam_pinjam') }}" required>
+                               value="{{ old('jam_pinjam') }}">
                         @error('jam_pinjam') <div class="form-error">{{ $message }}</div> @enderror
+                        <div class="form-error" id="err-jam_pinjam" style="display:none;"></div>
                     </div>
                 </div>
 
@@ -114,18 +120,20 @@
                         <label class="form-label">Rencana Tanggal Kembali <span style="color:var(--danger)">*</span></label>
                         <input type="text" name="tanggal_kembali_rencana" id="tanggal_kembali_rencana"
                                class="form-control"
-                               value="{{ old('tanggal_kembali_rencana') }}" autocomplete="off" required>
+                               value="{{ old('tanggal_kembali_rencana') }}" autocomplete="off">
                         @error('tanggal_kembali_rencana') <div class="form-error">{{ $message }}</div> @enderror
+                        <div class="form-error" id="err-tanggal_kembali_rencana" style="display:none;"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Jam Kembali <span style="color:var(--danger)">*</span></label>
                         <input type="text" name="jam_kembali_rencana" id="jam_kembali_rencana" class="form-control"
                                placeholder="Pilih jam kembali" autocomplete="off" readonly
-                               value="{{ old('jam_kembali_rencana') }}" required>
+                               value="{{ old('jam_kembali_rencana') }}">
                         <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">
                             Jam operasional: 07:50 – 23:00.
                         </div>
                         @error('jam_kembali_rencana') <div class="form-error">{{ $message }}</div> @enderror
+                        <div class="form-error" id="err-jam_kembali_rencana" style="display:none;"></div>
                     </div>
                 </div>
 
@@ -136,18 +144,16 @@
                 <div id="durasiInfo" style="display:none;margin:-8px 0 16px;font-size:12.5px;color:var(--text-muted);"></div>
                 <div id="durasiError" class="form-error" style="display:none;margin:-8px 0 16px;"></div>
 
-                <div id="waktuInfo" style="display:none;margin:-8px 0 16px;font-size:12.5px;color:var(--text-muted);
-                     padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;"></div>
-
                 <div id="stokWarning" style="display:none;margin-top:-10px;margin-bottom:16px;
                      padding:12px 14px;border-radius:8px;font-size:13px;">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Keperluan <span style="color:var(--danger)">*</span></label>
-                    <textarea name="keperluan" class="form-control" rows="3"
-                              placeholder="Jelaskan untuk apa barang ini akan digunakan" required>{{ old('keperluan') }}</textarea>
+                    <textarea name="keperluan" class="form-control" rows="3" id="keperluanInput"
+                              placeholder="Jelaskan untuk apa barang ini akan digunakan">{{ old('keperluan') }}</textarea>
                     @error('keperluan') <div class="form-error">{{ $message }}</div> @enderror
+                    <div class="form-error" id="err-keperluan" style="display:none;"></div>
                 </div>
 
                 <div class="form-group">
@@ -155,11 +161,12 @@
                         Upload Dokumen Pendukung <span style="color:var(--danger)">*</span>
                     </label>
                     <input type="file" name="dokumen_pendukung" id="dokumen_pendukung" class="form-control"
-                           accept=".pdf,.jpg,.jpeg,.png" required>
+                           accept=".pdf,.jpg,.jpeg,.png">
                     <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">
                         Wajib diisi. Contoh: surat kegiatan/acara. Format PDF/JPG/PNG, maks. 5MB.
                     </div>
                     @error('dokumen_pendukung') <div class="form-error">{{ $message }}</div> @enderror
+                    <div class="form-error" id="err-dokumen_pendukung" style="display:none;"></div>
                 </div>
 
                 <div class="alert alert-info" style="margin-bottom:18px;">
@@ -270,7 +277,7 @@ function sembunyikanWarning() {
     }
 }
 
-function tampilkanWarning(tersedia, stokTersedia, stokTotal, satuan) {
+function tampilkanWarning(tersedia, stokTersedia, stokTotal, satuan, bentrokMulai, bentrokSelesai, bolehPinjamMulai, bufferMenit) {
     const w = document.getElementById('stokWarning');
     const btn = document.getElementById('submitBtn');
 
@@ -285,7 +292,10 @@ function tampilkanWarning(tersedia, stokTersedia, stokTotal, satuan) {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <span>Stok tersedia pada waktu ini: <strong>${stokTersedia} ${satuan}</strong> dari total ${stokTotal} ${satuan}.</span>
+                <span>Pada tanggal yang dipilih tersedia Stok: <strong>${stokTersedia} ${satuan}</strong> dari total ${stokTotal} ${satuan}.</span>
+            </div>
+            <div style="margin-top:4px;padding-left:24px;font-size:12px;color:#4d7c5f;">
+                Ketersediaan ini bersifat sementara — jika pengajuan lain disetujui PIC lebih dulu untuk waktu yang sama, pengajuanmu bisa ditolak.
             </div>`;
         if (document.getElementById('durasiError').style.display !== 'block' &&
             document.getElementById('jamError').style.display !== 'block') {
@@ -297,14 +307,28 @@ function tampilkanWarning(tersedia, stokTersedia, stokTotal, satuan) {
         w.style.background = '#fef2f2';
         w.style.border = '1px solid #fecaca';
         w.style.color = '#991b1b';
+
+        let infoJadwal;
+        if (bentrokMulai && bentrokSelesai) {
+            infoJadwal = `Sudah digunakan pihak lain pada
+               <strong>${bentrokMulai} WIB</strong> &ndash; <strong>${bentrokSelesai} WIB</strong>.`;
+            if (bolehPinjamMulai) {
+                infoJadwal += ` Perlu jeda ${bufferMenit} menit untuk serah-terima, jadi barang baru bisa dipinjam lagi mulai
+                    <strong>${bolehPinjamMulai} WIB</strong>. Silakan pilih Tanggal/Jam lain.`;
+            } else {
+                infoJadwal += ` Silakan pilih Tanggal/Jam lain.`;
+            }
+        } else {
+            infoJadwal = `Semua ${stokTotal} ${satuan} sedang dipinjam pihak lain (disetujui PIC) pada waktu yang kamu pilih. Silakan pilih Tanggal/Jam lain.`;
+        }
+
         w.innerHTML = `
             <div style="display:flex;align-items:flex-start;gap:8px;">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;flex-shrink:0;margin-top:2px;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
                 </svg>
-                <span><strong>Stok tidak tersedia</strong> pada waktu yang kamu pilih.<br>
-                Semua ${stokTotal} ${satuan}, sudah dipinjam oleh peminjam lain. Silahkan pilih waktu lain.</span>
+                <span><strong>Barang tidak tersedia.</strong> ${infoJadwal}</span>
             </div>`;
         btn.disabled = true;
         btn.style.opacity = '0.5';
@@ -318,7 +342,7 @@ function cekStokRealtime() {
     const tglKembali = document.getElementById('tanggal_kembali_rencana').value;
     const jamKembali = document.getElementById('jam_kembali_rencana').value;
 
-    if (!barangId || !tglPinjam || !jamPinjam || !tglKembali || !jamKembali) {
+    if (!barangId || !tglPinjam || !jamPinjam) {
         sembunyikanWarning();
         return;
     }
@@ -343,60 +367,27 @@ function cekStokRealtime() {
             </svg>
             Mengecek ketersediaan stok...</div>`;
 
-        fetch(`${CEK_STOK_URL}?barang_id=${barangId}&tanggal_pinjam=${tglPinjam}&jam_pinjam=${jamPinjam}&tanggal_kembali_rencana=${tglKembali}&jam_kembali_rencana=${jamKembali}`)
+        const params = new URLSearchParams({
+            barang_id: barangId,
+            tanggal_pinjam: tglPinjam,
+            jam_pinjam: jamPinjam,
+        });
+        if (tglKembali) params.set('tanggal_kembali_rencana', tglKembali);
+        if (jamKembali) params.set('jam_kembali_rencana', jamKembali);
+
+        fetch(`${CEK_STOK_URL}?${params.toString()}`)
             .then(r => r.json())
             .then(data => {
-                tampilkanWarning(data.tersedia, data.stok_tersedia, data.stok_total, data.satuan);
-                document.getElementById('infoStok').textContent = data.stok_tersedia + ' ' + data.satuan;
-                document.getElementById('infoStok').style.color = data.tersedia ? '#16a34a' : '#dc2626';
+                tampilkanWarning(
+                    data.tersedia, data.stok_tersedia, data.stok_total, data.satuan,
+                    data.bentrok_mulai, data.bentrok_selesai,
+                    data.boleh_pinjam_mulai, data.buffer_menit
+                );
                 document.getElementById('jumlahInput').max = data.stok_tersedia;
                 document.getElementById('stokHint').textContent = 'Maksimal ' + data.stok_tersedia + ' ' + data.satuan;
             })
             .catch(() => sembunyikanWarning());
     }, 400);
-}
-
-function formatTanggalIndo(dateStr) {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli',
-                   'Agustus','September','Oktober','November','Desember'];
-    return `${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}`;
-}
-
-function tampilkanInfoWaktu() {
-    const info = document.getElementById('waktuInfo');
-
-    if (document.getElementById('durasiError').style.display === 'block' ||
-        document.getElementById('jamError').style.display === 'block') {
-        info.style.display = 'none';
-        return;
-    }
-
-    const tglPinjam  = document.getElementById('tanggal_pinjam').value;
-    const jamPinjam  = document.getElementById('jam_pinjam').value;
-    const tglKembali = document.getElementById('tanggal_kembali_rencana').value;
-    const jamKembali = document.getElementById('jam_kembali_rencana').value;
-
-    if (!tglPinjam || !jamPinjam || !tglKembali || !jamKembali) {
-        info.style.display = 'none';
-        return;
-    }
-
-    const labelPinjam  = `${formatTanggalIndo(tglPinjam)}, ${jamPinjam} WIB`;
-    const labelKembali = `${formatTanggalIndo(tglKembali)}, ${jamKembali} WIB`;
-
-    info.innerHTML = `
-        <div style="display:flex;align-items:center;gap:8px;">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                 style="width:15px;height:15px;flex-shrink:0;color:#64748b;">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            <span>Dipinjam mulai <strong style="color:var(--text);">${labelPinjam}</strong>
-            sampai <strong style="color:var(--text);">${labelKembali}</strong>.</span>
-        </div>`;
-    info.style.display = 'block';
 }
 
 function validasiDurasiBarang() {
@@ -468,7 +459,6 @@ function validasiJamBarang() {
         submitBtn.style.opacity = '0.5';
         return;
     }
-
     if (selisihMenit < MIN_DURASI_MENIT_BARANG) {
         jamError.textContent = `Minimal durasi peminjaman ${MIN_DURASI_MENIT_BARANG} menit.`;
         jamError.style.display = 'block';
@@ -476,11 +466,87 @@ function validasiJamBarang() {
         submitBtn.style.opacity = '0.5';
         return;
     }
-
     if (document.getElementById('durasiError').style.display !== 'block') {
-        submitBtn.disabled = false;
-        submitBtn.style.opacity = '1';
+        submitBtn.disabled = false; submitBtn.style.opacity = '1';
     }
+}
+
+function tampilkanErrorField(id, pesan) {
+    const el = document.getElementById('err-' + id);
+    if (el) {
+        el.textContent = pesan; el.style.display = 'block';
+    }
+}
+
+function sembunyikanErrorField(id) {
+    const el = document.getElementById('err-' + id);
+    if (el) {
+        el.style.display = 'none'; el.textContent = '';
+    }
+}
+
+function sembunyikanSemuaErrorField() {
+    ['barang_id', 'jumlah', 'tanggal_pinjam', 'jam_pinjam',
+     'tanggal_kembali_rencana', 'jam_kembali_rencana', 'keperluan', 'dokumen_pendukung']
+        .forEach(sembunyikanErrorField);
+}
+
+function validasiFormSebelumSubmit(e) {
+    sembunyikanSemuaErrorField();
+    let valid = true;
+    let elemenErrorPertama = null;
+
+    const barangSelect = document.getElementById('barangSelect');
+    const jumlahInput   = document.getElementById('jumlahInput');
+    const tglPinjam     = document.getElementById('tanggal_pinjam');
+    const jamPinjam     = document.getElementById('jam_pinjam');
+    const tglKembali    = document.getElementById('tanggal_kembali_rencana');
+    const jamKembali    = document.getElementById('jam_kembali_rencana');
+    const keperluan     = document.getElementById('keperluanInput');
+    const dokumen       = document.getElementById('dokumen_pendukung');
+
+    function tandaiSalah(input, id, pesan) {
+        tampilkanErrorField(id, pesan);
+        if (!elemenErrorPertama) elemenErrorPertama = input;
+        valid = false;
+    }
+    if (!barangSelect.value) {
+        tandaiSalah(barangSelect, 'barang_id', 'Barang harus dipilih.');
+    }
+    const jumlahVal = parseInt(jumlahInput.value, 10);
+    const jumlahMax = parseInt(jumlahInput.max || '0', 10);
+    if (!jumlahInput.value || isNaN(jumlahVal) || jumlahVal < 1) {
+        tandaiSalah(jumlahInput, 'jumlah', 'Jumlah harus diisi, minimal 1.');
+    } else if (jumlahInput.max && jumlahVal > jumlahMax) {
+        tandaiSalah(jumlahInput, 'jumlah', `Jumlah maksimal ${jumlahMax} ${document.getElementById('infoSatuan').textContent || 'unit'}.`);
+    }
+    if (!tglPinjam.value) {
+        tandaiSalah(tglPinjam, 'tanggal_pinjam', 'Tanggal pinjam harus diisi.');
+    }
+    if (!jamPinjam.value) {
+        tandaiSalah(jamPinjam, 'jam_pinjam', 'Jam pinjam harus diisi.');
+    }
+    if (!tglKembali.value) {
+        tandaiSalah(tglKembali, 'tanggal_kembali_rencana', 'Rencana tanggal kembali harus diisi.');
+    }
+    if (!jamKembali.value) {
+        tandaiSalah(jamKembali, 'jam_kembali_rencana', 'Jam kembali harus diisi.');
+    }
+    if (!keperluan.value.trim()) {
+        tandaiSalah(keperluan, 'keperluan', 'Keperluan harus diisi.');
+    }
+    if (!dokumen.files || dokumen.files.length === 0) {
+        tandaiSalah(dokumen, 'dokumen_pendukung', 'Dokumen pendukung wajib diunggah.');
+    }
+    if (!valid) {
+        e.preventDefault();
+        if (elemenErrorPertama) {
+            elemenErrorPertama.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            elemenErrorPertama.focus({ preventScroll: true });
+        }
+    }
+
+    return valid;
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -494,7 +560,7 @@ window.addEventListener('DOMContentLoaded', () => {
         placeholder: 'Ketik nama barang...',
         maxOptions: 500,
         onInitialize() { if (sel.value) updateBarangInfo(sel); },
-        onChange()     { updateBarangInfo(sel); }
+        onChange()     { updateBarangInfo(sel); sembunyikanErrorField('barang_id'); }
     });
 
     function getNowWIB() {
@@ -520,7 +586,7 @@ window.addEventListener('DOMContentLoaded', () => {
         altInput: true,
         altFormat: 'd F Y',
         minDate: minDate,
-        onChange() { syncMinTglKembali(); },
+        onChange() { syncMinTglKembali(); cekStokRealtime(); sembunyikanErrorField('tanggal_pinjam'); },
     });
 
     const fpTglKembali = flatpickr(tglKembali, {
@@ -528,7 +594,7 @@ window.addEventListener('DOMContentLoaded', () => {
         altInput: true,
         altFormat: 'd F Y',
         minDate: minDate,
-        onChange() { validasiDurasiBarang(); validasiJamBarang(); cekStokRealtime(); tampilkanInfoWaktu(); },
+        onChange() { validasiDurasiBarang(); validasiJamBarang(); cekStokRealtime(); sembunyikanErrorField('tanggal_kembali_rencana'); },
     });
 
     function updateMaxTglKembali() {
@@ -552,10 +618,8 @@ window.addEventListener('DOMContentLoaded', () => {
         validasiDurasiBarang();
         validasiJamBarang();
         cekStokRealtime();
-        tampilkanInfoWaktu();
     }
 
-    // --- Jam picker (disamakan dengan form pengajuan ruangan) ---
     const wibNow = getNowWIB();
 
     function toHHMM(date) {
@@ -563,11 +627,8 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     const timeConfig = {
-        enableTime: true,
-        noCalendar: true,
-        time_24hr: true,
-        dateFormat: 'H:i',
-        minuteIncrement: 1,
+        enableTime: true, noCalendar: true, time_24hr: true,
+        dateFormat: 'H:i', minuteIncrement: 1,
         disableMobile: true,
     };
 
@@ -581,15 +642,13 @@ window.addEventListener('DOMContentLoaded', () => {
                 fp.minuteElement.value = String(wibNow.getMinutes()).padStart(2, '0');
             }
         },
-        onChange() { validasiJamBarang(); cekStokRealtime(); tampilkanInfoWaktu(); },
+        onChange() { validasiJamBarang(); cekStokRealtime(); sembunyikanErrorField('jam_pinjam'); },
         onClose(selectedDates, _, fp) {
             if (!selectedDates.length) fp.clear();
             validasiJamBarang();
             cekStokRealtime();
-            tampilkanInfoWaktu();
         },
     });
-
     window.fpJamKembali = flatpickr('#jam_kembali_rencana', {
         ...timeConfig,
         minTime: '07:50',
@@ -607,16 +666,20 @@ window.addEventListener('DOMContentLoaded', () => {
                 fp.set('minTime', '07:50');
             }
         },
-        onChange() { validasiJamBarang(); cekStokRealtime(); tampilkanInfoWaktu(); },
+        onChange() { validasiJamBarang(); cekStokRealtime(); sembunyikanErrorField('jam_kembali_rencana'); },
         onClose(selectedDates, _, fp) {
             if (!selectedDates.length) fp.clear();
             validasiJamBarang();
             cekStokRealtime();
-            tampilkanInfoWaktu();
         },
     });
 
     syncMinTglKembali();
+
+    document.getElementById('jumlahInput').addEventListener('input', () => sembunyikanErrorField('jumlah'));
+    document.getElementById('keperluanInput').addEventListener('input', () => sembunyikanErrorField('keperluan'));
+    document.getElementById('dokumen_pendukung').addEventListener('change', () => sembunyikanErrorField('dokumen_pendukung'));
+    document.getElementById('formPengajuanBarang').addEventListener('submit', validasiFormSebelumSubmit);
 });
 </script>
 

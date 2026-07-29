@@ -72,7 +72,7 @@ class PengajuanRuanganController extends Controller
             return "Ruangan ini sudah dipakai tiap hari jam " .
                 $bentrokMulai->format('H:i') . '–' . $bentrokSelesai->format('H:i') .
                 ' pada rentang ' . $bentrokMulai->format('d/m/Y') . ' – ' . $bentrokSelesai->format('d/m/Y') .
-                ". Jam yang kamu pilih tumpang tindih (perlu jeda min. " . self::JEDA_MENIT .
+                ". Bentrok pada jam yang kamu pilih(perlu jeda min. " . self::JEDA_MENIT .
                 " menit). Silakan pilih jam lain.";
         }
 
@@ -93,6 +93,14 @@ class PengajuanRuanganController extends Controller
     'keperluan'          => 'required|string|max:500',
     'dokumen_pendukung'  => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
 ], [
+    'ruangan_id.required'        => 'Silakan pilih ruangan.',
+    'tanggal_mulai.required'     => 'Tanggal mulai wajib diisi.',
+    'tanggal_selesai.required'   => 'Tanggal selesai wajib diisi.',
+    'jam_mulai.required'         => 'Jam mulai wajib diisi.',
+    'jam_selesai.required'       => 'Jam selesai wajib diisi.',
+    'keperluan.required'         => 'Keperluan wajib diisi.',
+    'dokumen_pendukung.required' => 'Dokumen pendukung wajib diunggah sebagai bukti kegiatan.',
+
     'tanggal_selesai.after_or_equal' => 'Tanggal selesai tidak boleh sebelum tanggal mulai.',
     'jam_mulai.date_format'          => 'Format jam mulai tidak valid.',
     'jam_mulai.after_or_equal'       => 'Jam mulai peminjaman paling awal adalah 07:50.',

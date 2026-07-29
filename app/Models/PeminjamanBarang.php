@@ -23,8 +23,8 @@ class PeminjamanBarang extends Model
     ];
 
     protected $casts = [
-        'tanggal_pinjam'          => 'date',
-        'tanggal_kembali_rencana' => 'date',
+        'tanggal_pinjam'          => 'datetime',
+        'tanggal_kembali_rencana' => 'datetime',
         'waktu_diserahkan'        => 'datetime',
         'waktu_diterima_kembali'  => 'datetime',
     ];

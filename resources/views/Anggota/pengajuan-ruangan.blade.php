@@ -14,7 +14,8 @@
     <div class="card">
         <div class="card-header"><span class="card-title">Form Pengajuan Ruangan</span></div>
         <div class="card-body">
-            <form method="POST" action="{{ route('anggota.pengajuan-ruangan.store') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('anggota.pengajuan-ruangan.store') }}"
+                  enctype="multipart/form-data" novalidate id="formPengajuanRuangan">
                 @csrf
 
                 <div class="form-group">
@@ -96,22 +97,20 @@
                         @error('tanggal_mulai') <div class="form-error">{{ $message }}</div> @enderror
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Tanggal Selesai <span style="color:var(--danger)">*</span></label>
-                        <input type="text" name="tanggal_selesai" id="tanggal_selesai" class="form-control"
-                               value="{{ old('tanggal_selesai') }}" autocomplete="off" required>
-                        @error('tanggal_selesai') <div class="form-error">{{ $message }}</div> @enderror
-                    </div>
-                </div>
-                <div id="durasiInfo" style="display:none;margin:-8px 0 16px;font-size:12.5px;color:var(--text-muted);"></div>
-                <div id="durasiError" class="form-error" style="display:none;margin:-8px 0 16px;"></div>
-
-                <div class="form-grid-2">
-                    <div class="form-group">
                         <label class="form-label">Jam Mulai <span style="color:var(--danger)">*</span></label>
                         <input type="text" name="jam_mulai" id="jam_mulai" class="form-control"
                                placeholder="Pilih jam mulai" autocomplete="off" readonly
                                value="{{ old('jam_mulai') }}" required>
                         @error('jam_mulai') <div class="form-error">{{ $message }}</div> @enderror
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Tanggal Selesai <span style="color:var(--danger)">*</span></label>
+                        <input type="text" name="tanggal_selesai" id="tanggal_selesai" class="form-control"
+                               value="{{ old('tanggal_selesai') }}" autocomplete="off" required>
+                        @error('tanggal_selesai') <div class="form-error">{{ $message }}</div> @enderror
                     </div>
                     <div class="form-group">
                         <label class="form-label">Jam Selesai <span style="color:var(--danger)">*</span></label>
@@ -124,6 +123,9 @@
                         @error('jam_selesai') <div class="form-error">{{ $message }}</div> @enderror
                     </div>
                 </div>
+
+                <div id="durasiInfo" style="display:none;margin:-8px 0 16px;font-size:12.5px;color:var(--text-muted);"></div>
+                <div id="durasiError" class="form-error" style="display:none;margin:-8px 0 16px;"></div>
                 <div id="jamInfo" style="display:none;margin:-8px 0 16px;font-size:12.5px;color:var(--text-muted);"></div>
                 <div id="jamError" class="form-error" style="display:none;margin:-8px 0 16px;">
                     Jam selesai harus setelah jam mulai.

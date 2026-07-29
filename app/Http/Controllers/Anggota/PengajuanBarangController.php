@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Anggota;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\PeminjamanBarang;
 use App\Models\Barang;
 use App\Models\User;
@@ -13,18 +14,43 @@ use Carbon\Carbon;
 
 class PengajuanBarangController extends Controller
 {
+    const BUFFER_MENIT_BARANG = 15;
+
+    private function bookingBentrok(int $barangId, Carbon $awal, Carbon $akhir, ?int $excludeId = null, bool $lock = false)
+    {
+        $awalCek  = $awal->copy()->subMinutes(self::BUFFER_MENIT_BARANG);
+        $akhirCek = $akhir->copy()->addMinutes(self::BUFFER_MENIT_BARANG);
+
+        $query = PeminjamanBarang::where('barang_id', $barangId)
+            ->where('status', 'disetujui')
+            ->where('tanggal_pinjam', '<', $akhirCek)
+            ->where('tanggal_kembali_rencana', '>', $awalCek);
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        if ($lock) {
+            $query->lockForUpdate();
+        }
+
+        return $query->get(['id', 'jumlah', 'tanggal_pinjam', 'tanggal_kembali_rencana']);
+    }
+
+    private function hitungStokTerpakai(int $barangId, Carbon $awal, Carbon $akhir, ?int $excludeId = null, bool $lock = false): int
+    {
+        return (int) $this->bookingBentrok($barangId, $awal, $akhir, $excludeId, $lock)->sum('jumlah');
+    }
+
     public function index()
     {
+        $now = now();
+
         $barangs = Barang::where('stok', '>', 0)
             ->where('jenis_barang', 'bisa_dipinjam')
             ->get()
-            ->map(function ($b) {
-                $sudahDipinjam = PeminjamanBarang::where('barang_id', $b->id)
-                    ->where('status', 'disetujui')
-                    ->where('tanggal_pinjam', '<=', now())
-                    ->where('tanggal_kembali_rencana', '>=', now())
-                    ->sum('jumlah');
-
+            ->map(function ($b) use ($now) {
+                $sudahDipinjam = $this->hitungStokTerpakai($b->id, $now, $now);
                 $b->stok_tersedia = max(0, $b->stok - $sudahDipinjam);
                 return $b;
             });
@@ -73,38 +99,48 @@ class PengajuanBarangController extends Controller
         if ($tanggalKembaliFull->lte($tanggalPinjamFull)) {
             return back()->withInput()->with('error', 'Waktu kembali harus setelah waktu pinjam.');
         }
-
-        $barang = Barang::with('ruangan')->findOrFail($request->barang_id);
-
-        $sudahDipinjam = PeminjamanBarang::where('barang_id', $request->barang_id)
-            ->where('status', 'disetujui')
-            ->where('tanggal_pinjam', '<=', $tanggalKembaliFull)
-            ->where('tanggal_kembali_rencana', '>=', $tanggalPinjamFull)
-            ->sum('jumlah');
-
-        $stokTersedia = $barang->stok - $sudahDipinjam;
-
-        if ($request->jumlah > $stokTersedia) {
-            return back()->withInput()->with('error',
-                'Stok tidak mencukupi pada waktu yang kamu pilih. ' .
-                'Tersedia: ' . max(0, $stokTersedia) . ' ' . $barang->satuan .
-                ' (dari total ' . $barang->stok . ' ' . $barang->satuan . ').'
-            );
-        }
-
         $dokumenPath = $request->file('dokumen_pendukung')->store('dokumen-pengajuan-barang', 'public');
 
-        $peminjaman = PeminjamanBarang::create([
-            'user_id'                 => Auth::id(),
-            'barang_id'               => $request->barang_id,
-            'nama_ormawa'             => Auth::user()->organisasi,
-            'jumlah'                  => $request->jumlah,
-            'tanggal_pinjam'          => $tanggalPinjamFull,
-            'tanggal_kembali_rencana' => $tanggalKembaliFull,
-            'keperluan'               => $request->keperluan,
-            'dokumen_pendukung'       => $dokumenPath,
-            'status'                  => 'menunggu_pic',
-        ]);
+        try {
+            $peminjaman = DB::transaction(function () use ($request, $tanggalPinjamFull, $tanggalKembaliFull, $dokumenPath) {
+                $barang = Barang::with('ruangan')->where('id', $request->barang_id)->lockForUpdate()->first();
+
+                $sudahDipinjam = $this->hitungStokTerpakai(
+                    $barang->id, $tanggalPinjamFull, $tanggalKembaliFull, null, true
+                );
+                $stokTersedia = $barang->stok - $sudahDipinjam;
+
+                if ($request->jumlah > $stokTersedia) {
+                    throw new \RuntimeException(
+                        'Stok tidak mencukupi pada waktu yang kamu pilih. ' .
+                        'Tersedia: ' . max(0, $stokTersedia) . ' ' . $barang->satuan .
+                        ' (dari total ' . $barang->stok . ' ' . $barang->satuan . ') ' .
+                        'untuk periode ' . $tanggalPinjamFull->translatedFormat('d F Y, H:i') . ' WIB' .
+                        ' – ' . $tanggalKembaliFull->translatedFormat('d F Y, H:i') . ' WIB.'
+                    );
+                }
+
+                $peminjaman = PeminjamanBarang::create([
+                    'user_id'                 => Auth::id(),
+                    'barang_id'               => $request->barang_id,
+                    'nama_ormawa'             => Auth::user()->organisasi,
+                    'jumlah'                  => $request->jumlah,
+                    'tanggal_pinjam'          => $tanggalPinjamFull,
+                    'tanggal_kembali_rencana' => $tanggalKembaliFull,
+                    'keperluan'               => $request->keperluan,
+                    'dokumen_pendukung'       => $dokumenPath,
+                    'status'                  => 'menunggu_pic',
+                ]);
+
+                $peminjaman->setRelation('barang', $barang);
+
+                return $peminjaman;
+            });
+        } catch (\RuntimeException $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+
+        $barang = $peminjaman->barang;
 
         if ($barang->ruangan) {
             $pics = User::where('role', 'pic')
@@ -128,31 +164,47 @@ class PengajuanBarangController extends Controller
             'barang_id'               => 'required|exists:barang,id',
             'tanggal_pinjam'          => 'required|date',
             'jam_pinjam'              => 'nullable|date_format:H:i',
-            'tanggal_kembali_rencana' => 'required|date',
+            'tanggal_kembali_rencana' => 'nullable|date',
             'jam_kembali_rencana'     => 'nullable|date_format:H:i',
         ]);
 
         $barang = Barang::findOrFail($request->barang_id);
 
-        $jamPinjam  = $request->jam_pinjam ?: '00:00';
-        $jamKembali = $request->jam_kembali_rencana ?: '23:59';
+        $jamPinjam              = $request->jam_pinjam ?: '00:00';
+        $tanggalKembaliRencana  = $request->tanggal_kembali_rencana ?: $request->tanggal_pinjam;
+        $jamKembali             = $request->jam_kembali_rencana ?: $jamPinjam;
 
         $tanggalPinjamFull  = Carbon::parse($request->tanggal_pinjam . ' ' . $jamPinjam);
-        $tanggalKembaliFull = Carbon::parse($request->tanggal_kembali_rencana . ' ' . $jamKembali);
+        $tanggalKembaliFull = Carbon::parse($tanggalKembaliRencana . ' ' . $jamKembali);
 
-        $sudahDipinjam = PeminjamanBarang::where('barang_id', $request->barang_id)
-            ->where('status', 'disetujui')
-            ->where('tanggal_pinjam', '<=', $tanggalKembaliFull)
-            ->where('tanggal_kembali_rencana', '>=', $tanggalPinjamFull)
-            ->sum('jumlah');
+        $bentrok       = $this->bookingBentrok($barang->id, $tanggalPinjamFull, $tanggalKembaliFull);
+        $sudahDipinjam = (int) $bentrok->sum('jumlah');
+        $stokTersedia  = max(0, $barang->stok - $sudahDipinjam);
 
-        $stokTersedia = max(0, $barang->stok - $sudahDipinjam);
+        $bentrokMulai       = null;
+        $bentrokSelesai     = null;
+        $bolehPinjamMulai   = null;
+
+        if ($stokTersedia <= 0 && $bentrok->isNotEmpty()) {
+            $bentrokSelesaiRaw = Carbon::parse($bentrok->max('tanggal_kembali_rencana'));
+
+            $bentrokMulai     = Carbon::parse($bentrok->min('tanggal_pinjam'))->translatedFormat('d F Y, H:i');
+            $bentrokSelesai   = $bentrokSelesaiRaw->translatedFormat('d F Y, H:i');
+            $bolehPinjamMulai = $bentrokSelesaiRaw->copy()
+                ->addMinutes(self::BUFFER_MENIT_BARANG)
+                ->translatedFormat('d F Y, H:i');
+        }
 
         return response()->json([
-            'stok_total'    => $barang->stok,
-            'stok_tersedia' => $stokTersedia,
-            'satuan'        => $barang->satuan,
-            'tersedia'      => $stokTersedia > 0,
+            'stok_total'         => $barang->stok,
+            'stok_tersedia'      => $stokTersedia,
+            'satuan'             => $barang->satuan,
+            'tersedia'           => $stokTersedia > 0,
+            'bentrok_mulai'      => $bentrokMulai,
+            'bentrok_selesai'    => $bentrokSelesai,
+            'boleh_pinjam_mulai' => $bolehPinjamMulai,
+            'buffer_menit'       => self::BUFFER_MENIT_BARANG,
+            'estimasi_awal'      => empty($request->tanggal_kembali_rencana),
         ]);
     }
 }
