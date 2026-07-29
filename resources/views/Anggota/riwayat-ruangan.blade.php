@@ -100,7 +100,6 @@
         <th style="width:12%;">Tanggal</th>
         <th style="width:13%;">Waktu</th>
         <th style="width:14%;">Status</th>
-        <th style="width:29%;">Alasan Tolak</th>
         <th style="width:10%;">Aksi</th>
     </tr>
 </thead>
@@ -205,19 +204,6 @@
                         <a href="{{ route('anggota.checkin') }}" class="cell-link" style="display:block;margin-top:6px;">
                             → Check-in hari ini
                         </a>
-                    @endif
-                </td>
-                <td style="font-size:12px;color:var(--text-muted);">
-                    @if($p->alasan_tolak)
-                        <div style="white-space:normal;word-break:break-word;overflow-wrap:break-word;">
-                            {{ $p->alasan_tolak }}
-                        </div>
-                        @if($ditolakOlehLabel)
-                            <div style="font-size:10.5px;color:#94a3b8;margin-top:4px;">
-                                oleh {{ $ditolakOlehLabel }}
-                            </div>
-                        @endif
-                    @else —
                     @endif
                 </td>
                 <td style="white-space:nowrap;">
