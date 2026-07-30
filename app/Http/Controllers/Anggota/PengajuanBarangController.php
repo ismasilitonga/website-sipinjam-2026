@@ -23,6 +23,7 @@ class PengajuanBarangController extends Controller
 
         $query = PeminjamanBarang::where('barang_id', $barangId)
             ->where('status', 'disetujui')
+            ->whereNull('waktu_diterima_kembali')
             ->where('tanggal_pinjam', '<', $akhirCek)
             ->where('tanggal_kembali_rencana', '>', $awalCek);
 
@@ -45,12 +46,15 @@ class PengajuanBarangController extends Controller
     public function index()
     {
         $now = now();
+        
+        $awalHariIni  = $now->copy()->startOfDay();
+        $akhirHariIni = $now->copy()->endOfDay();
 
         $barangs = Barang::where('stok', '>', 0)
             ->where('jenis_barang', 'bisa_dipinjam')
             ->get()
-            ->map(function ($b) use ($now) {
-                $sudahDipinjam = $this->hitungStokTerpakai($b->id, $now, $now);
+            ->map(function ($b) use ($awalHariIni, $akhirHariIni) {
+                $sudahDipinjam = $this->hitungStokTerpakai($b->id, $awalHariIni, $akhirHariIni);
                 $b->stok_tersedia = max(0, $b->stok - $sudahDipinjam);
                 return $b;
             });

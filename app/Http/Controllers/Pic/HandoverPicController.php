@@ -36,6 +36,17 @@ class HandoverPicController extends Controller
         return view('pic.serah-terima', compact('menungguSerah', 'menungguKembali', 'riwayat'));
     }
 
+    public function detail($id)
+    {
+        $lantai = (string) auth()->user()->lantai_pic;
+
+        $pb = PeminjamanBarang::with(['user', 'barang'])
+            ->whereHas('barang.ruangan', fn($q) => $q->where('lantai', $lantai))
+            ->findOrFail($id);
+
+        return view('pic.serah-terima-detail', compact('pb'));
+    }
+
     public function konfirmasi(Request $request, $id)
     {
         $request->validate([
@@ -80,7 +91,6 @@ class HandoverPicController extends Controller
         if ($request->hasFile('foto_kembali')) {
             $data['foto_kembali'] = $request->file('foto_kembali')->store('foto-kembali', 'public');
         }
-
         $peminjaman->update($data);
 
         return redirect()->route('pic.serah-terima')->with('success', 'Penerimaan barang kembali berhasil dikonfirmasi.');

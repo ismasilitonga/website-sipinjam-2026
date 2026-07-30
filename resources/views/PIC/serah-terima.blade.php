@@ -212,16 +212,18 @@
                     <th>Peminjam</th>
                     <th>Barang</th>
                     <th>Jumlah</th>
-                    <th>Diserahkan Pada</th>
-                    <th>Foto Serah</th>
-                    <th>Diterima Kembali</th>
-                    <th>Foto Kembali</th>
                     <th>Kondisi</th>
-                    <th>Catatan</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody id="riwayatBody">
                 @forelse($riwayat as $i => $pb)
+                    @php
+                        $kondisiLabel = ['baik' => 'Baik', 'rusak_ringan' => 'Rusak Ringan', 'rusak_berat' => 'Rusak Berat'];
+                        $kondisiBadge = ['baik' => 'badge-green', 'rusak_ringan' => 'badge-yellow', 'rusak_berat' => 'badge-red'];
+                        $kondisiLbl = $kondisiLabel[$pb->kondisi_barang] ?? ($pb->kondisi_barang ?? '-');
+                        $kondisiBadgeClass = $kondisiBadge[$pb->kondisi_barang] ?? '';
+                    @endphp
                     <tr class="riwayat-row"
                         data-ormawa="{{ $pb->nama_ormawa }}"
                         data-barang="{{ $pb->barang->nama ?? '' }}"
@@ -237,46 +239,26 @@
                             <div style="font-size: 11px; color: var(--text-muted);">{{ $pb->barang->kode ?? '' }}</div>
                         </td>
                         <td style="font-size: 13px;">{{ $pb->jumlah }} {{ $pb->barang->satuan ?? '' }}</td>
-                        <td style="font-size: 12px;">{{ \Carbon\Carbon::parse($pb->waktu_diserahkan)->format('d M Y, H:i') }}</td>
                         <td>
-                            @if($pb->foto_serah)
-                                <a href="{{ Storage::url($pb->foto_serah) }}" target="_blank">
-                                    <img src="{{ Storage::url($pb->foto_serah) }}"
-                                         style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid #e5e7eb;">
-                                </a>
-                            @else
-                                <span style="font-size: 11px; color: var(--text-muted);">—</span>
-                            @endif
-                        </td>
-                        <td style="font-size: 12px;">{{ \Carbon\Carbon::parse($pb->waktu_diterima_kembali)->format('d M Y, H:i') }}</td>
-                        <td>
-                            @if($pb->foto_kembali)
-                                <a href="{{ Storage::url($pb->foto_kembali) }}" target="_blank">
-                                    <img src="{{ Storage::url($pb->foto_kembali) }}"
-                                         style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid #e5e7eb;">
-                                </a>
-                            @else
-                                <span style="font-size: 11px; color: var(--text-muted);">—</span>
-                            @endif
-                        </td>
-                        <td>
-                            @php
-                                $kondisiLabel = ['baik' => 'Baik', 'rusak_ringan' => 'Rusak Ringan', 'rusak_berat' => 'Rusak Berat'];
-                                $kondisiBadge = ['baik' => 'badge-green', 'rusak_ringan' => 'badge-yellow', 'rusak_berat' => 'badge-red'];
-                            @endphp
                             @if($pb->kondisi_barang)
-                                <span class="badge {{ $kondisiBadge[$pb->kondisi_barang] ?? '' }}">
-                                    {{ $kondisiLabel[$pb->kondisi_barang] ?? $pb->kondisi_barang }}
+                                <span class="badge {{ $kondisiBadgeClass }}">
+                                    {{ $kondisiLbl }}
                                 </span>
                             @else
                                 <span style="font-size: 11px; color: var(--text-muted);">—</span>
                             @endif
                         </td>
-                        <td style="font-size: 12px; max-width: 150px; white-space: normal; word-break: break-word;">{{ $pb->catatan_kondisi ?? '—' }}</td>
+                        <td>
+                            <a href="{{ route('pic.serah-terima.detail', $pb->id) }}"
+                               class="btn btn-outline btn-sm"
+                               style="font-size: 12px; padding: 4px 12px; white-space: nowrap; text-decoration: none; display: inline-block;">
+                                Detail
+                            </a>
+                        </td>
                     </tr>
                 @empty
                     <tr id="emptyRow">
-                        <td colspan="10">
+                        <td colspan="6">
                             <div class="empty-state" style="padding: 28px 20px;">
                                 <p>Belum ada riwayat serah terima.</p>
                             </div>
@@ -406,6 +388,7 @@
 .pg-btn:hover { background: #f3f0ff; }
 .pg-btn.active { background: #7c3aed; color: white; border-color: #7c3aed; }
 .pg-btn:disabled { opacity: 0.4; cursor: default; }
+
 </style>
 
 <script>

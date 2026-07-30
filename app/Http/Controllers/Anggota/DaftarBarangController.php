@@ -26,12 +26,16 @@ class DaftarBarangController extends Controller
             ->latest()
             ->paginate(12)
             ->withQueryString();
+            
+        $awalHariIni  = now()->startOfDay();
+        $akhirHariIni = now()->endOfDay();
 
-        $barangs->getCollection()->transform(function ($b) {
+        $barangs->getCollection()->transform(function ($b) use ($awalHariIni, $akhirHariIni) {
             $sudahDipinjam = PeminjamanBarang::where('barang_id', $b->id)
                 ->where('status', 'disetujui')
-                ->where('tanggal_pinjam', '<=', now())
-                ->where('tanggal_kembali_rencana', '>=', now())
+                ->whereNull('waktu_diterima_kembali')
+                ->where('tanggal_pinjam', '<', $akhirHariIni)
+                ->where('tanggal_kembali_rencana', '>', $awalHariIni)
                 ->sum('jumlah');
 
             $b->stok_tersedia = max(0, $b->stok - $sudahDipinjam);

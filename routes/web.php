@@ -182,7 +182,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/serah-terima',                           [HandoverPicController::class, 'index'])->name('serah-terima');
         Route::post('/serah-terima/{id}/konfirmasi',          [HandoverPicController::class, 'konfirmasi'])->name('serah-terima.konfirmasi');
         Route::post('/terima-kembali/{id}',                   [HandoverPicController::class, 'terimaKembali'])->name('terima-kembali');
-
+        Route::get('/serah-terima/{id}/detail', [HandoverPicController::class, 'detail'])->name('serah-terima.detail');
+        
         Route::get('/laporan-insiden',        [TindakLanjutInsidenController::class, 'index'])->name('laporan-insiden');
         Route::post('/laporan-insiden/{id}',  [TindakLanjutInsidenController::class, 'update'])->name('laporan-insiden.update');
         Route::get('/laporan-insiden/excel',  [TindakLanjutInsidenController::class, 'exportExcel'])->name('laporan-insiden.excel');
@@ -200,9 +201,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/riwayat-peminjaman/{id}',[RiwayatRuanganPicController::class, 'detail'])->name('riwayat-peminjaman.detail');
         Route::get('/riwayat-barang',         [RiwayatBarangPicController::class, 'index'])->name('riwayat.barang');
         Route::get('/riwayat-barang/{id}',     [RiwayatBarangPicController::class, 'detail'])->name('barang.detail'); 
-        Route::get('/riwayat/export',[RiwayatRuanganPicController::class, 'export'])->name('riwayat.export');
-        Route::get('/riwayat',[RiwayatRuanganPicController::class, 'index'])->name('riwayat.index');  
-    });
+        Route::get('/riwayat/export',          [RiwayatRuanganPicController::class, 'export'])->name('riwayat.export');
+        Route::get('/riwayat',                 [RiwayatRuanganPicController::class, 'index'])->name('riwayat.index');  
+        });
 
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
 
