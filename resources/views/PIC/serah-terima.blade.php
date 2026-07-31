@@ -40,8 +40,8 @@
                             <span style="font-weight: 700;">{{ $pb->jumlah }}</span>
                             <span style="color: var(--text-muted); font-size: 11.5px;">{{ $pb->barang->satuan ?? '' }}</span>
                         </td>
-                        <td style="font-size: 12.5px;">{{ \Carbon\Carbon::parse($pb->tanggal_pinjam)->format('d M Y') }}</td>
-                        <td style="font-size: 12.5px;">{{ \Carbon\Carbon::parse($pb->tanggal_kembali_rencana)->format('d M Y') }}</td>
+                        <td style="font-size: 12.5px;">{{ \Carbon\Carbon::parse($pb->tanggal_pinjam)->locale('id')->translatedFormat('d M Y') }}</td>
+                        <td style="font-size: 12.5px;">{{ \Carbon\Carbon::parse($pb->tanggal_kembali_rencana)->locale('id')->translatedFormat('d M Y') }}</td>
                         <td style="font-size: 12.5px; max-width: 180px; white-space: normal; word-break: break-word;">
                             {{ $pb->keperluan }}
                         </td>
@@ -120,9 +120,9 @@
                             <span style="font-weight: 700;">{{ $pb->jumlah }}</span>
                             <span style="color: var(--text-muted); font-size: 11.5px;">{{ $pb->barang->satuan ?? '' }}</span>
                         </td>
-                        <td style="font-size: 12.5px;">
-                            {{ \Carbon\Carbon::parse($pb->waktu_diserahkan)->format('d M Y, H:i') }}
-                        </td>
+                <td style="font-size: 12.5px;">
+                {{ \Carbon\Carbon::parse($pb->waktu_diserahkan)->locale('id')->translatedFormat('d M Y, H:i') }}
+                </td>
                         <td>
                             @if($pb->foto_serah)
                                 <a href="{{ Storage::url($pb->foto_serah) }}" target="_blank">
@@ -135,8 +135,9 @@
                         </td>
                         <td style="font-size: 12.5px;">
                             <span style="{{ $terlambat ? 'color: #dc2626; font-weight: 700;' : '' }}">
-                                {{ \Carbon\Carbon::parse($pb->tanggal_kembali_rencana)->format('d M Y') }}
+                            {{ \Carbon\Carbon::parse($pb->tanggal_kembali_rencana)->locale('id')->translatedFormat('d M Y') }}
                             </span>
+                            
                             @if($terlambat)
                                 <span class="badge badge-red" style="margin-left: 4px; font-size: 10px;">Terlambat</span>
                             @endif
