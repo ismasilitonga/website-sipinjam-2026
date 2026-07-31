@@ -86,6 +86,7 @@ class HandoverPicController extends Controller
             'diterima_oleh'          => Auth::id(),
             'kondisi_barang'         => $request->kondisi_barang,
             'catatan_kondisi'        => $request->catatan_kondisi,
+            'status'                 => 'selesai',
         ];
 
         if ($request->hasFile('foto_kembali')) {
@@ -93,6 +94,6 @@ class HandoverPicController extends Controller
         }
         $peminjaman->update($data);
 
-        return redirect()->route('pic.serah-terima')->with('success', 'Penerimaan barang kembali berhasil dikonfirmasi.');
+        return redirect()->route('pic.serah-terima')->with('success', 'Penerimaan barang kembali berhasil dikonfirmasi. Peminjaman ditandai selesai.');
     }
 }

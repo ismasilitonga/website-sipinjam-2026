@@ -75,6 +75,7 @@
                 'menunggu_ketua'   => 'Menunggu Ketua',
                 'menunggu_pic'     => 'Menunggu PIC',
                 'disetujui'        => 'Disetujui',
+                'selesai'      => 'Selesai',
                 'ditolak'          => 'Ditolak',
             ];
         @endphp
@@ -134,6 +135,7 @@
                     'menunggu_ketua' => ['badge-yellow',  'Menunggu Ketua'],
                     'menunggu_pic'   => ['badge-purple',  'Menunggu PIC'],
                     'disetujui'      => ['badge-green',   'Disetujui'],
+                    'selesai'        => ['badge-gray',   'Selesai'],
                     'ditolak'        => ['badge-red',     'Ditolak'],
                     default          => ['badge-gray',    ucfirst($p->status)],
                 };
