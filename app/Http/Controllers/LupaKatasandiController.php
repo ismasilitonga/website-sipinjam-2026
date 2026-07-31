@@ -85,7 +85,7 @@ KodeOtp::create([
             return response()->json(['success' => false, 'message' => 'Pengguna tidak ditemukan.'], 404);
         }
 
-        $user->password = bcrypt($request->password);
+        $user->password = $request->password;
         $user->save();
 
         $otpRecord->update(['is_verified' => true]);

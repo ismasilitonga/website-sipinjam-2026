@@ -75,7 +75,6 @@
                 'menunggu_ketua'   => 'Menunggu Ketua',
                 'menunggu_pic'     => 'Menunggu PIC',
                 'disetujui'        => 'Disetujui',
-                'selesai'      => 'Selesai',
                 'ditolak'          => 'Ditolak',
             ];
         @endphp

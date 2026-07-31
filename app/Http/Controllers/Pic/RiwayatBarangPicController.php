@@ -12,15 +12,16 @@ class RiwayatBarangPicController extends Controller
     {
         $lantai = (string) auth()->user()->lantai_pic;
 
-        $riwayat = PeminjamanBarang::with(['user', 'barang'])
-            ->whereHas('barang', function ($q) use ($lantai) {
-                $q->whereHas('ruangan', fn($qr) => $qr->where('lantai', $lantai))
-                  ->orWhereNull('ruangan_id');
-            })
-            ->when($request->status, fn($q, $s) => $q->where('status', $s))
-            ->latest('tanggal_pinjam')
-            ->paginate(10)
-            ->withQueryString();
+$riwayat = PeminjamanBarang::with(['user', 'barang'])
+    ->whereHas('barang', function ($q) use ($lantai) {
+        $q->whereHas('ruangan', fn($qr) => $qr->where('lantai', $lantai))
+          ->orWhereNull('ruangan_id');
+    })
+    ->where('status', '!=', 'selesai')
+    ->when($request->status, fn($q, $s) => $q->where('status', $s))
+    ->latest('tanggal_pinjam')
+    ->paginate(10)
+    ->withQueryString();
 
         return view('shared.riwayat-barang', compact('riwayat'));
     }

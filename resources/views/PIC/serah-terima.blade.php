@@ -209,12 +209,12 @@
         <table id="riwayatTable">
             <thead>
                 <tr>
-                    <th>No</th>
-                    <th>Peminjam</th>
-                    <th>Barang</th>
-                    <th>Jumlah</th>
-                    <th>Kondisi</th>
-                    <th>Aksi</th>
+                    <th class="col-no">No</th>
+                    <th class="col-peminjam">Peminjam</th>
+                    <th class="col-barang">Barang</th>
+                    <th class="col-jumlah">Jumlah</th>
+                    <th class="col-kondisi">Kondisi</th>
+                    <th class="col-aksi">Aksi</th>
                 </tr>
             </thead>
             <tbody id="riwayatBody">
@@ -230,17 +230,17 @@
                         data-barang="{{ $pb->barang->nama ?? '' }}"
                         data-peminjam="{{ $pb->user->nama ?? '' }}"
                         data-tanggal="{{ \Carbon\Carbon::parse($pb->waktu_diterima_kembali)->format('Y-m-d') }}">
-                        <td style="font-size: 12px; color: var(--text-muted);" class="row-no">{{ $i + 1 }}</td>
-                        <td>
+                        <td class="col-no row-no">{{ $i + 1 }}</td>
+                        <td class="col-peminjam">
                             <div style="font-weight: 600; font-size: 13px;">{{ $pb->user->nama ?? '-' }}</div>
                             <div style="font-size: 11px; color: var(--text-muted);">{{ $pb->nama_ormawa }}</div>
                         </td>
-                        <td>
+                        <td class="col-barang">
                             <div style="font-weight: 600; font-size: 13px;">{{ $pb->barang->nama ?? '-' }}</div>
                             <div style="font-size: 11px; color: var(--text-muted);">{{ $pb->barang->kode ?? '' }}</div>
                         </td>
-                        <td style="font-size: 13px;">{{ $pb->jumlah }} {{ $pb->barang->satuan ?? '' }}</td>
-                        <td>
+                        <td class="col-jumlah" style="font-size: 13px;">{{ $pb->jumlah }} {{ $pb->barang->satuan ?? '' }}</td>
+                        <td class="col-kondisi">
                             @if($pb->kondisi_barang)
                                 <span class="badge {{ $kondisiBadgeClass }}">
                                     {{ $kondisiLbl }}
@@ -249,7 +249,7 @@
                                 <span style="font-size: 11px; color: var(--text-muted);">—</span>
                             @endif
                         </td>
-                        <td>
+                        <td class="col-aksi">
                             <a href="{{ route('pic.serah-terima.detail', $pb->id) }}"
                                class="btn btn-outline btn-sm"
                                style="font-size: 12px; padding: 4px 12px; white-space: nowrap; text-decoration: none; display: inline-block;">
@@ -389,6 +389,16 @@
 .pg-btn:hover { background: #f3f0ff; }
 .pg-btn.active { background: #7c3aed; color: white; border-color: #7c3aed; }
 .pg-btn:disabled { opacity: 0.4; cursor: default; }
+
+#riwayatTable { width: 100%; }
+#riwayatTable th, #riwayatTable td { padding: 12px 16px; box-sizing: border-box; }
+#riwayatTable .col-no,
+#riwayatTable .col-jumlah,
+#riwayatTable .col-kondisi,
+#riwayatTable .col-aksi {white-space: nowrap;text-align: center;}
+#riwayatTable .col-no {padding-left: 24px;}
+#riwayatTable .col-peminjam,
+#riwayatTable .col-barang {max-width: 220px;padding-left: 24px;}
 
 </style>
 

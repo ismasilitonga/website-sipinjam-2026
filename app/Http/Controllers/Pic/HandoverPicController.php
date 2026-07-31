@@ -26,12 +26,11 @@ class HandoverPicController extends Controller
             ->whereHas('barang.ruangan', fn($q) => $q->where('lantai', $lantai))
             ->latest()->get();
 
-        $riwayat = PeminjamanBarang::with(['user', 'barang'])
-            ->where('status', 'disetujui')
-            ->whereNotNull('waktu_diserahkan')
-            ->whereNotNull('waktu_diterima_kembali')
-            ->whereHas('barang.ruangan', fn($q) => $q->where('lantai', $lantai))
-            ->latest()->get();
+$riwayat = PeminjamanBarang::with(['user', 'barang'])
+    ->whereNotNull('waktu_diserahkan')
+    ->whereNotNull('waktu_diterima_kembali')
+    ->whereHas('barang.ruangan', fn($q) => $q->where('lantai', $lantai))
+    ->latest()->get();
 
         return view('pic.serah-terima', compact('menungguSerah', 'menungguKembali', 'riwayat'));
     }
