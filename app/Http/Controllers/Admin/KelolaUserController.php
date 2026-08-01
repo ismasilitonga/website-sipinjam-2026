@@ -68,11 +68,15 @@ class KelolaUserController extends Controller
 {
     $isBerorganisasi = in_array($request->role, ['anggota', 'ketua', 'pic']);
     $wajibDokumen    = in_array($request->role, ['anggota', 'ketua']);
+    $isAdmin         = $request->role === 'admin';
 
     $request->validate([
         'nama'       => 'required|string|max:255',
         'email'      => 'required|email|unique:users,email',
-        'nim'        => 'required|string|unique:users,nim',
+        'nim'        => [
+            Rule::requiredIf(!$isAdmin),
+            'nullable', 'string', 'unique:users,nim',
+        ],
         'password'   => 'required|min:8',
         'role'       => 'required|in:anggota,ketua,pic,admin,pamdal',
         'organisasi' => [
@@ -110,7 +114,7 @@ class KelolaUserController extends Controller
     $user = User::create([
         'nama'       => $request->nama,
         'email'      => $request->email,
-        'nim'        => $request->nim,
+        'nim'        => $isAdmin ? null : $request->nim,
         'password'   => Hash::make($request->password),
         'role'       => $request->role,
         'organisasi' => $isBerorganisasi ? strtoupper($request->organisasi) : null,
@@ -151,11 +155,15 @@ public function update(Request $request, $id)
 {
     $user = User::findOrFail($id);
     $isBerorganisasi = in_array($request->role, ['anggota', 'ketua', 'pic']);
+    $isAdmin         = $request->role === 'admin';
 
     $request->validate([
         'nama'                  => 'required|string|max:255',
         'email'                 => 'required|email|unique:users,email,' . $user->id,
-        'nim'                   => 'required|string|unique:users,nim,' . $user->id,
+        'nim'                   => [
+            Rule::requiredIf(!$isAdmin),
+            'nullable', 'string', 'unique:users,nim,' . $user->id,
+        ],
         'role'                  => 'required|in:anggota,ketua,pic,admin,pamdal',
         'organisasi'            => [
             Rule::requiredIf($isBerorganisasi),
@@ -178,7 +186,7 @@ public function update(Request $request, $id)
 
     $user->nama       = $request->nama;
     $user->email      = $request->email;
-    $user->nim        = $request->nim;
+    $user->nim        = $isAdmin ? null : $request->nim;
     $user->role       = $request->role;
     $user->organisasi = $isBerorganisasi ? strtoupper($request->organisasi) : null;
     $user->lantai_pic = $request->role === 'pic' ? $request->lantai_pic : null;

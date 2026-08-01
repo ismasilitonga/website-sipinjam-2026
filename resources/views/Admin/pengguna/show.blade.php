@@ -45,6 +45,13 @@
     @php
         $tahunSekarang = (int) date('Y');
         $periodeHabis = $user->periode_selesai && $user->periode_selesai < $tahunSekarang;
+        $labelIdentitas = match($user->role) {
+            'pamdal' => 'ID Pamdal',
+            'admin'  => null,
+            default  => 'NIM',
+        };
+
+        $tampilkanDokumen = !in_array($user->role, ['admin', 'pamdal']);
     @endphp
 
     <div class="card">
@@ -85,10 +92,12 @@
             <span class="card-title">Informasi Akun</span>
         </div>
         <div class="card-body" style="padding:0;">
-            <div class="detail-row">
-                <div class="detail-label">NIM</div>
-                <div class="detail-value" style="font-family:monospace;">{{ $user->nim }}</div>
-            </div>
+            @if ($labelIdentitas)
+                <div class="detail-row">
+                    <div class="detail-label">{{ $labelIdentitas }}</div>
+                    <div class="detail-value" style="font-family:monospace;">{{ $user->nim }}</div>
+                </div>
+            @endif
             <div class="detail-row">
                 <div class="detail-label">Nama Lengkap</div>
                 <div class="detail-value">{{ $user->nama }}</div>
@@ -126,6 +135,7 @@
             @endif
         </div>
         </div>
+            @if ($tampilkanDokumen)
             <div class="detail-row">
                 <div class="detail-label">Dokumen Pendaftaran</div>
                 <div class="detail-value">
@@ -158,6 +168,7 @@
                     </div>
                 </div>
             </div>
+            @endif
             <div class="detail-row">
                 <div class="detail-label">Status Akun</div>
                 <div class="detail-value">

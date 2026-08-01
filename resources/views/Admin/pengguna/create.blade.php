@@ -30,10 +30,11 @@
                     @error('nama') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" id="wrap-nim">
                     <label class="form-label" id="label-nim">NIM <span style="color:var(--danger)">*</span></label>
                     <input type="text" name="nim" id="input-nim" class="form-control"
                            value="{{ old('nim') }}" placeholder="Nomor Induk Mahasiswa" required>
+                    <div class="form-hint" id="hint-nim" style="display:none;">Isi dengan ID/Nomor identitas Pamdal.</div>
                     @error('nim') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
             </div>
@@ -124,6 +125,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const roleSelect        = document.getElementById('role');
     const wrapOrganisasi    = document.getElementById('wrap-organisasi');
     const wrapLantai        = document.getElementById('wrap-lantai');
+    const wrapNim           = document.getElementById('wrap-nim');
+    const inputNim          = document.getElementById('input-nim');
+    const labelNim          = document.getElementById('label-nim');
+    const hintNim           = document.getElementById('hint-nim');
     const selectOrganisasi  = document.getElementById('select-organisasi');
     const orgOptions        = [...selectOrganisasi.options].filter(o => o.value !== '');
 
@@ -150,6 +155,26 @@ document.addEventListener('DOMContentLoaded', function () {
         wrapLantai.style.display = 'none';
         wrapDokumen.style.display = 'none';
         selectOrganisasi.value = '';
+    }
+
+    if (role === 'admin') {
+        wrapNim.style.display = 'none';
+        inputNim.removeAttribute('required');
+        inputNim.value = '';
+
+    } else if (role === 'pamdal') {
+        wrapNim.style.display = 'block';
+        labelNim.innerHTML = 'ID Pamdal <span style="color:var(--danger)">*</span>';
+        inputNim.placeholder = 'ID/Nomor Pamdal';
+        hintNim.style.display = 'block';
+        inputNim.setAttribute('required', 'required');
+
+    } else {
+        wrapNim.style.display = 'block';
+        labelNim.innerHTML = 'NIM <span style="color:var(--danger)">*</span>';
+        inputNim.placeholder = 'Nomor Induk Mahasiswa';
+        hintNim.style.display = 'none';
+        inputNim.setAttribute('required', 'required');
     }
 }
 

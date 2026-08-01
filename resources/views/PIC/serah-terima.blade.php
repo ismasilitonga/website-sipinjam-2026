@@ -7,7 +7,7 @@
 
 <div class="card" style="margin-bottom: 20px;">
     <div class="card-header" style="padding-bottom: 16px;">
-        <span class="card-title">⬇️ Barang Menunggu Diserahkan ke Peminjam</span>
+        <span class="card-title">Barang Menunggu Diserahkan ke Peminjam</span>
         <span class="badge badge-orange">{{ $menungguSerah->count() }} item</span>
     </div>
     <div class="table-wrap">
@@ -82,7 +82,7 @@
 
 <div class="card">
     <div class="card-header" style="padding-bottom: 16px;">
-        <span class="card-title">⬆️ Barang Menunggu Dikembalikan dari Peminjam</span>
+        <span class="card-title">Barang Menunggu Dikembalikan dari Peminjam</span>
         <span class="badge badge-blue">{{ $menungguKembali->count() }} item</span>
     </div>
     <div class="table-wrap">
@@ -291,7 +291,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
                 Ambil / Unggah Foto Serah
-                <div style="font-size: 11px; color: #a78bfa; margin-top: 2px;">Opsional · Maks. 2MB</div>
+                <div id="serahFotoHint" style="font-size: 11px; color: #a78bfa; margin-top: 2px;">Wajib diisi · Maks. 2MB</div>
             </div>
         </div>
         <input type="file" id="fotoSerahInput" accept="image/*" style="display: none;"
@@ -318,7 +318,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
                 Ambil / Unggah Foto Kembali
-                <div style="font-size: 11px; color: #a78bfa; margin-top: 2px;">Opsional · Maks. 2MB</div>
+                <div id="kembaliFotoHint" style="font-size: 11px; color: #a78bfa; margin-top: 2px;">Wajib diisi · Maks. 2MB</div>
             </div>
         </div>
         <input type="file" id="fotoKembaliInput" accept="image/*" style="display: none;"
@@ -362,6 +362,10 @@
 .foto-upload-area {
     border: 1.5px dashed #c4b5fd; border-radius: 10px; padding: 10px;
     background: #faf5ff; margin-bottom: 12px; cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+.foto-upload-area.error {
+    border-color: #dc2626; background: #fef2f2;
 }
 .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
 .btn-cancel {
@@ -390,15 +394,26 @@
 .pg-btn.active { background: #7c3aed; color: white; border-color: #7c3aed; }
 .pg-btn:disabled { opacity: 0.4; cursor: default; }
 
-#riwayatTable { width: 100%; }
-#riwayatTable th, #riwayatTable td { padding: 12px 16px; box-sizing: border-box; }
+#riwayatTable { width: 100%; table-layout: fixed; }
+
+#riwayatTable th, #riwayatTable td {
+    padding: 12px 36px;
+    box-sizing: border-box;
+}
+
 #riwayatTable .col-no,
 #riwayatTable .col-jumlah,
 #riwayatTable .col-kondisi,
 #riwayatTable .col-aksi {white-space: nowrap;text-align: center;}
-#riwayatTable .col-no {padding-left: 24px;}
+#riwayatTable .col-no {width: 120px;padding-left: 10px;}
 #riwayatTable .col-peminjam,
-#riwayatTable .col-barang {max-width: 220px;padding-left: 24px;}
+#riwayatTable .col-barang {
+}
+#riwayatTable .col-peminjam div,
+#riwayatTable .col-barang div {overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+#riwayatTable .col-jumlah {width: 210px;}
+#riwayatTable .col-kondisi {width: 150px;}
+#riwayatTable .col-aksi {width: 150px;}
 
 </style>
 
@@ -413,6 +428,8 @@ function openSerahModal(id, peminjam, barang) {
     document.getElementById('fotoSerahInput').value               = '';
     document.getElementById('serahFotoPreview').style.display     = 'none';
     document.getElementById('serahFotoPlaceholder').style.display = 'block';
+    document.querySelector('#serahModal .foto-upload-area').classList.remove('error');
+    document.getElementById('serahFotoHint').textContent = 'Wajib diisi · Maks. 2MB';
     document.getElementById('serahModal').classList.add('show');
 }
 
@@ -424,16 +441,24 @@ function closeSerahModal() {
 function submitSerahForm() {
     if (!selectedSerahId) return;
     const fotoInput = document.getElementById('fotoSerahInput');
-    if (fotoInput && fotoInput.files.length > 0) {
-        try {
-            const hiddenInput = document.getElementById('foto_serah_hidden_' + selectedSerahId);
-            const dt = new DataTransfer();
-            dt.items.add(fotoInput.files[0]);
-            hiddenInput.files = dt.files;
-        } catch (err) {
-            console.error('Gagal melampirkan foto serah:', err);
-        }
+
+    if (!fotoInput || fotoInput.files.length === 0) {
+        document.querySelector('#serahModal .foto-upload-area').classList.add('error');
+        document.getElementById('serahFotoHint').textContent = 'Foto wajib diunggah sebelum melanjutkan!';
+        return;
     }
+
+    try {
+        const hiddenInput = document.getElementById('foto_serah_hidden_' + selectedSerahId);
+        const dt = new DataTransfer();
+        dt.items.add(fotoInput.files[0]);
+        hiddenInput.files = dt.files;
+    } catch (err) {
+        console.error('Gagal melampirkan foto serah:', err);
+        alert('Gagal melampirkan foto. Silakan coba lagi.');
+        return;
+    }
+
     const form = document.getElementById('serahForm' + selectedSerahId);
     if (form) form.submit();
 }
@@ -447,6 +472,8 @@ function openKembaliModal(id, peminjam, barang) {
     document.getElementById('kembaliFotoPlaceholder').style.display = 'block';
     document.getElementById('modalKondisiBarang').value             = 'baik';
     document.getElementById('modalCatatanKondisi').value            = '';
+    document.querySelector('#kembaliModal .foto-upload-area').classList.remove('error');
+    document.getElementById('kembaliFotoHint').textContent = 'Wajib diisi · Maks. 2MB';
     document.getElementById('kembaliModal').classList.add('show');
 }
 
@@ -458,26 +485,41 @@ function closeKembaliModal() {
 function submitKembaliForm() {
     if (!selectedKembaliId) return;
     const fotoInput = document.getElementById('fotoKembaliInput');
-    if (fotoInput && fotoInput.files.length > 0) {
-        try {
-            const hiddenInput = document.getElementById('foto_kembali_hidden_' + selectedKembaliId);
-            const dt = new DataTransfer();
-            dt.items.add(fotoInput.files[0]);
-            hiddenInput.files = dt.files;
-        } catch (err) {
-            console.error('Gagal melampirkan foto kembali:', err);
-        }
+
+    if (!fotoInput || fotoInput.files.length === 0) {
+        document.querySelector('#kembaliModal .foto-upload-area').classList.add('error');
+        document.getElementById('kembaliFotoHint').textContent = 'Foto wajib diunggah sebelum melanjutkan!';
+        return;
     }
+
+    try {
+        const hiddenInput = document.getElementById('foto_kembali_hidden_' + selectedKembaliId);
+        const dt = new DataTransfer();
+        dt.items.add(fotoInput.files[0]);
+        hiddenInput.files = dt.files;
+    } catch (err) {
+        console.error('Gagal melampirkan foto kembali:', err);
+        alert('Gagal melampirkan foto. Silakan coba lagi.');
+        return;
+    }
+
     document.getElementById('kondisi_hidden_' + selectedKembaliId).value =
         document.getElementById('modalKondisiBarang').value;
     document.getElementById('catatan_hidden_' + selectedKembaliId).value =
         document.getElementById('modalCatatanKondisi').value;
+
     const form = document.getElementById('kembaliForm' + selectedKembaliId);
     if (form) form.submit();
 }
 
 function previewModalFoto(input, imgId, previewId, placeholderId) {
     if (!input.files || !input.files[0]) return;
+
+    const uploadArea = input.closest('.custom-modal').querySelector('.foto-upload-area');
+    uploadArea.classList.remove('error');
+    const hintEl = uploadArea.querySelector('[id$="FotoHint"]');
+    if (hintEl) hintEl.textContent = 'Wajib diisi · Maks. 2MB';
+
     const reader = new FileReader();
     reader.onload = e => {
         document.getElementById(imgId).src                   = e.target.result;

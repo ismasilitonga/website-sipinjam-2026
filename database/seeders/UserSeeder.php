@@ -52,7 +52,7 @@ class UserSeeder extends Seeder
     [
         'nama'       => 'Budi Santoso',
         'email'      => 'sipinjamsc@gmail.com',
-        'nim'        => '601',
+        'nim'        => '122',
         'role'       => 'pamdal',
         'organisasi' => 'None',
         'status'     => 'aktif',
