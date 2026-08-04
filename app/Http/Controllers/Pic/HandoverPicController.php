@@ -46,7 +46,7 @@ $riwayat = PeminjamanBarang::with(['user', 'barang'])
         return view('pic.serah-terima-detail', compact('pb'));
     }
 
-    public function konfirmasi(Request $request, $id)
+public function konfirmasi(Request $request, $id)
     {
         $request->validate([
             'foto_serah' => 'nullable|image|max:2048',
@@ -57,10 +57,15 @@ $riwayat = PeminjamanBarang::with(['user', 'barang'])
         $peminjaman = PeminjamanBarang::whereHas('barang.ruangan', fn($q) => $q->where('lantai', $lantai))
             ->findOrFail($id);
 
+        if (now()->lt(\Carbon\Carbon::parse($peminjaman->tanggal_pinjam)->startOfDay())) {
+            return redirect()->route('pic.serah-terima')
+                ->with('error', 'Barang belum bisa diserahkan sebelum tanggal pinjam (' . \Carbon\Carbon::parse($peminjaman->tanggal_pinjam)->locale('id')->translatedFormat('d M Y') . ').');
+        }
         $data = [
             'waktu_diserahkan' => now(),
             'diserahkan_oleh'  => Auth::id(),
         ];
+        
         if ($request->hasFile('foto_serah')) {
             $data['foto_serah'] = $request->file('foto_serah')->store('foto-serah', 'public');
         }

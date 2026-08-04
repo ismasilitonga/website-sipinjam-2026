@@ -26,6 +26,9 @@
             </thead>
             <tbody>
                 @forelse($menungguSerah as $i => $pb)
+           @php
+            $belumWaktunya = \Carbon\Carbon::today()->lt(\Carbon\Carbon::parse($pb->tanggal_pinjam)->startOfDay());
+           @endphp
                     <tr style="background: #fffbeb;">
                         <td style="color: var(--text-muted); font-size: 12px;">{{ $i + 1 }}</td>
                         <td>
@@ -45,22 +48,37 @@
                         <td style="font-size: 12.5px; max-width: 180px; white-space: normal; word-break: break-word;">
                             {{ $pb->keperluan }}
                         </td>
-                        <td>
-                            <form id="serahForm{{ $pb->id }}" method="POST"
-                                action="{{ route('pic.serah-terima.konfirmasi', $pb->id) }}"
-                                enctype="multipart/form-data">
-                                @csrf
-                                <input type="file" name="foto_serah" id="foto_serah_hidden_{{ $pb->id }}"
-                                accept="image/*" style="display: none;">
-                                <button type="button" class="btn btn-success btn-sm"
-                                onclick="openSerahModal('{{ $pb->id }}', '{{ addslashes($pb->user->nama ?? '-') }}', '{{ addslashes($pb->barang->nama ?? '-') }}')">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 13px; height: 13px;">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                              </svg>
-                             Serahkan
-                            </button>
-                          </form>
-                        </td>
+            <td>
+            <form id="serahForm{{ $pb->id }}" method="POST"
+            action="{{ route('pic.serah-terima.konfirmasi', $pb->id) }}"
+            enctype="multipart/form-data">
+            @csrf
+                <input type="file" name="foto_serah" id="foto_serah_hidden_{{ $pb->id }}"
+                accept="image/*" style="display: none;">
+
+            @if($belumWaktunya)
+            <button type="button" class="btn btn-success btn-sm" disabled
+                style="opacity: 0.5; cursor: not-allowed;"
+                title="Baru bisa diserahkan pada {{ \Carbon\Carbon::parse($pb->tanggal_pinjam)->locale('id')->translatedFormat('d M Y') }}">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 13px; height: 13px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                Serahkan
+            </button>
+            <div style="font-size: 10.5px; color: #b45309; margin-top: 4px;">
+                Bisa diserahkan mulai {{ \Carbon\Carbon::parse($pb->tanggal_pinjam)->locale('id')->translatedFormat('d M Y') }}
+            </div>
+        @else
+            <button type="button" class="btn btn-success btn-sm"
+            onclick="openSerahModal('{{ $pb->id }}', '{{ addslashes($pb->user->nama ?? '-') }}', '{{ addslashes($pb->barang->nama ?? '-') }}')">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 13px; height: 13px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+             Serahkan
+            </button>
+        @endif
+    </form>
+</td>
                     </tr>
                 @empty
                     <tr>
